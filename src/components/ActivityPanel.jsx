@@ -74,37 +74,41 @@ const updateJSONFile = async (updatedActivities) => {
     return false
   }
 }
+
 const uploadImage = async (file, folderName, imageNumber) => {
   try {
-    console.log('🖼️ Starting image upload...');
-    console.log('📁 Folder:', folderName);
-    console.log('🔢 Image number:', imageNumber);
-    console.log('📄 File:', file.name, file.type, file.size);
-
-    const formData = new FormData()
-    formData.append('image', file)
-    formData.append('folderName', folderName)
-    formData.append('imageNumber', imageNumber)
-
-    console.log('📤 Sending to API...');
-
-    const response = await fetch('/api/images/upload', {
+    console.log('🖼️ Starting image upload to GitHub...');
+    
+    // Convert file to base64
+    const reader = new FileReader();
+    const base64Promise = new Promise((resolve, reject) => {
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+    
+    const base64Image = await base64Promise;
+    
+    const baseUrl = window.location.origin
+    const response = await fetch(`${baseUrl}/api/github/upload-image`, {
       method: 'POST',
-      body: formData,
-    })
-
-    console.log('📡 Response status:', response.status);
-    console.log('📡 Response ok:', response.ok);
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        image: base64Image,
+        folderName: folderName,
+        imageNumber: imageNumber
+      }),
+    });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('❌ Upload failed with response:', errorText);
-      throw new Error(`Upload failed: ${response.status} ${response.statusText}`);
+      throw new Error(`Upload failed: ${response.status}`);
     }
 
-    const result = await response.json()
-    console.log('✅ Upload successful:', result);
-    return result
+    const result = await response.json();
+    return result;
 
   } catch (error) {
     console.error('❌ Error uploading image:', error);

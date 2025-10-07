@@ -12,7 +12,7 @@ export default async function handler(req, res) {
     try {
       const { data } = req.body;
       
-      console.log('📡 GitHub Activities API called for STORAGE repo');
+      console.log('📡 GitHub Activities API called');
       
       if (!data) {
         return res.status(400).json({ 
@@ -24,11 +24,16 @@ export default async function handler(req, res) {
       const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
       const GITHUB_REPO = process.env.GITHUB_REPO;
 
+      console.log('🔧 Environment check:', { 
+        hasToken: !!GITHUB_TOKEN,
+        hasRepo: !!GITHUB_REPO,
+        repo: GITHUB_REPO
+      });
+
       if (!GITHUB_TOKEN || !GITHUB_REPO) {
-        console.error('❌ GitHub configuration missing');
         return res.status(500).json({
           success: false,
-          error: 'GitHub configuration missing'
+          error: 'GitHub configuration missing. Please check environment variables.'
         });
       }
 
@@ -54,8 +59,8 @@ export default async function handler(req, res) {
       } else if (getFileResponse.status === 404) {
         console.log('📄 File does not exist, will create new file');
       } else {
-        const error = await getFileResponse.text();
-        console.error('❌ GitHub API error:', getFileResponse.status, error);
+        const errorText = await getFileResponse.text();
+        console.error('❌ GitHub API error:', getFileResponse.status, errorText);
         throw new Error(`GitHub API error: ${getFileResponse.status}`);
       }
 
@@ -82,11 +87,11 @@ export default async function handler(req, res) {
         throw new Error(`GitHub API error: ${responseData.message || updateResponse.status}`);
       }
 
-      console.log('✅ Activities saved to GitHub STORAGE successfully!');
+      console.log('✅ Activities saved to GitHub successfully!');
       
       return res.status(200).json({ 
         success: true,
-        message: 'Activities saved to GitHub STORAGE successfully'
+        message: 'Activities saved to GitHub successfully'
       });
     } catch (error) {
       console.error('❌ Error saving activities to GitHub:', error);

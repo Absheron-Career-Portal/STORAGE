@@ -12,7 +12,7 @@ export default async function handler(req, res) {
     try {
       const { image, folderName, imageNumber } = req.body;
       
-      console.log('📡 GitHub Image Upload API called for STORAGE repo');
+      console.log('📡 GitHub Image Upload API called');
       
       if (!image) {
         return res.status(400).json({ 
@@ -24,10 +24,16 @@ export default async function handler(req, res) {
       const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
       const GITHUB_REPO = process.env.GITHUB_REPO;
 
+      console.log('🔧 Environment check:', { 
+        hasToken: !!GITHUB_TOKEN,
+        hasRepo: !!GITHUB_REPO,
+        repo: GITHUB_REPO
+      });
+
       if (!GITHUB_TOKEN || !GITHUB_REPO) {
         return res.status(500).json({
           success: false,
-          error: 'GitHub configuration missing'
+          error: 'GitHub configuration missing. Please check environment variables.'
         });
       }
 
@@ -67,7 +73,7 @@ export default async function handler(req, res) {
       // Use raw.githubusercontent.com URL for the image
       const imageUrl = `https://raw.githubusercontent.com/${GITHUB_REPO}/main/${filePath}`;
 
-      console.log('✅ Image uploaded to GitHub STORAGE successfully! URL:', imageUrl);
+      console.log('✅ Image uploaded to GitHub successfully! URL:', imageUrl);
       
       return res.status(200).json({ 
         success: true,
