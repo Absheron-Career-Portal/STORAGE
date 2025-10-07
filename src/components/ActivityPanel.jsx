@@ -80,7 +80,7 @@ const uploadImage = async (file, folderName, imageNumber) => {
   try {
     console.log('🖼️ Starting image upload to GitHub...');
 
-    // Validate file size before converting to base64 - REDUCE SIZE LIMIT
+    // Validate file size before converting to base64
     if (file.size > 2 * 1024 * 1024) {
       throw new Error('Image too large. Maximum size is 2MB. Please compress your image.');
     }
@@ -100,7 +100,6 @@ const uploadImage = async (file, folderName, imageNumber) => {
 
     const baseUrl = window.location.origin;
     
-    // Try different approaches to see what the backend expects
     console.log('📤 Sending upload request...');
     
     const response = await fetch(`${baseUrl}/api/github/upload-image`, {
@@ -112,7 +111,7 @@ const uploadImage = async (file, folderName, imageNumber) => {
         image: compressedBase64,
         folderName: folderName,
         imageNumber: imageNumber,
-        baseFolder: 'image/social' // Try with baseFolder parameter
+        baseFolder: 'image/social' // This will be used by the backend
       }),
     });
 
@@ -127,15 +126,6 @@ const uploadImage = async (file, folderName, imageNumber) => {
     const result = await response.json();
     console.log('✅ Upload result:', result);
     
-    // If backend returns success but wrong path, fix it
-    if (result.success && result.path) {
-      // Ensure the path is correct
-      if (!result.path.startsWith('/image/social/')) {
-        console.log('🔄 Fixing image path...');
-        result.path = `/image/social/${folderName}/${imageNumber}.jpg`;
-      }
-    }
-    
     return result;
 
   } catch (error) {
@@ -146,7 +136,6 @@ const uploadImage = async (file, folderName, imageNumber) => {
     }
   }
 }
-
   // Image compression function
   const compressImage = (base64String, quality = 0.7) => {
     return new Promise((resolve) => {

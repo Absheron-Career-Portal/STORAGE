@@ -10,9 +10,10 @@ export default async function handler(req, res) {
 
   if (req.method === 'POST') {
     try {
-      const { image, folderName, imageNumber } = req.body;
+      const { image, folderName, imageNumber, baseFolder } = req.body;
       
       console.log('📡 GitHub Image Upload API called');
+      console.log('📁 Upload parameters:', { folderName, imageNumber, baseFolder });
       
       if (!image) {
         return res.status(400).json({ 
@@ -42,9 +43,12 @@ export default async function handler(req, res) {
         });
       }
 
-      // Create folder structure: public/images/{folderName}/
+      // FIXED: Use the baseFolder parameter or default to image/social
+      const targetBaseFolder = baseFolder || 'image/social';
+      
+      // Create folder structure: public/{targetBaseFolder}/{folderName}/
       const fileName = `${imageNumber}.jpg`;
-      const filePath = `public/images/${folderName}/${fileName}`;
+      const filePath = `public/${targetBaseFolder}/${folderName}/${fileName}`;
 
       console.log('📁 Uploading to:', filePath);
 
@@ -75,14 +79,14 @@ export default async function handler(req, res) {
         });
       }
 
-      // Use raw.githubusercontent.com URL for the image
-      const imageUrl = `https://raw.githubusercontent.com/${GITHUB_REPO}/main/${filePath}`;
+      // Return relative path for frontend (not full URL)
+      const relativePath = `/${targetBaseFolder}/${folderName}/${fileName}`;
 
-      console.log('✅ Image uploaded to GitHub successfully! URL:', imageUrl);
+      console.log('✅ Image uploaded to GitHub successfully! Path:', relativePath);
       
       return res.status(200).json({ 
         success: true,
-        path: imageUrl,
+        path: relativePath,
         message: 'Image uploaded successfully' 
       });
     } catch (error) {
