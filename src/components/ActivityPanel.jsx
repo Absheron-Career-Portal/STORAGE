@@ -81,7 +81,7 @@ const uploadImage = async (file, folderName, imageNumber) => {
     console.log('🖼️ Starting image upload to GitHub...');
 
     // Validate file size before converting to base64 - REDUCE SIZE LIMIT
-    if (file.size > 2 * 1024 * 1024) { // Reduced to 2MB limit
+    if (file.size > 2 * 1024 * 1024) {
       throw new Error('Image too large. Maximum size is 2MB. Please compress your image.');
     }
 
@@ -96,12 +96,13 @@ const uploadImage = async (file, folderName, imageNumber) => {
     const base64Image = await base64Promise;
 
     // Compress image before upload
-    const compressedBase64 = await compressImage(base64Image, 0.7); // 70% quality
+    const compressedBase64 = await compressImage(base64Image, 0.7);
 
-    // Construct the full folder path
-    const fullFolderPath = `image/social/${folderName}`;
-
-    const baseUrl = window.location.origin
+    const baseUrl = window.location.origin;
+    
+    // Try different approaches to see what the backend expects
+    console.log('📤 Sending upload request...');
+    
     const response = await fetch(`${baseUrl}/api/github/upload-image`, {
       method: 'POST',
       headers: {
@@ -109,22 +110,28 @@ const uploadImage = async (file, folderName, imageNumber) => {
       },
       body: JSON.stringify({
         image: compressedBase64,
-        folderName: fullFolderPath, // Send the full path including image/social/
-        imageNumber: imageNumber
+        folderName: folderName,
+        imageNumber: imageNumber,
+        baseFolder: 'image/social' // Try with baseFolder parameter
       }),
     });
 
+    console.log('📡 Upload response status:', response.status);
+
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Upload failed: ${response.status}`);
+      console.error('❌ Backend error response:', errorText);
+      throw new Error(`Upload failed: ${response.status} - ${errorText}`);
     }
 
     const result = await response.json();
+    console.log('✅ Upload result:', result);
     
-    // If the backend returns a path without the correct prefix, fix it here
+    // If backend returns success but wrong path, fix it
     if (result.success && result.path) {
-      // Ensure the path starts with /image/social/
+      // Ensure the path is correct
       if (!result.path.startsWith('/image/social/')) {
+        console.log('🔄 Fixing image path...');
         result.path = `/image/social/${folderName}/${imageNumber}.jpg`;
       }
     }
@@ -199,81 +206,80 @@ const uploadImage = async (file, folderName, imageNumber) => {
     }
   }
 
-  const handleImageUpload = async (event, isAdditional = false, index = null) => {
-    const file = event.target.files[0]
-    if (!file) return
+const handleImageUpload = async (event, isAdditional = false, index = null) => {
+  const file = event.target.files[0]
+  if (!file) return
 
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      alert('Please select an image file')
-      return
-    }
-
-    // Validate file size
-    if (file.size > 2 * 1024 * 1024) {
-      alert('Image too large. Please select an image smaller than 2MB.')
-      return
-    }
-
-    setUploadingImage(true)
-
-    try {
-      // Generate folder name from title or use activity ID if editing
-      let folderName
-      if (editingId !== null) {
-        // Use existing activity ID for folder name
-        folderName = `activity_${editingId}`
-      } else if (newActivity.title) {
-        // Use title for new activity (will be replaced with ID when saved)
-        folderName = newActivity.title.toLowerCase().replace(/[^a-z0-9]/g, '_')
-      } else {
-        folderName = 'temp_activity'
-      }
-
-      // Determine image number
-      let imageNumber
-      if (isAdditional) {
-        imageNumber = `${index + 1}` // additional_1.jpg, additional_2.jpg, etc.
-      } else {
-        imageNumber = '0' // Main image is 0.jpg
-      }
-
-      console.log('📁 Uploading to folder:', folderName, 'Image number:', imageNumber)
-
-      const result = await uploadImage(file, folderName, imageNumber)
-
-      if (result.success) {
-        // The API should return the correct path like "/image/social/folderName/imageNumber.jpg"
-        const imagePath = result.path;
-
-        if (isAdditional) {
-          // Update additional images
-          setNewActivity(prev => ({
-            ...prev,
-            additionalImages: prev.additionalImages.map((img, i) =>
-              i === index ? imagePath : img
-            )
-          }))
-        } else {
-          // Update main image
-          setNewActivity(prev => ({
-            ...prev,
-            image: imagePath
-          }))
-        }
-        alert('Image uploaded successfully!')
-      } else {
-        alert('Failed to upload image: ' + (result.error || 'Unknown error'))
-      }
-    } catch (error) {
-      console.error('Error handling image upload:', error)
-      alert('Error uploading image: ' + error.message)
-    } finally {
-      setUploadingImage(false)
-      // Clear the file input
-      event.target.value = ''
-    }
+  // Validate file type
+  if (!file.type.startsWith('image/')) {
+    alert('Please select an image file')
+    return
   }
+
+  // Validate file size
+  if (file.size > 2 * 1024 * 1024) {
+    alert('Image too large. Please select an image smaller than 2MB.')
+    return
+  }
+
+  setUploadingImage(true)
+
+  try {
+    // Generate folder name from title or use activity ID if editing
+    let folderName
+    if (editingId !== null) {
+      // Use existing activity ID for folder name
+      folderName = `activity_${editingId}`
+    } else if (newActivity.title) {
+      // Use title for new activity (will be replaced with ID when saved)
+      folderName = newActivity.title.toLowerCase().replace(/[^a-z0-9]/g, '_')
+    } else {
+      folderName = 'temp_activity'
+    }
+
+    // Determine image number
+    let imageNumber
+    if (isAdditional) {
+      imageNumber = `${index + 1}` // additional_1.jpg, additional_2.jpg, etc.
+    } else {
+      imageNumber = '0' // Main image is 0.jpg
+    }
+
+    console.log('📁 Upload details:', { folderName, imageNumber, isAdditional, index })
+
+    const result = await uploadImage(file, folderName, imageNumber)
+
+    if (result.success) {
+      const imagePath = result.path;
+      console.log('✅ Image uploaded successfully:', imagePath);
+      
+      if (isAdditional) {
+        setNewActivity(prev => ({
+          ...prev,
+          additionalImages: prev.additionalImages.map((img, i) =>
+            i === index ? imagePath : img
+          )
+        }))
+      } else {
+        setNewActivity(prev => ({
+          ...prev,
+          image: imagePath
+        }))
+      }
+      alert('Image uploaded successfully!')
+    } else {
+      console.error('❌ Upload failed:', result.error);
+      alert('Failed to upload image: ' + (result.error || 'Unknown error'))
+    }
+  } catch (error) {
+    console.error('❌ Error handling image upload:', error)
+    alert('Error uploading image: ' + error.message)
+  } finally {
+    setUploadingImage(false)
+    // Clear the file input
+    event.target.value = ''
+  }
+}
 
   const handleEdit = (activity) => {
     setEditingId(activity.id)
