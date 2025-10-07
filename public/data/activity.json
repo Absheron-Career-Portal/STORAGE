@@ -256,5 +256,20 @@
     ],
     "isVisible": true,
     "extendedDescription": "Abşeron Logistika Mərkəzində əməkdaşların asudə vaxtının səmərəli təşkili üçün bir qrup əməkdaşın iştirak ilə kartinq yarışması ilə təşkil edilmişdir. Əməkdaşlar yarıma ilə bərabər əyləncəli vaxt keçirmişdir."
+  },
+  {
+    "id": 15,
+    "image": "/image/social/temp_activity/0.jpg",
+    "linkImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/landscape.crop.rectangle.svg",
+    "imageTotal": "1",
+    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
+    "date": "2025 M10 7",
+    "title": "gggg",
+    "description": "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg...",
+    "additionalImages": [
+      "/image/social/temp_activity/1.jpg"
+    ],
+    "extendedDescription": "ggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+    "isVisible": true
   }
 ]
