@@ -20,68 +20,62 @@ const CareerPanel = () => {
     loadCareers()
   }, [])
 
-  const loadCareers = async () => {
-    try {
-      setLoading(true)
-      // Use absolute URL for both localhost and production
-      const baseUrl = window.location.origin
-      const response = await fetch(`${baseUrl}/data/career.json?t=${Date.now()}`)
-      
-      if (!response.ok) {
-        throw new Error(`Failed to load careers: ${response.status}`)
-      }
-      
-      const data = await response.json()
-      
-      const fixedData = data.map(career => ({
-        ...career,
-        isVisible: career.isVisible === undefined ? true : career.isVisible
-      }))
-      
-      setCareers(fixedData)
-    } catch (error) {
-      console.error('Error loading careers:', error)
-      // Fallback to localStorage if available
-      const localCareers = localStorage.getItem('careers')
-      if (localCareers) {
-        setCareers(JSON.parse(localCareers))
-      }
-    } finally {
-      setLoading(false)
+const loadCareers = async () => {
+  try {
+    // Fetch from STORAGE repo raw content
+    const response = await fetch('https://raw.githubusercontent.com/Absheron-Career-Portal/STORAGE/main/career.json')
+    
+    if (!response.ok) {
+      throw new Error(`Failed to load careers: ${response.status}`)
+    }
+    
+    const data = await response.json()
+    
+    const fixedData = data.map(career => ({
+      ...career,
+      isVisible: career.isVisible === undefined ? true : career.isVisible
+    }))
+    
+    setCareers(fixedData)
+  } catch (error) {
+    console.error('Error loading careers:', error)
+    // Fallback to localStorage if available
+    const localCareers = localStorage.getItem('careers')
+    if (localCareers) {
+      setCareers(JSON.parse(localCareers))
     }
   }
-
-  const updateJSONFile = async (updatedCareers) => {
-    try {
-      console.log('🔄 Sending careers to API...');
-      
-      // Use absolute URL for API calls
-      const baseUrl = window.location.origin
-      const response = await fetch(`${baseUrl}/api/careers/save`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          data: updatedCareers
-        }),
-      })
-      
-      console.log('📡 Career response status:', response.status);
-      
-      if (!response.ok) {
-        const errorText = await response.text()
-        throw new Error(`Network response was not ok: ${response.status} - ${errorText}`);
-      }
-      
-      const result = await response.json()
-      console.log('✅ Career API response:', result);
-      return result.success
-    } catch (error) {
-      console.error('❌ Error updating career JSON file:', error)
-      return false
+}
+const updateJSONFile = async (updatedCareers) => {
+  try {
+    console.log('🔄 Sending careers to GitHub API...');
+    
+    const baseUrl = window.location.origin
+    const response = await fetch(`${baseUrl}/api/github/save-career`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        data: updatedCareers
+      }),
+    })
+    
+    console.log('📡 GitHub Response status:', response.status);
+    
+    if (!response.ok) {
+      const errorText = await response.text()
+      throw new Error(`GitHub API error: ${response.status} - ${errorText}`);
     }
+    
+    const result = await response.json()
+    console.log('✅ GitHub API response:', result);
+    return result.success
+  } catch (error) {
+    console.error('❌ Error updating careers via GitHub:', error)
+    return false
   }
+}
 
   const saveCareers = async (updatedCareers) => {
     try {

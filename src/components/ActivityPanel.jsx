@@ -17,51 +17,63 @@ const ActivityPanel = () => {
     loadActivities()
   }, [])
 
-  const loadActivities = async () => {
-    try {
-      const response = await fetch('/data/activity.json')
-      const data = await response.json()
-
-      const fixedData = data.map(activity => ({
-        ...activity,
-        isVisible: activity.isVisible === undefined ? true : activity.isVisible
-      }))
-
-      setActivities(fixedData)
-    } catch (error) {
-      console.error('Error loading activities:', error)
+const loadActivities = async () => {
+  try {
+    // Fetch from STORAGE repo raw content
+    const response = await fetch('https://raw.githubusercontent.com/Absheron-Career-Portal/STORAGE/main/activity.json')
+    
+    if (!response.ok) {
+      throw new Error(`Failed to load activities: ${response.status}`)
+    }
+    
+    const data = await response.json()
+    
+    const fixedData = data.map(activity => ({
+      ...activity,
+      isVisible: activity.isVisible === undefined ? true : activity.isVisible
+    }))
+    
+    setActivities(fixedData)
+  } catch (error) {
+    console.error('Error loading activities:', error)
+    // Fallback to localStorage if available
+    const localActivities = localStorage.getItem('activities')
+    if (localActivities) {
+      setActivities(JSON.parse(localActivities))
     }
   }
+}
 
-  const updateJSONFile = async (updatedActivities) => {
-    try {
-      console.log('🔄 Sending activities to API...');
-      
-      const response = await fetch('/api/activities/save', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          data: updatedActivities
-        }),
-      })
-      
-      console.log('📡 Response status:', response.status);
-      
-      if (!response.ok) {
-        throw new Error(`Network response was not ok: ${response.status}`);
-      }
-      
-      const result = await response.json()
-      console.log('✅ API response:', result);
-      return result.success
-    } catch (error) {
-      console.error('❌ Error updating JSON file:', error)
-      return false
+const updateJSONFile = async (updatedActivities) => {
+  try {
+    console.log('🔄 Sending activities to GitHub API...');
+    
+    const baseUrl = window.location.origin
+    const response = await fetch(`${baseUrl}/api/github/save-activity`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        data: updatedActivities
+      }),
+    })
+    
+    console.log('📡 GitHub Response status:', response.status);
+    
+    if (!response.ok) {
+      const errorText = await response.text()
+      throw new Error(`GitHub API error: ${response.status} - ${errorText}`);
     }
+    
+    const result = await response.json()
+    console.log('✅ GitHub API response:', result);
+    return result.success
+  } catch (error) {
+    console.error('❌ Error updating activities via GitHub:', error)
+    return false
   }
-
+}
 const uploadImage = async (file, folderName, imageNumber) => {
   try {
     console.log('🖼️ Starting image upload...');
