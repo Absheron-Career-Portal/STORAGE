@@ -258,31 +258,18 @@ const ActivityPanel = () => {
       year: 'numeric'
     })
 
-    // Fix image paths to use GitHub URLs instead of localhost
-    const fixImagePath = (path) => {
-      if (!path) return ''
-      // If it's a localhost path, convert it to GitHub path
-      if (path.includes('localhost:3000')) {
-        const pathParts = path.split('/image/social/')
-        if (pathParts[1]) {
-          return `https://raw.githubusercontent.com/Absheron-Career-Portal/STORAGE/main/public/images/${pathParts[1]}`
-        }
-      }
-      return path
-    }
-
+    // For uploaded images, they will already have GitHub URLs
+    // For manual URL entries, keep them as-is
     const newActivityItem = {
       id: newId,
-      image: fixImagePath(newActivity.image),
+      image: newActivity.image,
       linkImage: "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/landscape.crop.rectangle.svg",
       imageTotal: newActivity.additionalImages.filter(img => img.trim() !== '').length.toString(),
       dateImage: "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
       date: newActivity.date || currentDate,
       title: newActivity.title,
       description: newActivity.extendedDescription.substring(0, 100) + '...',
-      additionalImages: newActivity.additionalImages
-        .filter(img => img.trim() !== '')
-        .map(fixImagePath),
+      additionalImages: newActivity.additionalImages.filter(img => img.trim() !== ''),
       extendedDescription: newActivity.extendedDescription,
       isVisible: true
     }
@@ -341,16 +328,28 @@ const ActivityPanel = () => {
     }))
   }
 
-  // Fix image URLs for display
+  // Fix image URLs for display - convert relative paths to absolute URLs
   const fixImageUrl = (url) => {
     if (!url) return ''
-    // Convert localhost URLs to GitHub URLs
-    if (url.includes('localhost:3000')) {
-      const pathParts = url.split('/image/social/')
-      if (pathParts[1]) {
-        return `https://raw.githubusercontent.com/Absheron-Career-Portal/STORAGE/main/public/images/${pathParts[1]}`
-      }
+    
+    // If it's already a full URL (http/https), return as-is
+    if (url.startsWith('http')) {
+      return url
     }
+    
+    // If it's a relative path starting with /image/, convert to GitHub raw URL
+    if (url.startsWith('/image/')) {
+      // Remove the leading slash and convert to GitHub path
+      const imagePath = url.substring(1) // Remove the first '/'
+      return `https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/main/${imagePath}`
+    }
+    
+    // If it's a GitHub raw URL from STORAGE repo, return as-is
+    if (url.includes('raw.githubusercontent.com/Absheron-Career-Portal/STORAGE')) {
+      return url
+    }
+    
+    // Return as-is for any other cases
     return url
   }
 
@@ -399,8 +398,9 @@ const ActivityPanel = () => {
                   type="text"
                   value={newActivity.image}
                   onChange={(e) => setNewActivity(prev => ({ ...prev, image: e.target.value }))}
-                  placeholder="Enter image URL or upload file"
+                  placeholder="Enter image URL (e.g., /image/social/folder/0.jpg)"
                 />
+                <small>Use relative paths like: /image/social/production/0.jpg</small>
               </div>
               <div className="upload-option">
                 <label>Upload from Device:</label>
@@ -415,7 +415,10 @@ const ActivityPanel = () => {
             </div>
             {newActivity.image && (
               <div className="image-preview">
-                <img src={fixImageUrl(newActivity.image)} alt="Preview" className="preview-image" />
+                <img src={fixImageUrl(newActivity.image)} alt="Preview" className="preview-image" 
+                     onError={(e) => {
+                       e.target.src = 'https://via.placeholder.com/200x150?text=Image+Not+Found';
+                     }} />
                 <small>Current: {newActivity.image}</small>
               </div>
             )}
@@ -433,8 +436,9 @@ const ActivityPanel = () => {
                     type="text"
                     value={image}
                     onChange={(e) => updateImageField(index, e.target.value)}
-                    placeholder="Enter image URL or upload file"
+                    placeholder="Enter image URL (e.g., /image/social/folder/1.jpg)"
                   />
+                  <small>Use relative paths like: /image/social/production/1.jpg</small>
                 </div>
                 <div className="upload-option">
                   <label>Upload image {index + 1}:</label>
@@ -449,7 +453,10 @@ const ActivityPanel = () => {
 
               {image && (
                 <div className="image-preview small">
-                  <img src={fixImageUrl(image)} alt={`Preview ${index}`} className="preview-image" />
+                  <img src={fixImageUrl(image)} alt={`Preview ${index}`} className="preview-image" 
+                       onError={(e) => {
+                         e.target.src = 'https://via.placeholder.com/100x75?text=Image+Not+Found';
+                       }} />
                   <small>Current: {image}</small>
                 </div>
               )}
