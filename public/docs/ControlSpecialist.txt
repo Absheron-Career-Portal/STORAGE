@@ -1,0 +1,24 @@
+ÜMUMİ VƏZİFƏ ÖHDƏLİKLƏRİ:
+• Müştəri sifarişlərini qəbul etmək, sistem üzrə yığılan sifarişlərin doğruluğunu yoxlamaq və uyğunsuzluqlar üzrə dəqiqləşmələr aparmaq
+• Yeni müştərilərin və yüklərin qeydiyyatını aparmaq, müştəri şərtlərini və hesablama faktorlarını sistemdə tanıtdırmaq
+• Mal qəbulu sifarişlərini WMS proqramında işləmək
+• Müştəridən mal çıxışı ilə bağlı sifarişləri qəbul etmək, mal çıxışı sifarişinin doğruluğunu yoxlamaq və verilən məlumatlara əsasən UDPAS proqramında sifariş yaratmaq
+• Proqram üzərindən mal qalığı və digər məlumatlar barədə vaxtaşırı rəhbərləri məlumatlandırmaq
+• Struktur vahidi rəhbərinin və birbaşa rəhbərinin digər tapşırıqlarını yerinə yetirmək
+
+NAMİZƏDƏ QARŞI TƏLƏBLƏR:
+• Ali təhsil (İqtisadiyyat və idarəetmə sahələri üstünlükdür)
+• Kompüter bilikləri: Word, Outlook, 1C proqramları üzrə yaxşı səviyyə, Excel üzrə əla səviyyə
+• Müvafiq sahə üzrə 1 ilədək iş təcrübəsi
+• Dil bilikləri: Azərbaycan dili – sərbəst, Rus və İngilis dili – üstünlükdür
+• Yüksək kommunikasiya bacarığı
+• Yeni iş mühiti və kollektivə tez uyğunlaşmaq bacarığı
+
+PEŞƏKARLIK BACARIQLARI:
+• Dəqiq və diqqətli olmaq
+• Ciddi və məsuliyyətli olmaq
+• Analitik qabiliyyət və təqdim etmə bacarığı
+• Təhlil qabiliyyəti
+• Problem həll etmə bacarığı
+• Hesabatvermə (reporting) bacarığı
+• Öyrənmək və öyrətmək bacarığı

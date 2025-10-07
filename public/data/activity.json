@@ -1,0 +1,260 @@
+[
+  {
+    "id": 0,
+    "image": "/image/social/production/0.jpg",
+    "linkImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/landscape.crop.rectangle.svg",
+    "imageTotal": "4",
+    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
+    "date": "1 Sentyabr, 2025",
+    "title": "İstehsalat təcrübəçilərimiz",
+    "description": "ALM hər il müxtəlif təhsil müəssisələrinin sonuncu kurs tələbələrinə logistikanın fərqli istiqamətlə...",
+    "additionalImages": [
+      "/image/social/production/1.jpg",
+      "/image/social/production/2.jpg",
+      "/image/social/production/3.jpg",
+      "/image/social/production/4.jpg"
+    ],
+    "isVisible": true,
+    "extendedDescription": "ALM hər il müxtəlif təhsil müəssisələrinin sonuncu kurs tələbələrinə logistikanın fərqli istiqamətləri üzrə istehsalat təcrübəsi keçmək imkanı yaradır. Təcrübə proqramı gənclərin nəzəri biliklərini real iş mühitində tətbiq etməsinə və peşəkar bacarıqlarını inkişaf etdirməsinə şərait yaradır. Bu təşəbbüs gələcək mütəxəssislərin formalaşmasına dəstək göstərməyi hədəfləyir."
+  },
+  {
+    "id": 1,
+    "image": "/image/social/brainstorm/0.jpg",
+    "linkImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/landscape.crop.rectangle.svg",
+    "imageTotal": "3",
+    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
+    "date": "13 Avqust, 2025",
+    "title": "Brain Storm 2025",
+    "description": "13 avqust tarixində Abşeron Logistika Mərkəzinin 7 illiyi münasibətilə...",
+    "additionalImages": [
+      "/image/social/brainstorm/1.jpg",
+      "/image/social/brainstorm/2.jpg",
+      "/image/social/brainstorm/3.jpg"
+    ],
+    "isVisible": true,
+    "extendedDescription": "13 avqust tarixində Abşeron Logistika Mərkəzinin 7 illiyi münasibətilə ənənəvi “Brain Storm 2025” intellektual yarışması keçirlmişdir. Həyəcanlı və maraqlı keçən yarışda Maliyyə departamenti, Abşeron Express və İR əməkdaşlarından ibarət komandalar ilk üç yeri qazanmışdır. Qaliblər kubok, sertifikat və dəyərli hədiyyələrlə mükafatlandırılıb. Bütün iştirakçıları təbrik edir, gələcək fəaliyyətlərində bol-bol uğurlar arzulayırıq!"
+  },
+  {
+    "id": 2,
+    "image": "/image/social/aztu/0.jpg",
+    "linkImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/landscape.crop.rectangle.svg",
+    "imageTotal": "3",
+    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
+    "date": "30 May, 2025",
+    "title": "AzTU tələbələrinin ekskursiyası",
+    "description": "AzTU Beynəlxalq logistika və təchizat zəncirinin idarə edilməsi üzrə ixtisas...",
+    "additionalImages": [
+      "/image/social/aztu/1.jpg",
+      "/image/social/aztu/2.jpg",
+      "/image/social/aztu/3.jpg"
+    ],
+    "isVisible": true,
+    "extendedDescription": "AzTU Beynəlxalq logistika və təchizat zəncirinin idarə edilməsi üzrə ixtisaslaşmasında və Nəqliyyat və logistika fakültəsində təhsil alan bir qrup 2-ci və 3-cü kurs tələbələri 30 May tarixində Mərkəzimizdə ekskursiyada olmuşdur. Təlbələrə ALM-də mövcud iş prosesləri detallı formada izah edilmişdir."
+  },
+  {
+    "id": 3,
+    "image": "/image/social/bdu/0.jpg",
+    "linkImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/landscape.crop.rectangle.svg",
+    "imageTotal": "4",
+    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
+    "date": "27 May, 2025",
+    "title": "BDU karyera sərgisi",
+    "description": "Abşeron Logistika Mərkəzi 27 may tarixində Bakı Dövlət Universitetində keçirilən karyera...",
+    "additionalImages": [
+      "/image/social/bdu/1.jpg",
+      "/image/social/bdu/2.jpg",
+      "/image/social/bdu/3.jpg",
+      "/image/social/bdu/4.jpg"
+    ],
+    "isVisible": true,
+    "extendedDescription": "Abşeron Logistika Mərkəzi 27 may tarixində Bakı Dövlət Universitetində keçirilən karyera sərgisində iştirak edib. Stendimizdə qonaqlara Mərkəz haqqında, mövcud vakansiyalar, təcrübə və təqaüd imkanları barədə ətraflı məlumat verilib."
+  },
+  {
+    "id": 4,
+    "image": "/image/social/bbu/0.jpg",
+    "linkImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/landscape.crop.rectangle.svg",
+    "imageTotal": "3",
+    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
+    "date": "23 May, 2025",
+    "title": "BBU karyera sərgisi",
+    "description": "23 may tarixində Bakı Biznes Universitetində keçirilən karyera sərgisində Abşeron Logistika...",
+    "additionalImages": [
+      "/image/social/bbu/1.jpg",
+      "/image/social/bbu/2.jpg",
+      "/image/social/bbu/3.jpg"
+    ],
+    "isVisible": true,
+    "extendedDescription": "23 may tarixində Bakı Biznes Universitetində keçirilən karyera sərgisində Abşeron Logistika Mərkəzi olaraq biz də iştirak etdik. Stendimizə yaxınlaşan ziyarətçilərə əməkdaşlarımız tərəfindən Mərkəzin iş prinsipi, təcrübə və iş imkanları, həmçinin təqaəd proqramları haqqında ətraflı məlumat təqdim olundu. Tədbir zamanı universitetin rektoru İbad Abbasov da stendimizi ziyarət etdi və təqdimatımızla maraqlandı."
+  },
+  {
+    "id": 5,
+    "image": "/image/social/bmu/0.jpg",
+    "linkImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/landscape.crop.rectangle.svg",
+    "imageTotal": "3",
+    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
+    "date": "22 May, 2025",
+    "title": "BMU karyera sərgisi",
+    "description": "22 may tarixində Bakı Mühəndilik Univeristetində keçirilən CareerFest karyera sərgisində...",
+    "additionalImages": [
+      "/image/social/bmu/1.jpg",
+      "/image/social/bmu/2.jpg",
+      "/image/social/bmu/3.jpg"
+    ],
+    "isVisible": true,
+    "extendedDescription": "22 may tarixində Bakı Mühəndilik Univeristetində keçirilən CareerFest karyera sərgisində Abşeron Logistika Mərkəzi olaraq biz də iştirak edirik. Stendimizə yaxınlaşan ziyarətçilərə əməkdaşlarımız tərəfindən Mərkəzin iş prinsipi, təcrübə və iş imkanları, həmçinin təqaəd proqramları haqqında ətraflı məlumat təqdim olunur."
+  },
+  {
+    "id": 6,
+    "image": "/image/social/ada/0.jpg",
+    "linkImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/landscape.crop.rectangle.svg",
+    "imageTotal": "3",
+    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
+    "date": "2 May, 2025",
+    "title": "ADA Universiteti karyera sərgisi",
+    "description": "2 May tarixində ADA Universitetində keçirilmiş karyera sərgisində Abşeron Logistika...",
+    "additionalImages": [
+      "/image/social/ada/1.jpg",
+      "/image/social/ada/2.jpg",
+      "/image/social/ada/3.jpg"
+    ],
+    "isVisible": true,
+    "extendedDescription": "2 May tarixində ADA Universitetində keçirilmiş karyera sərgisində Abşeron Logistika Mərkəzi də iştirak edib. Stendimizə yaxınlaşan ziyarətçilərə əməkdaşlarımız tərəfindən Mərkəzin iş prinsipi, təcrübə və iş imkanları, eləcə də təqaəd proqramları barədə ətraflı məlumat verilmişdir. Tədbirin yüksək səviyyədə təşkilinə görə ada.university -ə təşəkkür edirik."
+  },
+  {
+    "id": 7,
+    "image": "/image/social/unec/0.jpg",
+    "linkImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/landscape.crop.rectangle.svg",
+    "imageTotal": "3",
+    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
+    "date": "7 May, 2025",
+    "title": "UNEC karyera sərgisi",
+    "description": "7 may tarixində UNEC-də təşkil olunmuş karyera sərgisində Abşeron Logistika Mərkəzi...",
+    "additionalImages": [
+      "/image/social/unec/1.jpg",
+      "/image/social/unec/2.jpg",
+      "/image/social/unec/3.jpg"
+    ],
+    "isVisible": true,
+    "extendedDescription": "7 may tarixində UNEC-də təşkil olunmuş karyera sərgisində Abşeron Logistika Mərkəzi də fəal iştirak etmişdir. Stendimizi ziyarət edən iştirakçılar əməkdaşlarımız tərəfindən Mərkəzin fəaliyyət istiqamətləri, təcrübə və karyera imkanları, həmçinin təqdim olunan təqaəd proqramları barədə məlumatlandırılmışdır."
+  },
+  {
+    "id": 8,
+    "image": "/image/social/bau/0.jpg",
+    "linkImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/landscape.crop.rectangle.svg",
+    "imageTotal": "2",
+    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
+    "date": "11 Noyabr, 2024",
+    "title": "BAU ilə memorandum imzalanıb",
+    "description": "Memorandumda BAAU-da bakalavriat və magistratura səviyyələrində təhsil alan və ixtisas...",
+    "additionalImages": [
+      "/image/social/bau/1.jpg",
+      "/image/social/bau/2.jpg"
+    ],
+    "isVisible": true,
+    "extendedDescription": "Memorandumda BAAU-da bakalavriat və magistratura səviyyələrində təhsil alan və ixtisas meyarları Abşeron Logistika Mərkəzinin xidmət göstərdiyi sahələrə uyğun olan tələbələrin təcrübə keçməsi, müvafiq ixtisas - peşə təlimlərinə zərurət yarandıqda Mərkəzin əməkdaşları üçün BAAU tərəfindən qısamüddətli ixtisasartırma proqramlarının təşkil edilməsi istiqamətində əməkdaşlıq nəzərdə tutulur. Həmçinin ölkənin iqtisadi rayonları üzrə yük daşımalarının təhlili və proqnozlaşdırılması, logistika, informasiya texnologiyaları üzrə elmi - praktiki müzakirələrin təşkili, bazar araşdırmalarının birgə aparılması, təhsil sahəsində müasir texnologiyaların və elmi inkişafın nəticələrinin istifadəsində qarşılıqlı əməkdaşlıq kimi məsələlər də memorandumda öz əksini tapıb."
+  },
+  {
+    "id": 9,
+    "image": "/image/social/art/0.jpg",
+    "linkImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/landscape.crop.rectangle.svg",
+    "imageTotal": "3",
+    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
+    "date": "8 Noyabr, 2024",
+    "title": "Zəfərə doğru rəsm müsabiqəsi",
+    "description": "8 Noyabr – Zəfər Gününün 4-cü ildönümü münasibətilə ALM əməkdaşlarının övladları...",
+    "additionalImages": [
+      "/image/social/art/1.jpg",
+      "/image/social/art/2.jpg",
+      "/image/social/art/3.jpg"
+    ],
+    "isVisible": true,
+    "extendedDescription": "8 Noyabr – Zəfər Gününün 4-cü ildönümü münasibətilə ALM əməkdaşlarının övladları arasında “Zəfərə doğru” adlı rəsm müsabiqəsi keçirilmişdir. Müsabiqəyə təqdim olunan əsərlər Mərkəz əməkdaşlarının səsverməsi əsasında qiymətləndirilib. Qaliblər və bütün iştirakçılar Mərkəz adından qiymətli hədiyyələrlə mükafatlandırılmışdır."
+  },
+  {
+    "id": 10,
+    "image": "/image/social/switz/0.jpg",
+    "linkImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/landscape.crop.rectangle.svg",
+    "imageTotal": "3",
+    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
+    "date": "1 Oktyabr, 2024",
+    "title": "Xarici tələbələrin ALM səfəri",
+    "description": "Azərbaycan Dövlət İqtisad Universiteti ilə əməkdaşlıq çərçivəsində İsveçrəli tələbələr...",
+    "additionalImages": [
+      "/image/social/switz/1.jpg",
+      "/image/social/switz/2.jpg",
+      "/image/social/switz/3.jpg"
+    ],
+    "isVisible": true,
+    "extendedDescription": "Azərbaycan Dövlət İqtisad Universiteti (UNEC) ilə əməkdaşlıq çərçivəsində İsveçrəli tələbələr Abşeron Logistika Mərkəzində olub. Gələn qonaqlara Mərkəzin keçdiyi inkişaf yolu, regionun ən böyük quru limanında icra edilən layihələr və iş prosesi ilə bağlı məlumat verilib, onların Mərkəz haqqında bütün sualları mütəxəssislərimiz tərəfindən cavablandırılıb."
+  },
+  {
+    "id": 11,
+    "image": "/image/social/marsol/0.jpg",
+    "linkImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/landscape.crop.rectangle.svg",
+    "imageTotal": "3",
+    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
+    "date": "1 Oktyabr, 2024",
+    "title": "Əməkdaşımız şirkətlətarası intellektual yarışmada",
+    "description": "ALM əməkdaşları KSM tədbirləri çərçivəsində şirkətlərarası III Marsol...",
+    "additionalImages": [
+      "/image/social/marsol/1.jpg",
+      "/image/social/marsol/2.jpg",
+      "/image/social/marsol/3.jpg"
+    ],
+    "isVisible": true,
+    "extendedDescription": "ALM əməkdaşları KSM tədbirləri çərçivəsində şirkətlərarası III Marsol Zəfər Kuboku intellektual yarışında iştirak etmişdir. Yarışmada 40-a yaxın aparıcı şirkətin komandaları bilik və zəka üzərində mübarizə aparmışdır. Bu tədbir əməkdaşlarımızın intellektual bacarıqlarının inkişafı və korporativ əlaqələrin gücləndirilməsi üçün mühüm platforma olmuşdur."
+  },
+  {
+    "id": 12,
+    "image": "/image/social/quba/0.jpg",
+    "linkImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/landscape.crop.rectangle.svg",
+    "imageTotal": "4",
+    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
+    "date": "14 İyul, 2024",
+    "title": "Komandamızın Quba səfəri",
+    "description": "İyul ayında ALM əməkdaşları üçün KSM tədbirləri çərçivəsində 1 günlük...",
+    "additionalImages": [
+      "/image/social/quba/1.jpg",
+      "/image/social/quba/2.jpg",
+      "/image/social/quba/3.jpg",
+      "/image/social/quba/4.jpg"
+    ],
+    "isVisible": true,
+    "extendedDescription": "İyul ayında ALM əməkdaşları üçün KSM tədbirləri çərçivəsində 1 günlük Quba səfəri təşkil olunmuşdur. Səfərdə 100-dən artıq əməkdaş iştirak edərək həm istirahət, həm də komanda ruhunu gücləndirən fəaliyyətlərdə yer almışdır. Bu təşəbbüs əməkdaşların motivasiyasının artırılması və kollektivin birliyinin möhkəmləndirilməsi məqsədi daşıyır."
+  },
+  {
+    "id": 13,
+    "image": "/image/social/aztu/0.jpg",
+    "linkImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/landscape.crop.rectangle.svg",
+    "imageTotal": "3",
+    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
+    "date": "8 Fevral, 2023",
+    "title": "AzTU Rektorunun ALM səfəri",
+    "description": "Abşeron Logistika Mərkəzində Azərbaycan Texniki Universitetinin Təlim-Tədris Mərkəzi...",
+    "additionalImages": [
+      "/image/social/aztu/1.jpg",
+      "/image/social/aztu/2.jpg",
+      "/image/social/aztu/3.jpg"
+    ],
+    "isVisible": true,
+    "extendedDescription": "Abşeron Logistika Mərkəzində Azərbaycan Texniki Universitetinin Təlim-Tədris Mərkəzi yaradılıb. Bununla bağlı fevralın 8-də Abşeron Logistika Mərkəzinin İdarə Heyətinin sədri Ziya Ağayev və AzTU-nun rektoru Vilayət Vəliyevin rəhbərlik etdiyi nümayəndə heyətləri arasında görüş keçirilib. Görüş zamanı kadr hazırlığı, elmi-texniki tədqiqat məsələləri müzakirə olunub və bununla bağlı işçi qrupu yaradılıb. Abşeron Logistika Mərkəzi ilə əməkdaşlıqda maraqlı olduğunu bildirən Vilayət Vəliyev qarşılıqlı nəzəri və praktiki dərslərin, həmçinin seminarların keçirilməsi ilə bağlı təkliflər səsləndirib. Abşeron Logistika Mərkəzinin İdarə Heyətinin sədri Ziya Ağayev Mərkəzin mütəxəssislərinin universitetin tələbələrinə seminarlar və praktiki dərslərin tədrisi ilə bağlı təklifi müsbət qarşıladığını bildirib. Mərkəzimiz tələbələrin akademik təhsili zamanı əyani iş təcrübəsi qazanmasını, bununla da müasir tələblərə cavab verəcək kadr potensialının inkişafına töhfə vermək təşəbbüslərini daim dəstəkləyir."
+  },
+  {
+    "id": 14,
+    "image": "/image/social/car/0.jpg",
+    "linkImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/landscape.crop.rectangle.svg",
+    "imageTotal": "3",
+    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
+    "date": "24 İyun, 2025",
+    "title": "Mərkəz əməkdaşlarımız kartinqdə",
+    "description": "Abşeron Logistika Mərkəzində əməkdaşların asudə vaxtının səmərəli təşkili üçün bir qrup...",
+    "additionalImages": [
+      "/image/social/car/1.jpg",
+      "/image/social/car/2.jpg",
+      "/image/social/car/3.jpg",
+      "/image/social/car/4.jpg"
+    ],
+    "isVisible": true,
+    "extendedDescription": "Abşeron Logistika Mərkəzində əməkdaşların asudə vaxtının səmərəli təşkili üçün bir qrup əməkdaşın iştirak ilə kartinq yarışması ilə təşkil edilmişdir. Əməkdaşlar yarıma ilə bərabər əyləncəli vaxt keçirmişdir."
+  }
+]
