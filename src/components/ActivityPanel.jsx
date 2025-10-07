@@ -107,7 +107,8 @@ const ActivityPanel = () => {
         body: JSON.stringify({
           image: compressedBase64,
           folderName: folderName,
-          imageNumber: imageNumber
+          imageNumber: imageNumber,
+          baseFolder: 'images' // Specify the base images folder
         }),
       });
 
@@ -231,19 +232,22 @@ const ActivityPanel = () => {
       const result = await uploadImage(file, folderName, imageNumber)
 
       if (result.success) {
+        // The API should return the correct path like "/images/folderName/imageNumber.jpg"
+        const imagePath = result.path;
+        
         if (isAdditional) {
           // Update additional images
           setNewActivity(prev => ({
             ...prev,
             additionalImages: prev.additionalImages.map((img, i) =>
-              i === index ? result.path : img
+              i === index ? imagePath : img
             )
           }))
         } else {
           // Update main image
           setNewActivity(prev => ({
             ...prev,
-            image: result.path
+            image: imagePath
           }))
         }
         alert('Image uploaded successfully!')
@@ -381,9 +385,9 @@ const ActivityPanel = () => {
       return url
     }
 
-    // If it's a relative path starting with /image/, convert to GitHub raw URL
-    if (url.startsWith('/image/')) {
-      // Convert /image/social/brainstorm/0.jpg to GitHub raw URL
+    // If it's a relative path starting with /images/, convert to GitHub raw URL
+    if (url.startsWith('/images/')) {
+      // Convert /images/social/brainstorm/0.jpg to GitHub raw URL
       const imagePath = url.substring(1); // Remove the first '/'
       
       // Use the STORAGE repo since that's where your activity.json is stored
@@ -393,9 +397,16 @@ const ActivityPanel = () => {
       return githubRawUrl;
     }
 
-    // If it's just a filename without path, assume it's in the STORAGE repo
-    if (!url.includes('/') && url.includes('.')) {
-      return `https://raw.githubusercontent.com/Absheron-Career-Portal/STORAGE/main/public/image/${url}`;
+    // If it's a relative path starting with /image/ (old format), convert to /images/ format
+    if (url.startsWith('/image/')) {
+      // Convert /image/social/brainstorm/0.jpg to /images/social/brainstorm/0.jpg
+      const correctedPath = url.replace('/image/', '/images/');
+      const imagePath = correctedPath.substring(1); // Remove the first '/'
+      
+      const githubRawUrl = `https://raw.githubusercontent.com/Absheron-Career-Portal/STORAGE/main/public/${imagePath}`;
+      
+      console.log('🔗 Converted old format to:', githubRawUrl);
+      return githubRawUrl;
     }
 
     // Return as-is for any other cases
@@ -447,9 +458,9 @@ const ActivityPanel = () => {
                   type="text"
                   value={newActivity.image}
                   onChange={(e) => setNewActivity(prev => ({ ...prev, image: e.target.value }))}
-                  placeholder="Enter image URL (e.g., /image/social/folder/0.jpg)"
+                  placeholder="Enter image URL (e.g., /images/social/folder/0.jpg)"
                 />
-                <small>Use relative paths like: /image/social/production/0.jpg</small>
+                <small>Use relative paths like: /images/social/production/0.jpg</small>
               </div>
               <div className="upload-option">
                 <label>Upload from Device:</label>
@@ -483,9 +494,9 @@ const ActivityPanel = () => {
                     type="text"
                     value={image}
                     onChange={(e) => updateImageField(index, e.target.value)}
-                    placeholder="Enter image URL (e.g., /image/social/folder/1.jpg)"
+                    placeholder="Enter image URL (e.g., /images/social/folder/1.jpg)"
                   />
-                  <small>Use relative paths like: /image/social/production/1.jpg</small>
+                  <small>Use relative paths like: /images/social/production/1.jpg</small>
                 </div>
                 <div className="upload-option">
                   <label>Upload image {index + 1}:</label>
