@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react'
 const CareerPanel = () => {
   const [careers, setCareers] = useState([])
   const [editingId, setEditingId] = useState(null)
+  const [loading, setLoading] = useState(false)
   const [newCareer, setNewCareer] = useState({
     title: '',
     description: '',
@@ -21,7 +22,15 @@ const CareerPanel = () => {
 
   const loadCareers = async () => {
     try {
-      const response = await fetch('/data/career.json')
+      setLoading(true)
+      // Use absolute URL for both localhost and production
+      const baseUrl = window.location.origin
+      const response = await fetch(`${baseUrl}/data/career.json?t=${Date.now()}`)
+      
+      if (!response.ok) {
+        throw new Error(`Failed to load careers: ${response.status}`)
+      }
+      
       const data = await response.json()
       
       const fixedData = data.map(career => ({
@@ -32,40 +41,51 @@ const CareerPanel = () => {
       setCareers(fixedData)
     } catch (error) {
       console.error('Error loading careers:', error)
+      // Fallback to localStorage if available
+      const localCareers = localStorage.getItem('careers')
+      if (localCareers) {
+        setCareers(JSON.parse(localCareers))
+      }
+    } finally {
+      setLoading(false)
     }
   }
 
-const updateJSONFile = async (updatedCareers) => {
-  try {
-    console.log('🔄 Sending careers to API...');
-    
-    const response = await fetch('/api/careers/save', { // This will now work on localhost:3000
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        data: updatedCareers
-      }),
-    })
-    
-    console.log('📡 Career response status:', response.status);
-    
-    if (!response.ok) {
-      throw new Error(`Network response was not ok: ${response.status}`);
+  const updateJSONFile = async (updatedCareers) => {
+    try {
+      console.log('🔄 Sending careers to API...');
+      
+      // Use absolute URL for API calls
+      const baseUrl = window.location.origin
+      const response = await fetch(`${baseUrl}/api/careers/save`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          data: updatedCareers
+        }),
+      })
+      
+      console.log('📡 Career response status:', response.status);
+      
+      if (!response.ok) {
+        const errorText = await response.text()
+        throw new Error(`Network response was not ok: ${response.status} - ${errorText}`);
+      }
+      
+      const result = await response.json()
+      console.log('✅ Career API response:', result);
+      return result.success
+    } catch (error) {
+      console.error('❌ Error updating career JSON file:', error)
+      return false
     }
-    
-    const result = await response.json()
-    console.log('✅ Career API response:', result);
-    return result.success
-  } catch (error) {
-    console.error('❌ Error updating career JSON file:', error)
-    return false
   }
-}
 
   const saveCareers = async (updatedCareers) => {
     try {
+      setLoading(true)
       // Update React state
       setCareers(updatedCareers)
       
@@ -78,11 +98,13 @@ const updateJSONFile = async (updatedCareers) => {
       if (jsonUpdated) {
         alert('Career saved successfully! JSON file updated.')
       } else {
-        alert('Career saved to browser storage only! Check console for errors.')
+        alert('Career saved to browser storage only! JSON file update failed.')
       }
     } catch (error) {
       console.error('Error saving careers:', error)
       alert('Error saving career: ' + error.message)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -107,6 +129,7 @@ const updateJSONFile = async (updatedCareers) => {
         ? {
             ...career,
             title: newCareer.title,
+            description: newCareer.description,
             date: newCareer.date,
             expireDate: newCareer.expireDate,
             location: newCareer.location,
@@ -124,7 +147,12 @@ const updateJSONFile = async (updatedCareers) => {
   }
 
   const handleAdd = async () => {
-    const newId = careers.length > 0 ? Math.max(...careers.map(c => c.id)) + 1 : 0
+    if (!newCareer.title.trim()) {
+      alert('Please enter a title')
+      return
+    }
+
+    const newId = careers.length > 0 ? Math.max(...careers.map(c => c.id)) + 1 : 1
     const currentDate = new Date().toLocaleDateString('az-AZ', {
       day: 'numeric',
       month: 'long',
@@ -143,7 +171,7 @@ const updateJSONFile = async (updatedCareers) => {
       typeImage: "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/suitcase.svg",
       view: parseInt(newCareer.view) || 0,
       link: newCareer.link,
-      isVisible: true
+      isVisible: newCareer.isVisible
     }
 
     const updatedCareers = [...careers, newCareerItem]
@@ -182,6 +210,8 @@ const updateJSONFile = async (updatedCareers) => {
 
   return (
     <div className="career-panel">
+      {loading && <div className="loading">Loading...</div>}
+      
       <div className="form-section">
         <h2>{editingId !== null ? 'Edit Career' : 'Add New Career'}</h2>
         
@@ -290,13 +320,16 @@ const updateJSONFile = async (updatedCareers) => {
 
       <div className="careers-list">
         <h2>Existing Careers ({careers.length})</h2>
-        {careers.length === 0 ? (
+        {loading ? (
+          <p>Loading careers...</p>
+        ) : careers.length === 0 ? (
           <p>No careers found. Add your first career!</p>
         ) : (
           careers.map(career => (
             <div key={career.id} className={`career-item ${!career.isVisible ? 'hidden' : ''}`}>
               <div className="career-info">
                 <h3>{career.title}</h3>
+                <p><strong>Description:</strong> {career.description.substring(0, 100)}...</p>
                 <p><strong>Date:</strong> {career.date}</p>
                 <p><strong>Expire:</strong> {career.expireDate}</p>
                 <p><strong>Location:</strong> {career.location}</p>
@@ -323,6 +356,173 @@ const updateJSONFile = async (updatedCareers) => {
           ))
         )}
       </div>
+
+      <style jsx>{`
+        .career-panel {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 30px;
+          padding: 20px;
+        }
+        
+        .form-section {
+          background: #f9f9f9;
+          padding: 20px;
+          border-radius: 8px;
+        }
+        
+        .form-group {
+          margin-bottom: 15px;
+        }
+        
+        .form-group label {
+          display: block;
+          margin-bottom: 5px;
+          font-weight: bold;
+        }
+        
+        .form-group input,
+        .form-group textarea {
+          width: 100%;
+          padding: 8px;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+          box-sizing: border-box;
+        }
+        
+        .checkbox-label {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-weight: normal;
+        }
+        
+        .form-actions {
+          display: flex;
+          gap: 10px;
+          margin-top: 20px;
+        }
+        
+        .save-btn, .add-btn {
+          background: #0070f3;
+          color: white;
+          border: none;
+          padding: 10px 20px;
+          border-radius: 4px;
+          cursor: pointer;
+        }
+        
+        .cancel-btn {
+          background: #6c757d;
+          color: white;
+          border: none;
+          padding: 10px 20px;
+          border-radius: 4px;
+          cursor: pointer;
+        }
+        
+        .careers-list {
+          background: white;
+          padding: 20px;
+          border-radius: 8px;
+          border: 1px solid #ddd;
+        }
+        
+        .career-item {
+          border: 1px solid #eee;
+          padding: 15px;
+          margin-bottom: 15px;
+          border-radius: 6px;
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+        }
+        
+        .career-item.hidden {
+          background: #f8f9fa;
+          opacity: 0.7;
+        }
+        
+        .career-info {
+          flex: 1;
+        }
+        
+        .career-actions {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+        
+        .edit-btn {
+          background: #28a745;
+          color: white;
+          border: none;
+          padding: 5px 10px;
+          border-radius: 4px;
+          cursor: pointer;
+        }
+        
+        .visibility-btn {
+          border: none;
+          padding: 5px 10px;
+          border-radius: 4px;
+          cursor: pointer;
+        }
+        
+        .hide-btn {
+          background: #ffc107;
+          color: black;
+        }
+        
+        .show-btn {
+          background: #17a2b8;
+          color: white;
+        }
+        
+        .delete-btn {
+          background: #dc3545;
+          color: white;
+          border: none;
+          padding: 5px 10px;
+          border-radius: 4px;
+          cursor: pointer;
+        }
+        
+        .status {
+          margin-left: 8px;
+          padding: 2px 8px;
+          border-radius: 12px;
+          font-size: 12px;
+          font-weight: bold;
+        }
+        
+        .status.visible {
+          background: #d4edda;
+          color: #155724;
+        }
+        
+        .status.hidden {
+          background: #f8d7da;
+          color: #721c24;
+        }
+        
+        .loading {
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          background: #0070f3;
+          color: white;
+          padding: 10px 20px;
+          border-radius: 4px;
+          z-index: 1000;
+        }
+        
+        @media (max-width: 768px) {
+          .career-panel {
+            grid-template-columns: 1fr;
+          }
+        }
+      `}</style>
     </div>
   )
 }
