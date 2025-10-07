@@ -387,7 +387,7 @@ const fixImageUrl = (url) => {
   }
 
   // If it's a relative path starting with /images/, convert to GitHub raw URL
-  if (url.startsWith('/images/')) {
+  if (url.startsWith('/image/')) {
     // Convert /images/social/brainstorm/0.jpg to GitHub raw URL
     const imagePath = url.substring(1); // Remove the first '/'
     
@@ -401,7 +401,7 @@ const fixImageUrl = (url) => {
   // If it's a relative path starting with /image/ (old format), convert to /images/ format
   if (url.startsWith('/image/')) {
     // Convert /image/social/brainstorm/0.jpg to /images/social/brainstorm/0.jpg
-    const correctedPath = url.replace('/image/', '/images/');
+    const correctedPath = url.replace('/image/', '/image/');
     const imagePath = correctedPath.substring(1); // Remove the first '/'
     
     const githubRawUrl = `https://raw.githubusercontent.com/Absheron-Career-Portal/STORAGE/refs/heads/main/public/${imagePath}`;
