@@ -17,111 +17,118 @@ const ActivityPanel = () => {
     loadActivities()
   }, [])
 
-const loadActivities = async () => {
-  try {
-    // Fetch from STORAGE repo public/data/ folder
-    const response = await fetch('https://raw.githubusercontent.com/Absheron-Career-Portal/STORAGE/main/public/data/activity.json?t=' + Date.now())
-    
-    if (!response.ok) {
-      throw new Error(`Failed to load activities: ${response.status}`)
-    }
-    
-    const data = await response.json()
-    console.log('📥 Loaded activities:', data)
-    
-    const fixedData = data.map(activity => ({
-      ...activity,
-      isVisible: activity.isVisible === undefined ? true : activity.isVisible
-    }))
-    
-    setActivities(fixedData)
-  } catch (error) {
-    console.error('Error loading activities:', error)
-    // Fallback to localStorage if available
-    const localActivities = localStorage.getItem('activities')
-    if (localActivities) {
-      setActivities(JSON.parse(localActivities))
-    }
-  }
-}
-
-const updateJSONFile = async (updatedActivities) => {
-  try {
-    console.log('🔄 Sending activities to GitHub API...');
-    
-    const baseUrl = window.location.origin
-    const response = await fetch(`${baseUrl}/api/github/save-activity`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        data: updatedActivities
-      }),
-    })
-    
-    console.log('📡 GitHub Response status:', response.status);
-    
-    if (!response.ok) {
-      const errorText = await response.text()
-      throw new Error(`GitHub API error: ${response.status} - ${errorText}`);
-    }
-    
-    const result = await response.json()
-    console.log('✅ GitHub API response:', result);
-    return result.success
-  } catch (error) {
-    console.error('❌ Error updating activities via GitHub:', error)
-    return false
-  }
-}
-
-const uploadImage = async (file, folderName, imageNumber) => {
-  try {
-    console.log('🖼️ Starting image upload to GitHub...');
-    
-    // Convert file to base64
-    const reader = new FileReader();
-    const base64Promise = new Promise((resolve, reject) => {
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-    
-    const base64Image = await base64Promise;
-    
-    const baseUrl = window.location.origin
-    const response = await fetch(`${baseUrl}/api/github/upload-image`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        image: base64Image,
-        folderName: folderName,
-        imageNumber: imageNumber
-      }),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Upload failed: ${response.status}`);
-    }
-
-    const result = await response.json();
-    return result;
-
-  } catch (error) {
-    console.error('❌ Error uploading image:', error);
-    return { 
-      success: false, 
-      error: error.message || 'Upload failed' 
+  const loadActivities = async () => {
+    try {
+      // Fetch from STORAGE repo public/data/ folder
+      const response = await fetch('https://raw.githubusercontent.com/Absheron-Career-Portal/STORAGE/main/public/data/activity.json?t=' + Date.now())
+      
+      if (!response.ok) {
+        throw new Error(`Failed to load activities: ${response.status}`)
+      }
+      
+      const data = await response.json()
+      console.log('📥 Loaded activities:', data)
+      
+      const fixedData = data.map(activity => ({
+        ...activity,
+        isVisible: activity.isVisible === undefined ? true : activity.isVisible
+      }))
+      
+      setActivities(fixedData)
+    } catch (error) {
+      console.error('Error loading activities:', error)
+      // Fallback to localStorage if available
+      const localActivities = localStorage.getItem('activities')
+      if (localActivities) {
+        setActivities(JSON.parse(localActivities))
+      }
     }
   }
-}
+
+  const updateJSONFile = async (updatedActivities) => {
+    try {
+      console.log('🔄 Sending activities to GitHub API...');
+      
+      const baseUrl = window.location.origin
+      const response = await fetch(`${baseUrl}/api/github/save-activity`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          data: updatedActivities
+        }),
+      })
+      
+      console.log('📡 GitHub Response status:', response.status);
+      
+      if (!response.ok) {
+        const errorText = await response.text()
+        throw new Error(`GitHub API error: ${response.status} - ${errorText}`);
+      }
+      
+      const result = await response.json()
+      console.log('✅ GitHub API response:', result);
+      return result.success
+    } catch (error) {
+      console.error('❌ Error updating activities via GitHub:', error)
+      return false
+    }
+  }
+
+  const uploadImage = async (file, folderName, imageNumber) => {
+    try {
+      console.log('🖼️ Starting image upload to GitHub...');
+      
+      // Validate file size before converting to base64
+      if (file.size > 4 * 1024 * 1024) { // 4MB limit
+        throw new Error('Image too large. Maximum size is 4MB.');
+      }
+      
+      // Convert file to base64
+      const reader = new FileReader();
+      const base64Promise = new Promise((resolve, reject) => {
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+      
+      const base64Image = await base64Promise;
+      
+      const baseUrl = window.location.origin
+      const response = await fetch(`${baseUrl}/api/github/upload-image`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          image: base64Image,
+          folderName: folderName,
+          imageNumber: imageNumber
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Upload failed: ${response.status}`);
+      }
+
+      const result = await response.json();
+      return result;
+
+    } catch (error) {
+      console.error('❌ Error uploading image:', error);
+      return { 
+        success: false, 
+        error: error.message || 'Upload failed' 
+      }
+    }
+  }
 
   const saveActivities = async (updatedActivities) => {
     try {
+      console.log('💾 Saving activities:', updatedActivities)
+      
       // Update React state
       setActivities(updatedActivities)
 
@@ -133,6 +140,8 @@ const uploadImage = async (file, folderName, imageNumber) => {
 
       if (jsonUpdated) {
         alert('Activity saved successfully! JSON file updated.')
+        // Reload to see changes
+        setTimeout(() => loadActivities(), 1000)
       } else {
         alert('Activity saved to browser storage only! Check console for errors.')
       }
@@ -155,18 +164,27 @@ const uploadImage = async (file, folderName, imageNumber) => {
     setUploadingImage(true)
 
     try {
-      // Generate folder name from title or use a default
-      const folderName = newActivity.title
-        ? newActivity.title.toLowerCase().replace(/[^a-z0-9]/g, '_')
-        : 'activity_images'
+      // Generate folder name from title or use activity ID if editing
+      let folderName
+      if (editingId !== null) {
+        // Use existing activity ID for folder name
+        folderName = `activity_${editingId}`
+      } else if (newActivity.title) {
+        // Use title for new activity (will be replaced with ID when saved)
+        folderName = newActivity.title.toLowerCase().replace(/[^a-z0-9]/g, '_')
+      } else {
+        folderName = 'temp_activity'
+      }
 
       // Determine image number
       let imageNumber
       if (isAdditional) {
-        imageNumber = `additional_${index}`
+        imageNumber = `${index + 1}` // additional_1.jpg, additional_2.jpg, etc.
       } else {
         imageNumber = '0' // Main image is 0.jpg
       }
+
+      console.log('📁 Uploading to folder:', folderName, 'Image number:', imageNumber)
 
       const result = await uploadImage(file, folderName, imageNumber)
       
@@ -233,23 +251,38 @@ const uploadImage = async (file, folderName, imageNumber) => {
   }
 
   const handleAdd = () => {
-    const newId = activities.length > 0 ? Math.max(...activities.map(a => a.id)) + 1 : 0
+    const newId = activities.length > 0 ? Math.max(...activities.map(a => a.id)) + 1 : 1
     const currentDate = new Date().toLocaleDateString('az-AZ', {
       day: 'numeric',
       month: 'long',
       year: 'numeric'
     })
 
+    // Fix image paths to use GitHub URLs instead of localhost
+    const fixImagePath = (path) => {
+      if (!path) return ''
+      // If it's a localhost path, convert it to GitHub path
+      if (path.includes('localhost:3000')) {
+        const pathParts = path.split('/image/social/')
+        if (pathParts[1]) {
+          return `https://raw.githubusercontent.com/Absheron-Career-Portal/STORAGE/main/public/images/${pathParts[1]}`
+        }
+      }
+      return path
+    }
+
     const newActivityItem = {
       id: newId,
-      image: newActivity.image,
+      image: fixImagePath(newActivity.image),
       linkImage: "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/landscape.crop.rectangle.svg",
       imageTotal: newActivity.additionalImages.filter(img => img.trim() !== '').length.toString(),
       dateImage: "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
       date: newActivity.date || currentDate,
       title: newActivity.title,
       description: newActivity.extendedDescription.substring(0, 100) + '...',
-      additionalImages: newActivity.additionalImages.filter(img => img.trim() !== ''),
+      additionalImages: newActivity.additionalImages
+        .filter(img => img.trim() !== '')
+        .map(fixImagePath),
       extendedDescription: newActivity.extendedDescription,
       isVisible: true
     }
@@ -308,6 +341,19 @@ const uploadImage = async (file, folderName, imageNumber) => {
     }))
   }
 
+  // Fix image URLs for display
+  const fixImageUrl = (url) => {
+    if (!url) return ''
+    // Convert localhost URLs to GitHub URLs
+    if (url.includes('localhost:3000')) {
+      const pathParts = url.split('/image/social/')
+      if (pathParts[1]) {
+        return `https://raw.githubusercontent.com/Absheron-Career-Portal/STORAGE/main/public/images/${pathParts[1]}`
+      }
+    }
+    return url
+  }
+
   return (
     <div className="activity-panel">
       <div className="form-section">
@@ -353,7 +399,7 @@ const uploadImage = async (file, folderName, imageNumber) => {
                   type="text"
                   value={newActivity.image}
                   onChange={(e) => setNewActivity(prev => ({ ...prev, image: e.target.value }))}
-                  placeholder="Enter image URL"
+                  placeholder="Enter image URL or upload file"
                 />
               </div>
               <div className="upload-option">
@@ -369,28 +415,29 @@ const uploadImage = async (file, folderName, imageNumber) => {
             </div>
             {newActivity.image && (
               <div className="image-preview">
-                <img src={newActivity.image} alt="Preview" className="preview-image" />
+                <img src={fixImageUrl(newActivity.image)} alt="Preview" className="preview-image" />
+                <small>Current: {newActivity.image}</small>
               </div>
             )}
           </div>
         </div>
 
         <div className="form-group">
-          <label>Additional Images (Unlimited):</label>
+          <label>Additional Images:</label>
           {newActivity.additionalImages.map((image, index) => (
             <div key={index} className="image-input-group">
               <div className="image-upload-options">
                 <div className="url-option">
-                  <label>URL for additional_{index}.jpg:</label>
+                  <label>URL for image {index + 1}:</label>
                   <input
                     type="text"
                     value={image}
                     onChange={(e) => updateImageField(index, e.target.value)}
-                    placeholder="Enter image URL"
+                    placeholder="Enter image URL or upload file"
                   />
                 </div>
                 <div className="upload-option">
-                  <label>Upload additional_{index}.jpg:</label>
+                  <label>Upload image {index + 1}:</label>
                   <input
                     type="file"
                     accept="image/*"
@@ -402,7 +449,8 @@ const uploadImage = async (file, folderName, imageNumber) => {
 
               {image && (
                 <div className="image-preview small">
-                  <img src={image} alt={`Preview ${index}`} className="preview-image" />
+                  <img src={fixImageUrl(image)} alt={`Preview ${index}`} className="preview-image" />
+                  <small>Current: {image}</small>
                 </div>
               )}
               
@@ -455,12 +503,16 @@ const uploadImage = async (file, folderName, imageNumber) => {
           activities.map(activity => (
             <div key={activity.id} className={`activity-item ${!activity.isVisible ? 'hidden' : ''}`}>
               <div className="activity-preview">
-                <img src={activity.image} alt={activity.title} className="preview-image" />
+                <img src={fixImageUrl(activity.image)} alt={activity.title} className="preview-image" 
+                     onError={(e) => {
+                       e.target.src = 'https://via.placeholder.com/200x150?text=Image+Not+Found';
+                     }} />
                 <div className="activity-info">
                   <h3>{activity.title}</h3>
                   <p><strong>Date:</strong> {activity.date}</p>
                   <p><strong>Description:</strong> {activity.description}</p>
                   <p><strong>Additional Images:</strong> {activity.additionalImages ? activity.additionalImages.length : 0}</p>
+                  <p><strong>Image Path:</strong> {activity.image}</p>
                   <p><strong>Status:</strong>
                     <span className={`status ${activity.isVisible ? 'visible' : 'hidden'}`}>
                       {activity.isVisible ? 'Visible' : 'Hidden'}
