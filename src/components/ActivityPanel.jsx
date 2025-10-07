@@ -76,58 +76,69 @@ const ActivityPanel = () => {
     }
   }
 
-  const uploadImage = async (file, folderName, imageNumber) => {
-    try {
-      console.log('🖼️ Starting image upload to GitHub...');
+const uploadImage = async (file, folderName, imageNumber) => {
+  try {
+    console.log('🖼️ Starting image upload to GitHub...');
 
-      // Validate file size before converting to base64 - REDUCE SIZE LIMIT
-      if (file.size > 2 * 1024 * 1024) { // Reduced to 2MB limit
-        throw new Error('Image too large. Maximum size is 2MB. Please compress your image.');
-      }
+    // Validate file size before converting to base64 - REDUCE SIZE LIMIT
+    if (file.size > 2 * 1024 * 1024) { // Reduced to 2MB limit
+      throw new Error('Image too large. Maximum size is 2MB. Please compress your image.');
+    }
 
-      // Convert file to base64
-      const reader = new FileReader();
-      const base64Promise = new Promise((resolve, reject) => {
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
+    // Convert file to base64
+    const reader = new FileReader();
+    const base64Promise = new Promise((resolve, reject) => {
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
 
-      const base64Image = await base64Promise;
+    const base64Image = await base64Promise;
 
-      // Compress image before upload
-      const compressedBase64 = await compressImage(base64Image, 0.7); // 70% quality
+    // Compress image before upload
+    const compressedBase64 = await compressImage(base64Image, 0.7); // 70% quality
 
-      const baseUrl = window.location.origin
-      const response = await fetch(`${baseUrl}/api/github/upload-image`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          image: compressedBase64,
-          folderName: folderName,
-          imageNumber: imageNumber,
-          baseFolder: 'image/social' // Create folders INSIDE social folder
-        }),
-      });
+    // Construct the full folder path
+    const fullFolderPath = `image/social/${folderName}`;
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Upload failed: ${response.status}`);
-      }
+    const baseUrl = window.location.origin
+    const response = await fetch(`${baseUrl}/api/github/upload-image`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        image: compressedBase64,
+        folderName: fullFolderPath, // Send the full path including image/social/
+        imageNumber: imageNumber
+      }),
+    });
 
-      const result = await response.json();
-      return result;
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Upload failed: ${response.status}`);
+    }
 
-    } catch (error) {
-      console.error('❌ Error uploading image:', error);
-      return {
-        success: false,
-        error: error.message || 'Upload failed'
+    const result = await response.json();
+    
+    // If the backend returns a path without the correct prefix, fix it here
+    if (result.success && result.path) {
+      // Ensure the path starts with /image/social/
+      if (!result.path.startsWith('/image/social/')) {
+        result.path = `/image/social/${folderName}/${imageNumber}.jpg`;
       }
     }
+    
+    return result;
+
+  } catch (error) {
+    console.error('❌ Error uploading image:', error);
+    return {
+      success: false,
+      error: error.message || 'Upload failed'
+    }
   }
+}
 
   // Image compression function
   const compressImage = (base64String, quality = 0.7) => {
