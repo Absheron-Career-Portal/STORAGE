@@ -370,9 +370,11 @@ const ActivityPanel = () => {
     }))
   }
 
-  // Fix image URLs for display - convert relative paths to absolute URLs
+  // FIXED: Properly convert relative paths to GitHub raw URLs
   const fixImageUrl = (url) => {
     if (!url) return ''
+
+    console.log('🖼️ Processing image URL:', url);
 
     // If it's already a full URL (http/https), return as-is
     if (url.startsWith('http')) {
@@ -381,14 +383,19 @@ const ActivityPanel = () => {
 
     // If it's a relative path starting with /image/, convert to GitHub raw URL
     if (url.startsWith('/image/')) {
-      // Remove the leading slash and convert to GitHub path
-      const imagePath = url.substring(1) // Remove the first '/'
-      return `https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/main/${imagePath}`
+      // Convert /image/social/brainstorm/0.jpg to GitHub raw URL
+      const imagePath = url.substring(1); // Remove the first '/'
+      
+      // Use the STORAGE repo since that's where your activity.json is stored
+      const githubRawUrl = `https://raw.githubusercontent.com/Absheron-Career-Portal/STORAGE/main/public/${imagePath}`;
+      
+      console.log('🔗 Converted to:', githubRawUrl);
+      return githubRawUrl;
     }
 
-    // If it's a GitHub raw URL from STORAGE repo, return as-is
-    if (url.includes('raw.githubusercontent.com/Absheron-Career-Portal/STORAGE')) {
-      return url
+    // If it's just a filename without path, assume it's in the STORAGE repo
+    if (!url.includes('/') && url.includes('.')) {
+      return `https://raw.githubusercontent.com/Absheron-Career-Portal/STORAGE/main/public/image/${url}`;
     }
 
     // Return as-is for any other cases
@@ -458,10 +465,7 @@ const ActivityPanel = () => {
             </div>
             {newActivity.image && (
               <div className="image-preview">
-                <img src={fixImageUrl(newActivity.image)} alt="Preview" className="preview-image"
-                  onError={(e) => {
-                    e.target.src = 'https://via.placeholder.com/200x150?text=Image+Not+Found';
-                  }} />
+                <img src={fixImageUrl(newActivity.image)} alt="Preview" className="preview-image" />
                 <small>Current: {newActivity.image}</small>
               </div>
             )}
@@ -497,10 +501,7 @@ const ActivityPanel = () => {
 
               {image && (
                 <div className="image-preview small">
-                  <img src={fixImageUrl(image)} alt={`Preview ${index}`} className="preview-image"
-                    onError={(e) => {
-                      e.target.src = 'https://via.placeholder.com/100x75?text=Image+Not+Found';
-                    }} />
+                  <img src={fixImageUrl(image)} alt={`Preview ${index}`} className="preview-image" />
                   <small>Current: {image}</small>
                 </div>
               )}
@@ -559,9 +560,6 @@ const ActivityPanel = () => {
                     src={fixImageUrl(activity.image)} 
                     alt={activity.title} 
                     className="activity-image"
-                    onError={(e) => {
-                      e.target.src = 'https://via.placeholder.com/200x150?text=Image+Not+Found';
-                    }} 
                   />
                   {!activity.isVisible && (
                     <div className="hidden-overlay">HIDDEN</div>
@@ -675,6 +673,7 @@ const ActivityPanel = () => {
           height: 150px;
           object-fit: cover;
           border-radius: 4px;
+          border: 1px solid #ddd;
         }
         
         .activity-image-container {
