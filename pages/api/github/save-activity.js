@@ -12,7 +12,7 @@ export default async function handler(req, res) {
     try {
       const { data } = req.body;
       
-      console.log('📡 GitHub Activities API called');
+      console.log('📡 Saving activities to GitHub...');
       
       if (!data) {
         return res.status(400).json({ 
@@ -24,16 +24,10 @@ export default async function handler(req, res) {
       const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
       const GITHUB_REPO = process.env.GITHUB_REPO;
 
-      console.log('🔧 Environment check:', { 
-        hasToken: !!GITHUB_TOKEN,
-        hasRepo: !!GITHUB_REPO,
-        repo: GITHUB_REPO
-      });
-
       if (!GITHUB_TOKEN || !GITHUB_REPO) {
         return res.status(500).json({
           success: false,
-          error: 'GitHub configuration missing. Please check environment variables.'
+          error: 'GitHub configuration missing'
         });
       }
 
@@ -47,7 +41,6 @@ export default async function handler(req, res) {
         headers: {
           'Authorization': `Bearer ${GITHUB_TOKEN}`,
           'Accept': 'application/vnd.github.v3+json',
-          'User-Agent': 'AKP-Website-Admin'
         }
       });
 
@@ -61,7 +54,10 @@ export default async function handler(req, res) {
       } else {
         const errorText = await getFileResponse.text();
         console.error('❌ GitHub API error:', getFileResponse.status, errorText);
-        throw new Error(`GitHub API error: ${getFileResponse.status}`);
+        return res.status(500).json({
+          success: false,
+          error: `GitHub API error: ${getFileResponse.status}`
+        });
       }
 
       // Update the file
@@ -71,7 +67,6 @@ export default async function handler(req, res) {
           'Authorization': `Bearer ${GITHUB_TOKEN}`,
           'Accept': 'application/vnd.github.v3+json',
           'Content-Type': 'application/json',
-          'User-Agent': 'AKP-Website-Admin'
         },
         body: JSON.stringify({
           message: `Update activities - ${new Date().toISOString()}`,
@@ -84,7 +79,10 @@ export default async function handler(req, res) {
 
       if (!updateResponse.ok) {
         console.error('❌ GitHub API error:', updateResponse.status, responseData);
-        throw new Error(`GitHub API error: ${responseData.message || updateResponse.status}`);
+        return res.status(500).json({
+          success: false,
+          error: `GitHub API error: ${responseData.message || updateResponse.status}`
+        });
       }
 
       console.log('✅ Activities saved to GitHub successfully!');
