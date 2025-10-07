@@ -108,7 +108,7 @@ const ActivityPanel = () => {
           image: compressedBase64,
           folderName: folderName,
           imageNumber: imageNumber,
-          baseFolder: 'images' // Specify the base images folder
+          baseFolder: 'image/social' // Create folders INSIDE social folder
         }),
       });
 
@@ -137,24 +137,24 @@ const ActivityPanel = () => {
       img.onload = () => {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
-        
+
         // Calculate new dimensions if needed (max width 1200px)
         let { width, height } = img;
         const maxWidth = 1200;
-        
+
         if (width > maxWidth) {
           height = (height * maxWidth) / width;
           width = maxWidth;
         }
-        
+
         canvas.width = width;
         canvas.height = height;
-        
+
         ctx.drawImage(img, 0, 0, width, height);
         const compressedBase64 = canvas.toDataURL('image/jpeg', quality);
         resolve(compressedBase64);
       };
-      
+
       img.onerror = () => {
         // If compression fails, return original
         resolve(base64String);
@@ -232,9 +232,9 @@ const ActivityPanel = () => {
       const result = await uploadImage(file, folderName, imageNumber)
 
       if (result.success) {
-        // The API should return the correct path like "/images/folderName/imageNumber.jpg"
+        // The API should return the correct path like "/image/social/folderName/imageNumber.jpg"
         const imagePath = result.path;
-        
+
         if (isAdditional) {
           // Update additional images
           setNewActivity(prev => ({
@@ -375,44 +375,32 @@ const ActivityPanel = () => {
   }
 
   // FIXED: Properly convert relative paths to GitHub raw URLs
-// FIXED: Properly convert relative paths to GitHub raw URLs
-const fixImageUrl = (url) => {
-  if (!url) return ''
+  const fixImageUrl = (url) => {
+    if (!url) return ''
 
-  console.log('🖼️ Processing image URL:', url);
+    console.log('🖼️ Processing image URL:', url);
 
-  // If it's already a full URL (http/https), return as-is
-  if (url.startsWith('http')) {
+    // If it's already a full URL (http/https), return as-is
+    if (url.startsWith('http')) {
+      return url
+    }
+
+    // If it's a relative path starting with /image/, convert to GitHub raw URL
+    if (url.startsWith('/image/')) {
+      // Convert /image/social/brainstorm/0.jpg to GitHub raw URL
+      const imagePath = url.substring(1); // Remove the first '/'
+
+      // Use the STORAGE repo with proper GitHub raw URL format
+      const githubRawUrl = `https://raw.githubusercontent.com/Absheron-Career-Portal/STORAGE/refs/heads/main/public/${imagePath}`;
+
+      console.log('🔗 Converted to:', githubRawUrl);
+      return githubRawUrl;
+    }
+
+    // Return as-is for any other cases
     return url
   }
 
-  // If it's a relative path starting with /images/, convert to GitHub raw URL
-  if (url.startsWith('/image/')) {
-    // Convert /images/social/brainstorm/0.jpg to GitHub raw URL
-    const imagePath = url.substring(1); // Remove the first '/'
-    
-    // Use the STORAGE repo with proper GitHub raw URL format
-    const githubRawUrl = `https://raw.githubusercontent.com/Absheron-Career-Portal/STORAGE/refs/heads/main/public/${imagePath}`;
-    
-    console.log('🔗 Converted to:', githubRawUrl);
-    return githubRawUrl;
-  }
-
-  // If it's a relative path starting with /image/ (old format), convert to /images/ format
-  if (url.startsWith('/image/')) {
-    // Convert /image/social/brainstorm/0.jpg to /images/social/brainstorm/0.jpg
-    const correctedPath = url.replace('/image/', '/image/');
-    const imagePath = correctedPath.substring(1); // Remove the first '/'
-    
-    const githubRawUrl = `https://raw.githubusercontent.com/Absheron-Career-Portal/STORAGE/refs/heads/main/public/${imagePath}`;
-    
-    console.log('🔗 Converted old format to:', githubRawUrl);
-    return githubRawUrl;
-  }
-
-  // Return as-is for any other cases
-  return url
-}
   return (
     <div className="activity-panel">
       <div className="form-section">
@@ -567,9 +555,9 @@ const fixImageUrl = (url) => {
             <div key={activity.id} className={`activity-item ${!activity.isVisible ? 'hidden' : ''}`}>
               <div className="activity-preview">
                 <div className="activity-image-container">
-                  <img 
-                    src={fixImageUrl(activity.image)} 
-                    alt={activity.title} 
+                  <img
+                    src={fixImageUrl(activity.image)}
+                    alt={activity.title}
                     className="activity-image"
                   />
                   {!activity.isVisible && (
