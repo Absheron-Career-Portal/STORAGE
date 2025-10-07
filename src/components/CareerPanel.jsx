@@ -22,14 +22,15 @@ const CareerPanel = () => {
 
 const loadCareers = async () => {
   try {
-    // Fetch from STORAGE repo raw content
-    const response = await fetch('https://raw.githubusercontent.com/Absheron-Career-Portal/STORAGE/main/career.json')
+    // Fetch from STORAGE repo public/data/ folder
+    const response = await fetch('https://raw.githubusercontent.com/Absheron-Career-Portal/STORAGE/main/public/data/career.json?t=' + Date.now())
     
     if (!response.ok) {
       throw new Error(`Failed to load careers: ${response.status}`)
     }
     
     const data = await response.json()
+    console.log('📥 Loaded careers:', data)
     
     const fixedData = data.map(career => ({
       ...career,

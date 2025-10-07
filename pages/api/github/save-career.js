@@ -31,7 +31,8 @@ export default async function handler(req, res) {
         });
       }
 
-      const filePath = 'career.json';
+      // Update path to public/data/ folder
+      const filePath = 'public/data/career.json';
       const apiUrl = `https://api.github.com/repos/${GITHUB_REPO}/contents/${filePath}`;
 
       console.log('🔗 GitHub API URL:', apiUrl);

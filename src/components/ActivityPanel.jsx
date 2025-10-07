@@ -19,14 +19,15 @@ const ActivityPanel = () => {
 
 const loadActivities = async () => {
   try {
-    // Fetch from STORAGE repo raw content
-    const response = await fetch('https://raw.githubusercontent.com/Absheron-Career-Portal/STORAGE/main/activity.json')
+    // Fetch from STORAGE repo public/data/ folder
+    const response = await fetch('https://raw.githubusercontent.com/Absheron-Career-Portal/STORAGE/main/public/data/activity.json?t=' + Date.now())
     
     if (!response.ok) {
       throw new Error(`Failed to load activities: ${response.status}`)
     }
     
     const data = await response.json()
+    console.log('📥 Loaded activities:', data)
     
     const fixedData = data.map(activity => ({
       ...activity,
