@@ -458,9 +458,9 @@ const fixImageUrl = (url) => {
                   type="text"
                   value={newActivity.image}
                   onChange={(e) => setNewActivity(prev => ({ ...prev, image: e.target.value }))}
-                  placeholder="Enter image URL (e.g., /images/social/folder/0.jpg)"
+                  placeholder="Enter image URL (e.g., /image/social/folder/0.jpg)"
                 />
-                <small>Use relative paths like: /images/social/production/0.jpg</small>
+                <small>Use relative paths like: /image/social/production/0.jpg</small>
               </div>
               <div className="upload-option">
                 <label>Upload from Device:</label>
@@ -494,9 +494,9 @@ const fixImageUrl = (url) => {
                     type="text"
                     value={image}
                     onChange={(e) => updateImageField(index, e.target.value)}
-                    placeholder="Enter image URL (e.g., /images/social/folder/1.jpg)"
+                    placeholder="Enter image URL (e.g., /image/social/folder/1.jpg)"
                   />
-                  <small>Use relative paths like: /images/social/production/1.jpg</small>
+                  <small>Use relative paths like: /image/social/production/1.jpg</small>
                 </div>
                 <div className="upload-option">
                   <label>Upload image {index + 1}:</label>
