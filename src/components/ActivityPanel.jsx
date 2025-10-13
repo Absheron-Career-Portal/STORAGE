@@ -12,6 +12,7 @@ const ActivityPanel = () => {
     isVisible: true
   })
   const [uploadingImage, setUploadingImage] = useState(false)
+  const [showDatePicker, setShowDatePicker] = useState(false)
 
   useEffect(() => {
     loadActivities()
@@ -76,66 +77,67 @@ const ActivityPanel = () => {
     }
   }
 
-const uploadImage = async (file, folderName, imageNumber) => {
-  try {
-    console.log('🖼️ Starting image upload to GitHub...');
+  const uploadImage = async (file, folderName, imageNumber) => {
+    try {
+      console.log('🖼️ Starting image upload to GitHub...');
 
-    // Validate file size before converting to base64
-    if (file.size > 2 * 1024 * 1024) {
-      throw new Error('Image too large. Maximum size is 2MB. Please compress your image.');
-    }
+      // Validate file size before converting to base64
+      if (file.size > 2 * 1024 * 1024) {
+        throw new Error('Image too large. Maximum size is 2MB. Please compress your image.');
+      }
 
-    // Convert file to base64
-    const reader = new FileReader();
-    const base64Promise = new Promise((resolve, reject) => {
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
+      // Convert file to base64
+      const reader = new FileReader();
+      const base64Promise = new Promise((resolve, reject) => {
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
 
-    const base64Image = await base64Promise;
+      const base64Image = await base64Promise;
 
-    // Compress image before upload
-    const compressedBase64 = await compressImage(base64Image, 0.7);
+      // Compress image before upload
+      const compressedBase64 = await compressImage(base64Image, 0.7);
 
-    const baseUrl = window.location.origin;
-    
-    console.log('📤 Sending upload request...');
-    
-    const response = await fetch(`${baseUrl}/api/github/upload-image`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        image: compressedBase64,
-        folderName: folderName,
-        imageNumber: imageNumber,
-        baseFolder: 'image/social' // This will be used by the backend
-      }),
-    });
+      const baseUrl = window.location.origin;
+      
+      console.log('📤 Sending upload request...');
+      
+      const response = await fetch(`${baseUrl}/api/github/upload-image`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          image: compressedBase64,
+          folderName: folderName,
+          imageNumber: imageNumber,
+          baseFolder: 'image/social' // This will be used by the backend
+        }),
+      });
 
-    console.log('📡 Upload response status:', response.status);
+      console.log('📡 Upload response status:', response.status);
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('❌ Backend error response:', errorText);
-      throw new Error(`Upload failed: ${response.status} - ${errorText}`);
-    }
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ Backend error response:', errorText);
+        throw new Error(`Upload failed: ${response.status} - ${errorText}`);
+      }
 
-    const result = await response.json();
-    console.log('✅ Upload result:', result);
-    
-    return result;
+      const result = await response.json();
+      console.log('✅ Upload result:', result);
+      
+      return result;
 
-  } catch (error) {
-    console.error('❌ Error uploading image:', error);
-    return {
-      success: false,
-      error: error.message || 'Upload failed'
+    } catch (error) {
+      console.error('❌ Error uploading image:', error);
+      return {
+        success: false,
+        error: error.message || 'Upload failed'
+      }
     }
   }
-}
+
   // Image compression function
   const compressImage = (base64String, quality = 0.7) => {
     return new Promise((resolve) => {
@@ -195,80 +197,80 @@ const uploadImage = async (file, folderName, imageNumber) => {
     }
   }
 
-const handleImageUpload = async (event, isAdditional = false, index = null) => {
-  const file = event.target.files[0]
-  if (!file) return
+  const handleImageUpload = async (event, isAdditional = false, index = null) => {
+    const file = event.target.files[0]
+    if (!file) return
 
-  // Validate file type
-  if (!file.type.startsWith('image/')) {
-    alert('Please select an image file')
-    return
-  }
-
-  // Validate file size
-  if (file.size > 2 * 1024 * 1024) {
-    alert('Image too large. Please select an image smaller than 2MB.')
-    return
-  }
-
-  setUploadingImage(true)
-
-  try {
-    // Generate folder name from title or use activity ID if editing
-    let folderName
-    if (editingId !== null) {
-      // Use existing activity ID for folder name
-      folderName = `activity_${editingId}`
-    } else if (newActivity.title) {
-      // Use title for new activity (will be replaced with ID when saved)
-      folderName = newActivity.title.toLowerCase().replace(/[^a-z0-9]/g, '_')
-    } else {
-      folderName = 'temp_activity'
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file')
+      return
     }
 
-    // Determine image number
-    let imageNumber
-    if (isAdditional) {
-      imageNumber = `${index + 1}` // additional_1.jpg, additional_2.jpg, etc.
-    } else {
-      imageNumber = '0' // Main image is 0.jpg
+    // Validate file size
+    if (file.size > 2 * 1024 * 1024) {
+      alert('Image too large. Please select an image smaller than 2MB.')
+      return
     }
 
-    console.log('📁 Upload details:', { folderName, imageNumber, isAdditional, index })
+    setUploadingImage(true)
 
-    const result = await uploadImage(file, folderName, imageNumber)
-
-    if (result.success) {
-      const imagePath = result.path;
-      console.log('✅ Image uploaded successfully:', imagePath);
-      
-      if (isAdditional) {
-        setNewActivity(prev => ({
-          ...prev,
-          additionalImages: prev.additionalImages.map((img, i) =>
-            i === index ? imagePath : img
-          )
-        }))
+    try {
+      // Generate folder name from title or use activity ID if editing
+      let folderName
+      if (editingId !== null) {
+        // Use existing activity ID for folder name
+        folderName = `activity_${editingId}`
+      } else if (newActivity.title) {
+        // Use title for new activity (will be replaced with ID when saved)
+        folderName = newActivity.title.toLowerCase().replace(/[^a-z0-9]/g, '_')
       } else {
-        setNewActivity(prev => ({
-          ...prev,
-          image: imagePath
-        }))
+        folderName = 'temp_activity'
       }
-      alert('Image uploaded successfully!')
-    } else {
-      console.error('❌ Upload failed:', result.error);
-      alert('Failed to upload image: ' + (result.error || 'Unknown error'))
+
+      // Determine image number
+      let imageNumber
+      if (isAdditional) {
+        imageNumber = `${index + 1}` // additional_1.jpg, additional_2.jpg, etc.
+      } else {
+        imageNumber = '0' // Main image is 0.jpg
+      }
+
+      console.log('📁 Upload details:', { folderName, imageNumber, isAdditional, index })
+
+      const result = await uploadImage(file, folderName, imageNumber)
+
+      if (result.success) {
+        const imagePath = result.path;
+        console.log('✅ Image uploaded successfully:', imagePath);
+        
+        if (isAdditional) {
+          setNewActivity(prev => ({
+            ...prev,
+            additionalImages: prev.additionalImages.map((img, i) =>
+              i === index ? imagePath : img
+            )
+          }))
+        } else {
+          setNewActivity(prev => ({
+            ...prev,
+            image: imagePath
+          }))
+        }
+        alert('Image uploaded successfully!')
+      } else {
+        console.error('❌ Upload failed:', result.error);
+        alert('Failed to upload image: ' + (result.error || 'Unknown error'))
+      }
+    } catch (error) {
+      console.error('❌ Error handling image upload:', error)
+      alert('Error uploading image: ' + error.message)
+    } finally {
+      setUploadingImage(false)
+      // Clear the file input
+      event.target.value = ''
     }
-  } catch (error) {
-    console.error('❌ Error handling image upload:', error)
-    alert('Error uploading image: ' + error.message)
-  } finally {
-    setUploadingImage(false)
-    // Clear the file input
-    event.target.value = ''
   }
-}
 
   const handleEdit = (activity) => {
     setEditingId(activity.id)
@@ -304,11 +306,6 @@ const handleImageUpload = async (event, isAdditional = false, index = null) => {
 
   const handleAdd = () => {
     const newId = activities.length > 0 ? Math.max(...activities.map(a => a.id)) + 1 : 1
-    const currentDate = new Date().toLocaleDateString('az-AZ', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    })
 
     // For uploaded images, they will already have GitHub URLs
     // For manual URL entries, keep them as-is
@@ -318,7 +315,7 @@ const handleImageUpload = async (event, isAdditional = false, index = null) => {
       linkImage: "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/landscape.crop.rectangle.svg",
       imageTotal: newActivity.additionalImages.filter(img => img.trim() !== '').length.toString(),
       dateImage: "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
-      date: newActivity.date || currentDate,
+      date: newActivity.date,
       title: newActivity.title,
       description: newActivity.extendedDescription.substring(0, 100) + '...',
       additionalImages: newActivity.additionalImages.filter(img => img.trim() !== ''),
@@ -355,6 +352,7 @@ const handleImageUpload = async (event, isAdditional = false, index = null) => {
       isVisible: true
     })
     setEditingId(null)
+    setShowDatePicker(false)
   }
 
   const addImageField = () => {
@@ -378,6 +376,27 @@ const handleImageUpload = async (event, isAdditional = false, index = null) => {
       ...prev,
       additionalImages: prev.additionalImages.map((img, i) => i === index ? value : img)
     }))
+  }
+
+  // Azerbaijani month names
+  const azerbaijaniMonths = [
+    'Yanvar', 'Fevral', 'Mart', 'Aprel', 'May', 'İyun',
+    'İyul', 'Avqust', 'Sentyabr', 'Oktyabr', 'Noyabr', 'Dekabr'
+  ]
+
+  const handleDateSelect = (selectedDate) => {
+    const date = new Date(selectedDate)
+    const day = date.getDate()
+    const month = azerbaijaniMonths[date.getMonth()]
+    const year = date.getFullYear()
+    
+    const formattedDate = `${day} ${month}, ${year}`
+    setNewActivity(prev => ({ ...prev, date: formattedDate }))
+    setShowDatePicker(false)
+  }
+
+  const handleManualDateChange = (e) => {
+    setNewActivity(prev => ({ ...prev, date: e.target.value }))
   }
 
   // FIXED: Properly convert relative paths to GitHub raw URLs
@@ -407,6 +426,20 @@ const handleImageUpload = async (event, isAdditional = false, index = null) => {
     return url
   }
 
+  // Generate dates for calendar (next 60 days)
+  const generateCalendarDates = () => {
+    const dates = []
+    const today = new Date()
+    
+    for (let i = 0; i < 60; i++) {
+      const date = new Date()
+      date.setDate(today.getDate() + i)
+      dates.push(date)
+    }
+    
+    return dates
+  }
+
   return (
     <div className="activity-panel">
       <div className="form-section">
@@ -434,12 +467,58 @@ const handleImageUpload = async (event, isAdditional = false, index = null) => {
 
         <div className="form-group">
           <label>Date:</label>
-          <input
-            type="text"
-            value={newActivity.date}
-            onChange={(e) => setNewActivity(prev => ({ ...prev, date: e.target.value }))}
-            placeholder="e.g., 1 Sentyabr, 2025"
-          />
+          <div className="date-input-container">
+            <input
+              type="text"
+              value={newActivity.date}
+              onChange={handleManualDateChange}
+              onFocus={() => setShowDatePicker(true)}
+              placeholder="e.g., 1 Sentyabr, 2025"
+              className="date-input"
+            />
+            <button 
+              type="button" 
+              className="calendar-toggle-btn"
+              onClick={() => setShowDatePicker(!showDatePicker)}
+            >
+              📅
+            </button>
+            
+            {showDatePicker && (
+              <div className="date-picker-popup">
+                <div className="date-picker-header">
+                  <h4>Tarixi seçin</h4>
+                  <button 
+                    type="button" 
+                    className="close-picker-btn"
+                    onClick={() => setShowDatePicker(false)}
+                  >
+                    ✕
+                  </button>
+                </div>
+                <div className="calendar-dates">
+                  {generateCalendarDates().map((date, index) => {
+                    const day = date.getDate()
+                    const month = azerbaijaniMonths[date.getMonth()]
+                    const year = date.getFullYear()
+                    const formattedDate = `${day} ${month}, ${year}`
+                    
+                    return (
+                      <button
+                        key={index}
+                        type="button"
+                        className="calendar-date-btn"
+                        onClick={() => handleDateSelect(date)}
+                      >
+                        {formattedDate}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+          <small>Format: 1 Sentyabr, 2025 (Azerbaijani format)</small>
         </div>
 
         <div className="form-group">
@@ -618,6 +697,7 @@ const handleImageUpload = async (event, isAdditional = false, index = null) => {
         
         .form-group {
           margin-bottom: 1.5rem;
+          position: relative;
         }
         
         .form-group label {
@@ -632,6 +712,89 @@ const handleImageUpload = async (event, isAdditional = false, index = null) => {
           padding: 0.5rem;
           border: 1px solid #ddd;
           border-radius: 4px;
+        }
+        
+        .date-input-container {
+          position: relative;
+          display: flex;
+          align-items: center;
+        }
+        
+        .date-input {
+          flex: 1;
+          padding-right: 2.5rem;
+        }
+        
+        .calendar-toggle-btn {
+          position: absolute;
+          right: 0.5rem;
+          background: none;
+          border: none;
+          font-size: 1.2rem;
+          cursor: pointer;
+          padding: 0.25rem;
+        }
+        
+        .date-picker-popup {
+          position: absolute;
+          top: 100%;
+          left: 0;
+          right: 0;
+          background: white;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+          box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+          z-index: 1000;
+          max-height: 300px;
+          overflow-y: auto;
+          margin-top: 0.25rem;
+        }
+        
+        .date-picker-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 0.75rem;
+          border-bottom: 1px solid #eee;
+          background: #f8f9fa;
+        }
+        
+        .date-picker-header h4 {
+          margin: 0;
+          font-size: 0.9rem;
+        }
+        
+        .close-picker-btn {
+          background: none;
+          border: none;
+          font-size: 1rem;
+          cursor: pointer;
+          padding: 0.25rem;
+        }
+        
+        .calendar-dates {
+          display: flex;
+          flex-direction: column;
+          max-height: 250px;
+          overflow-y: auto;
+        }
+        
+        .calendar-date-btn {
+          padding: 0.75rem;
+          border: none;
+          background: none;
+          text-align: left;
+          cursor: pointer;
+          border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .calendar-date-btn:hover {
+          background: #007bff;
+          color: white;
+        }
+        
+        .calendar-date-btn:last-child {
+          border-bottom: none;
         }
         
         .image-upload-section {

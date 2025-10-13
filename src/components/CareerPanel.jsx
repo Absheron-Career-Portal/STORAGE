@@ -15,6 +15,7 @@ const CareerPanel = () => {
     link: '',
     isVisible: true
   })
+  const [showDatePicker, setShowDatePicker] = useState(null) // 'postDate' or 'expireDate'
 
   useEffect(() => {
     loadCareers()
@@ -148,18 +149,13 @@ const updateJSONFile = async (updatedCareers) => {
     }
 
     const newId = careers.length > 0 ? Math.max(...careers.map(c => c.id)) + 1 : 1
-    const currentDate = new Date().toLocaleDateString('az-AZ', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    })
 
     const newCareerItem = {
       id: newId,
       title: newCareer.title,
       description: newCareer.description,
       dateImage: "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
-      date: newCareer.date || currentDate,
+      date: newCareer.date,
       expireDate: newCareer.expireDate,
       location: newCareer.location,
       type: newCareer.type,
@@ -201,6 +197,52 @@ const updateJSONFile = async (updatedCareers) => {
       isVisible: true
     })
     setEditingId(null)
+    setShowDatePicker(null)
+  }
+
+  // Azerbaijani month names
+  const azerbaijaniMonths = [
+    'Yanvar', 'Fevral', 'Mart', 'Aprel', 'May', 'İyun',
+    'İyul', 'Avqust', 'Sentyabr', 'Oktyabr', 'Noyabr', 'Dekabr'
+  ]
+
+  const handleDateSelect = (selectedDate, field) => {
+    const date = new Date(selectedDate)
+    const day = date.getDate()
+    const month = azerbaijaniMonths[date.getMonth()]
+    const year = date.getFullYear()
+    
+    const formattedDate = `${day} ${month}, ${year}`
+    
+    if (field === 'postDate') {
+      setNewCareer(prev => ({ ...prev, date: formattedDate }))
+    } else if (field === 'expireDate') {
+      setNewCareer(prev => ({ ...prev, expireDate: formattedDate }))
+    }
+    
+    setShowDatePicker(null)
+  }
+
+  const handleManualDateChange = (e, field) => {
+    if (field === 'postDate') {
+      setNewCareer(prev => ({ ...prev, date: e.target.value }))
+    } else if (field === 'expireDate') {
+      setNewCareer(prev => ({ ...prev, expireDate: e.target.value }))
+    }
+  }
+
+  // Generate dates for calendar (next 365 days)
+  const generateCalendarDates = () => {
+    const dates = []
+    const today = new Date()
+    
+    for (let i = 0; i < 365; i++) {
+      const date = new Date()
+      date.setDate(today.getDate() + i)
+      dates.push(date)
+    }
+    
+    return dates
   }
 
   return (
@@ -232,22 +274,114 @@ const updateJSONFile = async (updatedCareers) => {
 
         <div className="form-group">
           <label>Post Date:</label>
-          <input
-            type="text"
-            value={newCareer.date}
-            onChange={(e) => setNewCareer(prev => ({...prev, date: e.target.value}))}
-            placeholder="e.g., 1 Sentyabr, 2024"
-          />
+          <div className="date-input-container">
+            <input
+              type="text"
+              value={newCareer.date}
+              onChange={(e) => handleManualDateChange(e, 'postDate')}
+              onFocus={() => setShowDatePicker('postDate')}
+              placeholder="e.g., 1 Sentyabr, 2024"
+              className="date-input"
+            />
+            <button 
+              type="button" 
+              className="calendar-toggle-btn"
+              onClick={() => setShowDatePicker(showDatePicker === 'postDate' ? null : 'postDate')}
+            >
+              📅
+            </button>
+            
+            {showDatePicker === 'postDate' && (
+              <div className="date-picker-popup">
+                <div className="date-picker-header">
+                  <h4>Paylama tarixini seçin</h4>
+                  <button 
+                    type="button" 
+                    className="close-picker-btn"
+                    onClick={() => setShowDatePicker(null)}
+                  >
+                    ✕
+                  </button>
+                </div>
+                <div className="calendar-dates">
+                  {generateCalendarDates().map((date, index) => {
+                    const day = date.getDate()
+                    const month = azerbaijaniMonths[date.getMonth()]
+                    const year = date.getFullYear()
+                    const formattedDate = `${day} ${month}, ${year}`
+                    
+                    return (
+                      <button
+                        key={index}
+                        type="button"
+                        className="calendar-date-btn"
+                        onClick={() => handleDateSelect(date, 'postDate')}
+                      >
+                        {formattedDate}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+          <small>Format: 1 Sentyabr, 2024 (Azerbaijani format)</small>
         </div>
 
         <div className="form-group">
           <label>Expire Date:</label>
-          <input
-            type="text"
-            value={newCareer.expireDate}
-            onChange={(e) => setNewCareer(prev => ({...prev, expireDate: e.target.value}))}
-            placeholder="e.g., 1 Oktyabr, 2026"
-          />
+          <div className="date-input-container">
+            <input
+              type="text"
+              value={newCareer.expireDate}
+              onChange={(e) => handleManualDateChange(e, 'expireDate')}
+              onFocus={() => setShowDatePicker('expireDate')}
+              placeholder="e.g., 1 Oktyabr, 2026"
+              className="date-input"
+            />
+            <button 
+              type="button" 
+              className="calendar-toggle-btn"
+              onClick={() => setShowDatePicker(showDatePicker === 'expireDate' ? null : 'expireDate')}
+            >
+              📅
+            </button>
+            
+            {showDatePicker === 'expireDate' && (
+              <div className="date-picker-popup">
+                <div className="date-picker-header">
+                  <h4>Bitmə tarixini seçin</h4>
+                  <button 
+                    type="button" 
+                    className="close-picker-btn"
+                    onClick={() => setShowDatePicker(null)}
+                  >
+                    ✕
+                  </button>
+                </div>
+                <div className="calendar-dates">
+                  {generateCalendarDates().map((date, index) => {
+                    const day = date.getDate()
+                    const month = azerbaijaniMonths[date.getMonth()]
+                    const year = date.getFullYear()
+                    const formattedDate = `${day} ${month}, ${year}`
+                    
+                    return (
+                      <button
+                        key={index}
+                        type="button"
+                        className="calendar-date-btn"
+                        onClick={() => handleDateSelect(date, 'expireDate')}
+                      >
+                        {formattedDate}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+          <small>Format: 1 Oktyabr, 2026 (Azerbaijani format)</small>
         </div>
 
         <div className="form-group">
@@ -368,6 +502,7 @@ const updateJSONFile = async (updatedCareers) => {
         
         .form-group {
           margin-bottom: 15px;
+          position: relative;
         }
         
         .form-group label {
@@ -383,6 +518,89 @@ const updateJSONFile = async (updatedCareers) => {
           border: 1px solid #ddd;
           border-radius: 4px;
           box-sizing: border-box;
+        }
+        
+        .date-input-container {
+          position: relative;
+          display: flex;
+          align-items: center;
+        }
+        
+        .date-input {
+          flex: 1;
+          padding-right: 2.5rem;
+        }
+        
+        .calendar-toggle-btn {
+          position: absolute;
+          right: 0.5rem;
+          background: none;
+          border: none;
+          font-size: 1.2rem;
+          cursor: pointer;
+          padding: 0.25rem;
+        }
+        
+        .date-picker-popup {
+          position: absolute;
+          top: 100%;
+          left: 0;
+          right: 0;
+          background: white;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+          box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+          z-index: 1000;
+          max-height: 300px;
+          overflow-y: auto;
+          margin-top: 0.25rem;
+        }
+        
+        .date-picker-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 0.75rem;
+          border-bottom: 1px solid #eee;
+          background: #f8f9fa;
+        }
+        
+        .date-picker-header h4 {
+          margin: 0;
+          font-size: 0.9rem;
+        }
+        
+        .close-picker-btn {
+          background: none;
+          border: none;
+          font-size: 1rem;
+          cursor: pointer;
+          padding: 0.25rem;
+        }
+        
+        .calendar-dates {
+          display: flex;
+          flex-direction: column;
+          max-height: 250px;
+          overflow-y: auto;
+        }
+        
+        .calendar-date-btn {
+          padding: 0.75rem;
+          border: none;
+          background: none;
+          text-align: left;
+          cursor: pointer;
+          border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .calendar-date-btn:hover {
+          background: #007bff;
+          color: white;
+        }
+        
+        .calendar-date-btn:last-child {
+          border-bottom: none;
         }
         
         .checkbox-label {
@@ -510,6 +728,13 @@ const updateJSONFile = async (updatedCareers) => {
           padding: 10px 20px;
           border-radius: 4px;
           z-index: 1000;
+        }
+        
+        small {
+          color: #666;
+          font-size: 0.8rem;
+          display: block;
+          margin-top: 0.25rem;
         }
         
         @media (max-width: 768px) {
