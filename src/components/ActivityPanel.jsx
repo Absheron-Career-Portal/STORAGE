@@ -140,15 +140,14 @@ const ActivityPanel = () => {
     })
   }
 
-  const saveActivities = async (updatedActivities) => {
+  // FIXED: Only save to localStorage, NOT to GitHub
+  const saveActivitiesLocally = (updatedActivities) => {
     try {
-      console.log('💾 Saving activities:', updatedActivities)
+      console.log('💾 Saving activities locally:', updatedActivities)
       setActivities(updatedActivities)
       localStorage.setItem('activities', JSON.stringify(updatedActivities))
       setHasUnsavedChanges(true)
-      
-      // Auto-save to JSON file but don't show alert
-      await updateJSONFile(updatedActivities)
+      // NO auto-save to GitHub - only on publish
     } catch (error) {
       console.error('Error saving activities:', error)
     }
@@ -166,6 +165,13 @@ const ActivityPanel = () => {
     } catch (error) {
       console.error('Error publishing changes:', error)
       alert('Error publishing changes: ' + error.message)
+    }
+  }
+
+  const discardChanges = () => {
+    if (window.confirm('Are you sure you want to discard all unsaved changes?')) {
+      loadActivities() // Reload from original source
+      setHasUnsavedChanges(false)
     }
   }
 
@@ -243,7 +249,7 @@ const ActivityPanel = () => {
           }
         : activity
     )
-    saveActivities(updatedActivities)
+    saveActivitiesLocally(updatedActivities) // FIXED: Use local save only
     setEditingId(null)
     resetForm()
   }
@@ -265,14 +271,14 @@ const ActivityPanel = () => {
     }
 
     const updatedActivities = [...activities, newActivityItem]
-    saveActivities(updatedActivities)
+    saveActivitiesLocally(updatedActivities) // FIXED: Use local save only
     resetForm()
   }
 
   const handleDelete = (id) => {
     if (window.confirm('Are you sure you want to delete this activity?')) {
       const updatedActivities = activities.filter(activity => activity.id !== id)
-      saveActivities(updatedActivities)
+      saveActivitiesLocally(updatedActivities) // FIXED: Use local save only
     }
   }
 
@@ -280,7 +286,7 @@ const ActivityPanel = () => {
     const updatedActivities = activities.map(activity =>
       activity.id === id ? { ...activity, isVisible: !activity.isVisible } : activity
     )
-    saveActivities(updatedActivities)
+    saveActivitiesLocally(updatedActivities) // FIXED: Use local save only
   }
 
   const resetForm = () => {
@@ -399,9 +405,14 @@ const ActivityPanel = () => {
         <div className="publish-bar">
           <div className="publish-content">
             <span className="unsaved-changes">⚠️ You have unsaved changes</span>
-            <button className="publish-btn" onClick={publishChanges}>
-              📢 Publish All Changes
-            </button>
+            <div className="publish-actions">
+              <button className="discard-btn" onClick={discardChanges}>
+                Cancel Changes
+              </button>
+              <button className="publish-btn" onClick={publishChanges}>
+                📢 Publish All Changes
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -668,6 +679,12 @@ const ActivityPanel = () => {
           margin: 0 auto;
         }
         
+        .publish-actions {
+          display: flex;
+          gap: 1rem;
+          align-items: center;
+        }
+        
         .unsaved-changes {
           font-weight: bold;
           color: #856404;
@@ -687,6 +704,20 @@ const ActivityPanel = () => {
           background: #218838;
         }
         
+        .discard-btn {
+          background: #6c757d;
+          color: white;
+          border: none;
+          padding: 0.75rem 1.5rem;
+          border-radius: 4px;
+          cursor: pointer;
+          font-weight: bold;
+        }
+        
+        .discard-btn:hover {
+          background: #5a6268;
+        }
+        
         .form-section {
           flex: 1;
           background: #f5f5f5;
@@ -698,6 +729,7 @@ const ActivityPanel = () => {
           flex: 1;
         }
         
+        /* Rest of the styles remain the same */
         .form-group {
           margin-bottom: 1.5rem;
           position: relative;
@@ -825,7 +857,6 @@ const ActivityPanel = () => {
           opacity: 0.5;
         }
         
-        /* Rest of the styles remain the same */
         .image-upload-section {
           border: 1px solid #ddd;
           padding: 1rem;

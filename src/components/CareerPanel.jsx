@@ -16,10 +16,12 @@ const CareerPanel = () => {
     isVisible: true
   })
   const [showDatePicker, setShowDatePicker] = useState(null) // 'postDate' or 'expireDate'
+  const [currentMonth, setCurrentMonth] = useState(new Date())
+  const [expireMonth, setExpireMonth] = useState(new Date())
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
 
   useEffect(() => {
     loadCareers()
-    // Set today's date and auto expire date when component loads
     setTodayDates()
   }, [])
 
@@ -30,10 +32,8 @@ const CareerPanel = () => {
     const year = today.getFullYear()
     const formattedDate = `${day} ${month}, ${year}`
     
-    // Set post date to today
     setNewCareer(prev => ({ ...prev, date: formattedDate }))
     
-    // Set expire date to 1 year from today
     const nextYear = new Date(today)
     nextYear.setFullYear(today.getFullYear() + 1)
     const expireDay = nextYear.getDate()
@@ -44,86 +44,87 @@ const CareerPanel = () => {
     setNewCareer(prev => ({ ...prev, expireDate: formattedExpireDate }))
   }
 
-const loadCareers = async () => {
-  try {
-    // Fetch from STORAGE repo public/data/ folder
-    const response = await fetch('https://raw.githubusercontent.com/Absheron-Career-Portal/STORAGE/main/public/data/career.json?t=' + Date.now())
-    
-    if (!response.ok) {
-      throw new Error(`Failed to load careers: ${response.status}`)
-    }
-    
-    const data = await response.json()
-    console.log('📥 Loaded careers:', data)
-    
-    const fixedData = data.map(career => ({
-      ...career,
-      isVisible: career.isVisible === undefined ? true : career.isVisible
-    }))
-    
-    setCareers(fixedData)
-  } catch (error) {
-    console.error('Error loading careers:', error)
-    // Fallback to localStorage if available
-    const localCareers = localStorage.getItem('careers')
-    if (localCareers) {
-      setCareers(JSON.parse(localCareers))
-    }
-  }
-}
-const updateJSONFile = async (updatedCareers) => {
-  try {
-    console.log('🔄 Sending careers to GitHub API...');
-    
-    const baseUrl = window.location.origin
-    const response = await fetch(`${baseUrl}/api/github/save-career`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        data: updatedCareers
-      }),
-    })
-    
-    console.log('📡 GitHub Response status:', response.status);
-    
-    if (!response.ok) {
-      const errorText = await response.text()
-      throw new Error(`GitHub API error: ${response.status} - ${errorText}`);
-    }
-    
-    const result = await response.json()
-    console.log('✅ GitHub API response:', result);
-    return result.success
-  } catch (error) {
-    console.error('❌ Error updating careers via GitHub:', error)
-    return false
-  }
-}
-
-  const saveCareers = async (updatedCareers) => {
+  const loadCareers = async () => {
     try {
-      setLoading(true)
-      // Update React state
-      setCareers(updatedCareers)
-      
-      // Update localStorage as backup
-      localStorage.setItem('careers', JSON.stringify(updatedCareers))
-      
-      // Update actual JSON file
-      const jsonUpdated = await updateJSONFile(updatedCareers)
-      
-      if (jsonUpdated) {
-        alert('Career saved successfully! JSON file updated.')
-      } else {
-        alert('Career saved to browser storage only! JSON file update failed.')
+      const response = await fetch('https://raw.githubusercontent.com/Absheron-Career-Portal/STORAGE/main/public/data/career.json?t=' + Date.now())
+      if (!response.ok) throw new Error(`Failed to load careers: ${response.status}`)
+
+      const data = await response.json()
+      console.log('📥 Loaded careers:', data)
+
+      const fixedData = data.map(career => ({
+        ...career,
+        isVisible: career.isVisible === undefined ? true : career.isVisible
+      }))
+
+      setCareers(fixedData)
+      setHasUnsavedChanges(false) // Reset unsaved changes when loading fresh data
+    } catch (error) {
+      console.error('Error loading careers:', error)
+      const localCareers = localStorage.getItem('careers')
+      if (localCareers) setCareers(JSON.parse(localCareers))
+    }
+  }
+
+  const updateJSONFile = async (updatedCareers) => {
+    try {
+      console.log('🔄 Sending careers to GitHub API...')
+      const baseUrl = window.location.origin
+      const response = await fetch(`${baseUrl}/api/github/save-career`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data: updatedCareers }),
+      })
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        throw new Error(`GitHub API error: ${response.status} - ${errorText}`)
       }
+
+      const result = await response.json()
+      console.log('✅ GitHub API response:', result)
+      return result.success
+    } catch (error) {
+      console.error('❌ Error updating careers via GitHub:', error)
+      return false
+    }
+  }
+
+  // FIXED: Only save to localStorage, NOT to GitHub
+  const saveCareersLocally = (updatedCareers) => {
+    try {
+      console.log('💾 Saving careers locally:', updatedCareers)
+      setCareers(updatedCareers)
+      localStorage.setItem('careers', JSON.stringify(updatedCareers))
+      setHasUnsavedChanges(true)
+      // NO auto-save to GitHub - only on publish
     } catch (error) {
       console.error('Error saving careers:', error)
-      alert('Error saving career: ' + error.message)
+    }
+  }
+
+  const publishChanges = async () => {
+    try {
+      setLoading(true)
+      const jsonUpdated = await updateJSONFile(careers)
+      if (jsonUpdated) {
+        alert('Changes published successfully! JSON file updated.')
+        setHasUnsavedChanges(false)
+      } else {
+        alert('Failed to publish changes! Check console for errors.')
+      }
+    } catch (error) {
+      console.error('Error publishing changes:', error)
+      alert('Error publishing changes: ' + error.message)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const discardChanges = () => {
+    if (window.confirm('Are you sure you want to discard all unsaved changes?')) {
+      loadCareers() // Reload from original source
+      setHasUnsavedChanges(false)
     }
   }
 
@@ -159,8 +160,7 @@ const updateJSONFile = async (updatedCareers) => {
           }
         : career
     )
-    
-    saveCareers(updatedCareers)
+    saveCareersLocally(updatedCareers) // FIXED: Use local save only
     setEditingId(null)
     resetForm()
   }
@@ -189,14 +189,14 @@ const updateJSONFile = async (updatedCareers) => {
     }
 
     const updatedCareers = [...careers, newCareerItem]
-    saveCareers(updatedCareers)
+    saveCareersLocally(updatedCareers) // FIXED: Use local save only
     resetForm()
   }
 
   const handleDelete = (id) => {
     if (window.confirm('Are you sure you want to delete this career?')) {
       const updatedCareers = careers.filter(career => career.id !== id)
-      saveCareers(updatedCareers)
+      saveCareersLocally(updatedCareers) // FIXED: Use local save only
     }
   }
 
@@ -204,7 +204,7 @@ const updateJSONFile = async (updatedCareers) => {
     const updatedCareers = careers.map(career =>
       career.id === id ? { ...career, isVisible: !career.isVisible } : career
     )
-    saveCareers(updatedCareers)
+    saveCareersLocally(updatedCareers) // FIXED: Use local save only
   }
 
   const resetForm = () => {
@@ -221,22 +221,21 @@ const updateJSONFile = async (updatedCareers) => {
     })
     setEditingId(null)
     setShowDatePicker(null)
-    // Reset to today's dates when form resets
     setTodayDates()
   }
 
-  // Azerbaijani month names
+  // Azerbaijani month names and weekdays
   const azerbaijaniMonths = [
     'Yanvar', 'Fevral', 'Mart', 'Aprel', 'May', 'İyun',
     'İyul', 'Avqust', 'Sentyabr', 'Oktyabr', 'Noyabr', 'Dekabr'
   ]
 
+  const azerbaijaniWeekdays = ['B', 'Be', 'Ça', 'Ç', 'Ca', 'C', 'Ş']
+
   const handleDateSelect = (selectedDate, field) => {
-    const date = new Date(selectedDate)
-    const day = date.getDate()
-    const month = azerbaijaniMonths[date.getMonth()]
-    const year = date.getFullYear()
-    
+    const day = selectedDate.getDate()
+    const month = azerbaijaniMonths[selectedDate.getMonth()]
+    const year = selectedDate.getFullYear()
     const formattedDate = `${day} ${month}, ${year}`
     
     if (field === 'postDate') {
@@ -248,18 +247,52 @@ const updateJSONFile = async (updatedCareers) => {
     setShowDatePicker(null)
   }
 
-  // Generate dates for calendar (next 365 days)
-  const generateCalendarDates = () => {
-    const dates = []
-    const today = new Date()
+  const generateCalendarDays = (month) => {
+    const year = month.getFullYear()
+    const monthIndex = month.getMonth()
     
-    for (let i = 0; i < 365; i++) {
-      const date = new Date()
-      date.setDate(today.getDate() + i)
-      dates.push(date)
+    const firstDay = new Date(year, monthIndex, 1)
+    const lastDay = new Date(year, monthIndex + 1, 0)
+    const daysInMonth = lastDay.getDate()
+    
+    const startingDay = firstDay.getDay()
+    const days = []
+
+    // Previous month days
+    const prevMonthLastDay = new Date(year, monthIndex, 0).getDate()
+    for (let i = startingDay - 1; i >= 0; i--) {
+      days.push(new Date(year, monthIndex - 1, prevMonthLastDay - i))
     }
-    
-    return dates
+
+    // Current month days
+    for (let i = 1; i <= daysInMonth; i++) {
+      days.push(new Date(year, monthIndex, i))
+    }
+
+    // Next month days
+    const totalCells = 42 // 6 weeks
+    const nextMonthDays = totalCells - days.length
+    for (let i = 1; i <= nextMonthDays; i++) {
+      days.push(new Date(year, monthIndex + 1, i))
+    }
+
+    return days
+  }
+
+  const navigateMonth = (direction, calendarType) => {
+    if (calendarType === 'postDate') {
+      setCurrentMonth(prev => {
+        const newMonth = new Date(prev)
+        newMonth.setMonth(prev.getMonth() + direction)
+        return newMonth
+      })
+    } else if (calendarType === 'expireDate') {
+      setExpireMonth(prev => {
+        const newMonth = new Date(prev)
+        newMonth.setMonth(prev.getMonth() + direction)
+        return newMonth
+      })
+    }
   }
 
   // Quick date options for expire date
@@ -284,8 +317,29 @@ const updateJSONFile = async (updatedCareers) => {
     setNewCareer(prev => ({ ...prev, expireDate: formattedDate }))
   }
 
+  const postCalendarDays = generateCalendarDays(currentMonth)
+  const expireCalendarDays = generateCalendarDays(expireMonth)
+  const today = new Date()
+
   return (
     <div className="career-panel">
+      {/* Publish Button */}
+      {hasUnsavedChanges && (
+        <div className="publish-bar">
+          <div className="publish-content">
+            <span className="unsaved-changes">⚠️ You have unsaved changes</span>
+            <div className="publish-actions">
+              <button className="discard-btn" onClick={discardChanges}>
+                Cancel Changes
+              </button>
+              <button className="publish-btn" onClick={publishChanges}>
+                📢 Publish All Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {loading && <div className="loading">Loading...</div>}
       
       <div className="form-section">
@@ -333,7 +387,21 @@ const updateJSONFile = async (updatedCareers) => {
             {showDatePicker === 'postDate' && (
               <div className="date-picker-popup">
                 <div className="date-picker-header">
-                  <h4>Paylama tarixini seçin</h4>
+                  <button 
+                    type="button" 
+                    className="nav-btn"
+                    onClick={() => navigateMonth(-1, 'postDate')}
+                  >
+                    ‹
+                  </button>
+                  <h4>{azerbaijaniMonths[currentMonth.getMonth()]} {currentMonth.getFullYear()}</h4>
+                  <button 
+                    type="button" 
+                    className="nav-btn"
+                    onClick={() => navigateMonth(1, 'postDate')}
+                  >
+                    ›
+                  </button>
                   <button 
                     type="button" 
                     className="close-picker-btn"
@@ -342,26 +410,29 @@ const updateJSONFile = async (updatedCareers) => {
                     ✕
                   </button>
                 </div>
-                <div className="calendar-dates">
-                  {generateCalendarDates().map((date, index) => {
-                    const day = date.getDate()
-                    const month = azerbaijaniMonths[date.getMonth()]
-                    const year = date.getFullYear()
-                    const formattedDate = `${day} ${month}, ${year}`
-                    
-                    // Check if this is today's date
-                    const today = new Date()
+                
+                <div className="calendar-weekdays">
+                  {azerbaijaniWeekdays.map(day => (
+                    <div key={day} className="weekday">{day}</div>
+                  ))}
+                </div>
+                
+                <div className="calendar-grid">
+                  {postCalendarDays.map((date, index) => {
+                    const isCurrentMonth = date.getMonth() === currentMonth.getMonth()
                     const isToday = date.toDateString() === today.toDateString()
+                    const isSelected = newCareer.date.includes(date.getDate().toString()) && 
+                                      newCareer.date.includes(azerbaijaniMonths[date.getMonth()])
                     
                     return (
                       <button
                         key={index}
                         type="button"
-                        className={`calendar-date-btn ${isToday ? 'today' : ''}`}
-                        onClick={() => handleDateSelect(date, 'postDate')}
+                        className={`calendar-day ${!isCurrentMonth ? 'other-month' : ''} ${isToday ? 'today' : ''} ${isSelected ? 'selected' : ''}`}
+                        onClick={() => isCurrentMonth && handleDateSelect(date, 'postDate')}
+                        disabled={!isCurrentMonth}
                       >
-                        {formattedDate}
-                        {isToday && <span className="today-badge">Bu gün</span>}
+                        {date.getDate()}
                       </button>
                     )
                   })}
@@ -394,7 +465,21 @@ const updateJSONFile = async (updatedCareers) => {
             {showDatePicker === 'expireDate' && (
               <div className="date-picker-popup">
                 <div className="date-picker-header">
-                  <h4>Bitmə tarixini seçin</h4>
+                  <button 
+                    type="button" 
+                    className="nav-btn"
+                    onClick={() => navigateMonth(-1, 'expireDate')}
+                  >
+                    ‹
+                  </button>
+                  <h4>{azerbaijaniMonths[expireMonth.getMonth()]} {expireMonth.getFullYear()}</h4>
+                  <button 
+                    type="button" 
+                    className="nav-btn"
+                    onClick={() => navigateMonth(1, 'expireDate')}
+                  >
+                    ›
+                  </button>
                   <button 
                     type="button" 
                     className="close-picker-btn"
@@ -403,6 +488,7 @@ const updateJSONFile = async (updatedCareers) => {
                     ✕
                   </button>
                 </div>
+
                 <div className="quick-date-options">
                   <h5>Sürətli seçim:</h5>
                   <div className="quick-buttons">
@@ -418,21 +504,29 @@ const updateJSONFile = async (updatedCareers) => {
                     ))}
                   </div>
                 </div>
-                <div className="calendar-dates">
-                  {generateCalendarDates().map((date, index) => {
-                    const day = date.getDate()
-                    const month = azerbaijaniMonths[date.getMonth()]
-                    const year = date.getFullYear()
-                    const formattedDate = `${day} ${month}, ${year}`
+                
+                <div className="calendar-weekdays">
+                  {azerbaijaniWeekdays.map(day => (
+                    <div key={day} className="weekday">{day}</div>
+                  ))}
+                </div>
+                
+                <div className="calendar-grid">
+                  {expireCalendarDays.map((date, index) => {
+                    const isCurrentMonth = date.getMonth() === expireMonth.getMonth()
+                    const isToday = date.toDateString() === today.toDateString()
+                    const isSelected = newCareer.expireDate.includes(date.getDate().toString()) && 
+                                      newCareer.expireDate.includes(azerbaijaniMonths[date.getMonth()])
                     
                     return (
                       <button
                         key={index}
                         type="button"
-                        className="calendar-date-btn"
-                        onClick={() => handleDateSelect(date, 'expireDate')}
+                        className={`calendar-day ${!isCurrentMonth ? 'other-month' : ''} ${isToday ? 'today' : ''} ${isSelected ? 'selected' : ''}`}
+                        onClick={() => isCurrentMonth && handleDateSelect(date, 'expireDate')}
+                        disabled={!isCurrentMonth}
                       >
-                        {formattedDate}
+                        {date.getDate()}
                       </button>
                     )
                   })}
@@ -551,6 +645,65 @@ const updateJSONFile = async (updatedCareers) => {
           grid-template-columns: 1fr 1fr;
           gap: 30px;
           padding: 20px;
+          padding-bottom: 80px;
+        }
+        
+        .publish-bar {
+          position: fixed;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          background: #ffc107;
+          padding: 1rem;
+          z-index: 1000;
+          border-top: 2px solid #e0a800;
+        }
+        
+        .publish-content {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          max-width: 1200px;
+          margin: 0 auto;
+        }
+        
+        .publish-actions {
+          display: flex;
+          gap: 1rem;
+          align-items: center;
+        }
+        
+        .unsaved-changes {
+          font-weight: bold;
+          color: #856404;
+        }
+        
+        .publish-btn {
+          background: #28a745;
+          color: white;
+          border: none;
+          padding: 0.75rem 1.5rem;
+          border-radius: 4px;
+          cursor: pointer;
+          font-weight: bold;
+        }
+        
+        .publish-btn:hover {
+          background: #218838;
+        }
+        
+        .discard-btn {
+          background: #6c757d;
+          color: white;
+          border: none;
+          padding: 0.75rem 1.5rem;
+          border-radius: 4px;
+          cursor: pointer;
+          font-weight: bold;
+        }
+        
+        .discard-btn:hover {
+          background: #5a6268;
         }
         
         .form-section {
@@ -590,6 +743,9 @@ const updateJSONFile = async (updatedCareers) => {
           padding-right: 2.5rem;
           cursor: pointer;
           background: white;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+          padding: 8px;
         }
         
         .calendar-toggle-btn {
@@ -609,32 +765,37 @@ const updateJSONFile = async (updatedCareers) => {
           right: 0;
           background: white;
           border: 1px solid #ddd;
-          border-radius: 4px;
-          box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+          border-radius: 8px;
+          box-shadow: 0 4px 20px rgba(0,0,0,0.15);
           z-index: 1000;
-          max-height: 400px;
-          overflow-y: auto;
-          margin-top: 0.25rem;
+          margin-top: 0.5rem;
+          padding: 1rem;
         }
         
         .date-picker-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          padding: 0.75rem;
-          border-bottom: 1px solid #eee;
-          background: #f8f9fa;
+          margin-bottom: 1rem;
         }
         
-        .date-picker-header h4 {
-          margin: 0;
-          font-size: 0.9rem;
+        .nav-btn {
+          background: none;
+          border: none;
+          font-size: 1.5rem;
+          cursor: pointer;
+          padding: 0.25rem 0.5rem;
+        }
+        
+        .nav-btn:hover {
+          background: #f0f0f0;
+          border-radius: 4px;
         }
         
         .close-picker-btn {
           background: none;
           border: none;
-          font-size: 1rem;
+          font-size: 1.2rem;
           cursor: pointer;
           padding: 0.25rem;
         }
@@ -643,6 +804,7 @@ const updateJSONFile = async (updatedCareers) => {
           padding: 0.75rem;
           border-bottom: 1px solid #eee;
           background: #f0f8ff;
+          margin-bottom: 1rem;
         }
         
         .quick-date-options h5 {
@@ -671,46 +833,59 @@ const updateJSONFile = async (updatedCareers) => {
           background: #0056b3;
         }
         
-        .calendar-dates {
-          display: flex;
-          flex-direction: column;
-          max-height: 250px;
-          overflow-y: auto;
+        .calendar-weekdays {
+          display: grid;
+          grid-template-columns: repeat(7, 1fr);
+          gap: 2px;
+          margin-bottom: 0.5rem;
         }
         
-        .calendar-date-btn {
-          padding: 0.75rem;
+        .weekday {
+          text-align: center;
+          font-weight: bold;
+          font-size: 0.8rem;
+          color: #666;
+          padding: 0.5rem;
+        }
+        
+        .calendar-grid {
+          display: grid;
+          grid-template-columns: repeat(7, 1fr);
+          gap: 2px;
+        }
+        
+        .calendar-day {
           border: none;
           background: none;
-          text-align: left;
+          padding: 0.75rem;
           cursor: pointer;
-          border-bottom: 1px solid #f0f0f0;
-          position: relative;
+          border-radius: 4px;
+          font-size: 0.9rem;
         }
         
-        .calendar-date-btn:hover {
+        .calendar-day:hover:not(:disabled) {
           background: #007bff;
           color: white;
         }
         
-        .calendar-date-btn.today {
+        .calendar-day.today {
           background: #e7f3ff;
           font-weight: bold;
         }
         
-        .today-badge {
-          position: absolute;
-          right: 0.5rem;
+        .calendar-day.selected {
           background: #28a745;
           color: white;
-          padding: 0.1rem 0.4rem;
-          border-radius: 10px;
-          font-size: 0.7rem;
-          font-weight: normal;
         }
         
-        .calendar-date-btn:last-child {
-          border-bottom: none;
+        .calendar-day.other-month {
+          color: #ccc;
+          cursor: not-allowed;
+        }
+        
+        .calendar-day:disabled {
+          cursor: not-allowed;
+          opacity: 0.5;
         }
         
         .checkbox-label {
