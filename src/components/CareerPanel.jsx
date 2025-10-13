@@ -19,7 +19,30 @@ const CareerPanel = () => {
 
   useEffect(() => {
     loadCareers()
+    // Set today's date and auto expire date when component loads
+    setTodayDates()
   }, [])
+
+  const setTodayDates = () => {
+    const today = new Date()
+    const day = today.getDate()
+    const month = azerbaijaniMonths[today.getMonth()]
+    const year = today.getFullYear()
+    const formattedDate = `${day} ${month}, ${year}`
+    
+    // Set post date to today
+    setNewCareer(prev => ({ ...prev, date: formattedDate }))
+    
+    // Set expire date to 1 year from today
+    const nextYear = new Date(today)
+    nextYear.setFullYear(today.getFullYear() + 1)
+    const expireDay = nextYear.getDate()
+    const expireMonth = azerbaijaniMonths[nextYear.getMonth()]
+    const expireYear = nextYear.getFullYear()
+    const formattedExpireDate = `${expireDay} ${expireMonth}, ${expireYear}`
+    
+    setNewCareer(prev => ({ ...prev, expireDate: formattedExpireDate }))
+  }
 
 const loadCareers = async () => {
   try {
@@ -198,6 +221,8 @@ const updateJSONFile = async (updatedCareers) => {
     })
     setEditingId(null)
     setShowDatePicker(null)
+    // Reset to today's dates when form resets
+    setTodayDates()
   }
 
   // Azerbaijani month names
@@ -223,14 +248,6 @@ const updateJSONFile = async (updatedCareers) => {
     setShowDatePicker(null)
   }
 
-  const handleManualDateChange = (e, field) => {
-    if (field === 'postDate') {
-      setNewCareer(prev => ({ ...prev, date: e.target.value }))
-    } else if (field === 'expireDate') {
-      setNewCareer(prev => ({ ...prev, expireDate: e.target.value }))
-    }
-  }
-
   // Generate dates for calendar (next 365 days)
   const generateCalendarDates = () => {
     const dates = []
@@ -243,6 +260,28 @@ const updateJSONFile = async (updatedCareers) => {
     }
     
     return dates
+  }
+
+  // Quick date options for expire date
+  const quickExpireOptions = [
+    { label: '1 ay', months: 1 },
+    { label: '3 ay', months: 3 },
+    { label: '6 ay', months: 6 },
+    { label: '1 il', months: 12 },
+    { label: '2 il', months: 24 }
+  ]
+
+  const handleQuickExpireSelect = (months) => {
+    const today = new Date()
+    const expireDate = new Date(today)
+    expireDate.setMonth(today.getMonth() + months)
+    
+    const day = expireDate.getDate()
+    const month = azerbaijaniMonths[expireDate.getMonth()]
+    const year = expireDate.getFullYear()
+    const formattedDate = `${day} ${month}, ${year}`
+    
+    setNewCareer(prev => ({ ...prev, expireDate: formattedDate }))
   }
 
   return (
@@ -278,9 +317,9 @@ const updateJSONFile = async (updatedCareers) => {
             <input
               type="text"
               value={newCareer.date}
-              onChange={(e) => handleManualDateChange(e, 'postDate')}
-              onFocus={() => setShowDatePicker('postDate')}
-              placeholder="e.g., 1 Sentyabr, 2024"
+              readOnly
+              onClick={() => setShowDatePicker('postDate')}
+              placeholder="Click to select date"
               className="date-input"
             />
             <button 
@@ -310,14 +349,19 @@ const updateJSONFile = async (updatedCareers) => {
                     const year = date.getFullYear()
                     const formattedDate = `${day} ${month}, ${year}`
                     
+                    // Check if this is today's date
+                    const today = new Date()
+                    const isToday = date.toDateString() === today.toDateString()
+                    
                     return (
                       <button
                         key={index}
                         type="button"
-                        className="calendar-date-btn"
+                        className={`calendar-date-btn ${isToday ? 'today' : ''}`}
                         onClick={() => handleDateSelect(date, 'postDate')}
                       >
                         {formattedDate}
+                        {isToday && <span className="today-badge">Bu gün</span>}
                       </button>
                     )
                   })}
@@ -334,9 +378,9 @@ const updateJSONFile = async (updatedCareers) => {
             <input
               type="text"
               value={newCareer.expireDate}
-              onChange={(e) => handleManualDateChange(e, 'expireDate')}
-              onFocus={() => setShowDatePicker('expireDate')}
-              placeholder="e.g., 1 Oktyabr, 2026"
+              readOnly
+              onClick={() => setShowDatePicker('expireDate')}
+              placeholder="Click to select date"
               className="date-input"
             />
             <button 
@@ -358,6 +402,21 @@ const updateJSONFile = async (updatedCareers) => {
                   >
                     ✕
                   </button>
+                </div>
+                <div className="quick-date-options">
+                  <h5>Sürətli seçim:</h5>
+                  <div className="quick-buttons">
+                    {quickExpireOptions.map((option, index) => (
+                      <button
+                        key={index}
+                        type="button"
+                        className="quick-date-btn"
+                        onClick={() => handleQuickExpireSelect(option.months)}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
                 <div className="calendar-dates">
                   {generateCalendarDates().map((date, index) => {
@@ -381,7 +440,7 @@ const updateJSONFile = async (updatedCareers) => {
               </div>
             )}
           </div>
-          <small>Format: 1 Oktyabr, 2026 (Azerbaijani format)</small>
+          <small>Format: 1 Oktyabr, 2026 (Azerbaijani format) - Automatically set to 1 year from today</small>
         </div>
 
         <div className="form-group">
@@ -529,6 +588,8 @@ const updateJSONFile = async (updatedCareers) => {
         .date-input {
           flex: 1;
           padding-right: 2.5rem;
+          cursor: pointer;
+          background: white;
         }
         
         .calendar-toggle-btn {
@@ -551,7 +612,7 @@ const updateJSONFile = async (updatedCareers) => {
           border-radius: 4px;
           box-shadow: 0 2px 10px rgba(0,0,0,0.1);
           z-index: 1000;
-          max-height: 300px;
+          max-height: 400px;
           overflow-y: auto;
           margin-top: 0.25rem;
         }
@@ -578,6 +639,38 @@ const updateJSONFile = async (updatedCareers) => {
           padding: 0.25rem;
         }
         
+        .quick-date-options {
+          padding: 0.75rem;
+          border-bottom: 1px solid #eee;
+          background: #f0f8ff;
+        }
+        
+        .quick-date-options h5 {
+          margin: 0 0 0.5rem 0;
+          font-size: 0.8rem;
+          color: #666;
+        }
+        
+        .quick-buttons {
+          display: flex;
+          gap: 0.5rem;
+          flex-wrap: wrap;
+        }
+        
+        .quick-date-btn {
+          background: #007bff;
+          color: white;
+          border: none;
+          padding: 0.4rem 0.8rem;
+          border-radius: 4px;
+          cursor: pointer;
+          font-size: 0.8rem;
+        }
+        
+        .quick-date-btn:hover {
+          background: #0056b3;
+        }
+        
         .calendar-dates {
           display: flex;
           flex-direction: column;
@@ -592,11 +685,28 @@ const updateJSONFile = async (updatedCareers) => {
           text-align: left;
           cursor: pointer;
           border-bottom: 1px solid #f0f0f0;
+          position: relative;
         }
         
         .calendar-date-btn:hover {
           background: #007bff;
           color: white;
+        }
+        
+        .calendar-date-btn.today {
+          background: #e7f3ff;
+          font-weight: bold;
+        }
+        
+        .today-badge {
+          position: absolute;
+          right: 0.5rem;
+          background: #28a745;
+          color: white;
+          padding: 0.1rem 0.4rem;
+          border-radius: 10px;
+          font-size: 0.7rem;
+          font-weight: normal;
         }
         
         .calendar-date-btn:last-child {
@@ -740,6 +850,10 @@ const updateJSONFile = async (updatedCareers) => {
         @media (max-width: 768px) {
           .career-panel {
             grid-template-columns: 1fr;
+          }
+          
+          .quick-buttons {
+            justify-content: center;
           }
         }
       `}</style>

@@ -16,7 +16,18 @@ const ActivityPanel = () => {
 
   useEffect(() => {
     loadActivities()
+    // Set today's date automatically when component loads
+    setTodayDate()
   }, [])
+
+  const setTodayDate = () => {
+    const today = new Date()
+    const day = today.getDate()
+    const month = azerbaijaniMonths[today.getMonth()]
+    const year = today.getFullYear()
+    const formattedDate = `${day} ${month}, ${year}`
+    setNewActivity(prev => ({ ...prev, date: formattedDate }))
+  }
 
   const loadActivities = async () => {
     try {
@@ -77,67 +88,66 @@ const ActivityPanel = () => {
     }
   }
 
-  const uploadImage = async (file, folderName, imageNumber) => {
-    try {
-      console.log('🖼️ Starting image upload to GitHub...');
+const uploadImage = async (file, folderName, imageNumber) => {
+  try {
+    console.log('🖼️ Starting image upload to GitHub...');
 
-      // Validate file size before converting to base64
-      if (file.size > 2 * 1024 * 1024) {
-        throw new Error('Image too large. Maximum size is 2MB. Please compress your image.');
-      }
+    // Validate file size before converting to base64
+    if (file.size > 2 * 1024 * 1024) {
+      throw new Error('Image too large. Maximum size is 2MB. Please compress your image.');
+    }
 
-      // Convert file to base64
-      const reader = new FileReader();
-      const base64Promise = new Promise((resolve, reject) => {
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
+    // Convert file to base64
+    const reader = new FileReader();
+    const base64Promise = new Promise((resolve, reject) => {
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
 
-      const base64Image = await base64Promise;
+    const base64Image = await base64Promise;
 
-      // Compress image before upload
-      const compressedBase64 = await compressImage(base64Image, 0.7);
+    // Compress image before upload
+    const compressedBase64 = await compressImage(base64Image, 0.7);
 
-      const baseUrl = window.location.origin;
-      
-      console.log('📤 Sending upload request...');
-      
-      const response = await fetch(`${baseUrl}/api/github/upload-image`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          image: compressedBase64,
-          folderName: folderName,
-          imageNumber: imageNumber,
-          baseFolder: 'image/social' // This will be used by the backend
-        }),
-      });
+    const baseUrl = window.location.origin;
+    
+    console.log('📤 Sending upload request...');
+    
+    const response = await fetch(`${baseUrl}/api/github/upload-image`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        image: compressedBase64,
+        folderName: folderName,
+        imageNumber: imageNumber,
+        baseFolder: 'image/social' // This will be used by the backend
+      }),
+    });
 
-      console.log('📡 Upload response status:', response.status);
+    console.log('📡 Upload response status:', response.status);
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('❌ Backend error response:', errorText);
-        throw new Error(`Upload failed: ${response.status} - ${errorText}`);
-      }
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ Backend error response:', errorText);
+      throw new Error(`Upload failed: ${response.status} - ${errorText}`);
+    }
 
-      const result = await response.json();
-      console.log('✅ Upload result:', result);
-      
-      return result;
+    const result = await response.json();
+    console.log('✅ Upload result:', result);
+    
+    return result;
 
-    } catch (error) {
-      console.error('❌ Error uploading image:', error);
-      return {
-        success: false,
-        error: error.message || 'Upload failed'
-      }
+  } catch (error) {
+    console.error('❌ Error uploading image:', error);
+    return {
+      success: false,
+      error: error.message || 'Upload failed'
     }
   }
-
+}
   // Image compression function
   const compressImage = (base64String, quality = 0.7) => {
     return new Promise((resolve) => {
@@ -197,80 +207,80 @@ const ActivityPanel = () => {
     }
   }
 
-  const handleImageUpload = async (event, isAdditional = false, index = null) => {
-    const file = event.target.files[0]
-    if (!file) return
+const handleImageUpload = async (event, isAdditional = false, index = null) => {
+  const file = event.target.files[0]
+  if (!file) return
 
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      alert('Please select an image file')
-      return
-    }
-
-    // Validate file size
-    if (file.size > 2 * 1024 * 1024) {
-      alert('Image too large. Please select an image smaller than 2MB.')
-      return
-    }
-
-    setUploadingImage(true)
-
-    try {
-      // Generate folder name from title or use activity ID if editing
-      let folderName
-      if (editingId !== null) {
-        // Use existing activity ID for folder name
-        folderName = `activity_${editingId}`
-      } else if (newActivity.title) {
-        // Use title for new activity (will be replaced with ID when saved)
-        folderName = newActivity.title.toLowerCase().replace(/[^a-z0-9]/g, '_')
-      } else {
-        folderName = 'temp_activity'
-      }
-
-      // Determine image number
-      let imageNumber
-      if (isAdditional) {
-        imageNumber = `${index + 1}` // additional_1.jpg, additional_2.jpg, etc.
-      } else {
-        imageNumber = '0' // Main image is 0.jpg
-      }
-
-      console.log('📁 Upload details:', { folderName, imageNumber, isAdditional, index })
-
-      const result = await uploadImage(file, folderName, imageNumber)
-
-      if (result.success) {
-        const imagePath = result.path;
-        console.log('✅ Image uploaded successfully:', imagePath);
-        
-        if (isAdditional) {
-          setNewActivity(prev => ({
-            ...prev,
-            additionalImages: prev.additionalImages.map((img, i) =>
-              i === index ? imagePath : img
-            )
-          }))
-        } else {
-          setNewActivity(prev => ({
-            ...prev,
-            image: imagePath
-          }))
-        }
-        alert('Image uploaded successfully!')
-      } else {
-        console.error('❌ Upload failed:', result.error);
-        alert('Failed to upload image: ' + (result.error || 'Unknown error'))
-      }
-    } catch (error) {
-      console.error('❌ Error handling image upload:', error)
-      alert('Error uploading image: ' + error.message)
-    } finally {
-      setUploadingImage(false)
-      // Clear the file input
-      event.target.value = ''
-    }
+  // Validate file type
+  if (!file.type.startsWith('image/')) {
+    alert('Please select an image file')
+    return
   }
+
+  // Validate file size
+  if (file.size > 2 * 1024 * 1024) {
+    alert('Image too large. Please select an image smaller than 2MB.')
+    return
+  }
+
+  setUploadingImage(true)
+
+  try {
+    // Generate folder name from title or use activity ID if editing
+    let folderName
+    if (editingId !== null) {
+      // Use existing activity ID for folder name
+      folderName = `activity_${editingId}`
+    } else if (newActivity.title) {
+      // Use title for new activity (will be replaced with ID when saved)
+      folderName = newActivity.title.toLowerCase().replace(/[^a-z0-9]/g, '_')
+    } else {
+      folderName = 'temp_activity'
+    }
+
+    // Determine image number
+    let imageNumber
+    if (isAdditional) {
+      imageNumber = `${index + 1}` // additional_1.jpg, additional_2.jpg, etc.
+    } else {
+      imageNumber = '0' // Main image is 0.jpg
+    }
+
+    console.log('📁 Upload details:', { folderName, imageNumber, isAdditional, index })
+
+    const result = await uploadImage(file, folderName, imageNumber)
+
+    if (result.success) {
+      const imagePath = result.path;
+      console.log('✅ Image uploaded successfully:', imagePath);
+      
+      if (isAdditional) {
+        setNewActivity(prev => ({
+          ...prev,
+          additionalImages: prev.additionalImages.map((img, i) =>
+            i === index ? imagePath : img
+          )
+        }))
+      } else {
+        setNewActivity(prev => ({
+          ...prev,
+          image: imagePath
+        }))
+      }
+      alert('Image uploaded successfully!')
+    } else {
+      console.error('❌ Upload failed:', result.error);
+      alert('Failed to upload image: ' + (result.error || 'Unknown error'))
+    }
+  } catch (error) {
+    console.error('❌ Error handling image upload:', error)
+    alert('Error uploading image: ' + error.message)
+  } finally {
+    setUploadingImage(false)
+    // Clear the file input
+    event.target.value = ''
+  }
+}
 
   const handleEdit = (activity) => {
     setEditingId(activity.id)
@@ -353,6 +363,8 @@ const ActivityPanel = () => {
     })
     setEditingId(null)
     setShowDatePicker(false)
+    // Set today's date when resetting form
+    setTodayDate()
   }
 
   const addImageField = () => {
@@ -395,8 +407,18 @@ const ActivityPanel = () => {
     setShowDatePicker(false)
   }
 
-  const handleManualDateChange = (e) => {
-    setNewActivity(prev => ({ ...prev, date: e.target.value }))
+  // Generate dates for calendar (next 60 days)
+  const generateCalendarDates = () => {
+    const dates = []
+    const today = new Date()
+    
+    for (let i = 0; i < 60; i++) {
+      const date = new Date()
+      date.setDate(today.getDate() + i)
+      dates.push(date)
+    }
+    
+    return dates
   }
 
   // FIXED: Properly convert relative paths to GitHub raw URLs
@@ -424,20 +446,6 @@ const ActivityPanel = () => {
 
     // Return as-is for any other cases
     return url
-  }
-
-  // Generate dates for calendar (next 60 days)
-  const generateCalendarDates = () => {
-    const dates = []
-    const today = new Date()
-    
-    for (let i = 0; i < 60; i++) {
-      const date = new Date()
-      date.setDate(today.getDate() + i)
-      dates.push(date)
-    }
-    
-    return dates
   }
 
   return (
@@ -471,9 +479,9 @@ const ActivityPanel = () => {
             <input
               type="text"
               value={newActivity.date}
-              onChange={handleManualDateChange}
-              onFocus={() => setShowDatePicker(true)}
-              placeholder="e.g., 1 Sentyabr, 2025"
+              readOnly
+              onClick={() => setShowDatePicker(true)}
+              placeholder="Click to select date"
               className="date-input"
             />
             <button 
@@ -503,14 +511,19 @@ const ActivityPanel = () => {
                     const year = date.getFullYear()
                     const formattedDate = `${day} ${month}, ${year}`
                     
+                    // Check if this is today's date
+                    const today = new Date()
+                    const isToday = date.toDateString() === today.toDateString()
+                    
                     return (
                       <button
                         key={index}
                         type="button"
-                        className="calendar-date-btn"
+                        className={`calendar-date-btn ${isToday ? 'today' : ''}`}
                         onClick={() => handleDateSelect(date)}
                       >
                         {formattedDate}
+                        {isToday && <span className="today-badge">Bu gün</span>}
                       </button>
                     )
                   })}
@@ -723,6 +736,8 @@ const ActivityPanel = () => {
         .date-input {
           flex: 1;
           padding-right: 2.5rem;
+          cursor: pointer;
+          background: white;
         }
         
         .calendar-toggle-btn {
@@ -786,11 +801,28 @@ const ActivityPanel = () => {
           text-align: left;
           cursor: pointer;
           border-bottom: 1px solid #f0f0f0;
+          position: relative;
         }
         
         .calendar-date-btn:hover {
           background: #007bff;
           color: white;
+        }
+        
+        .calendar-date-btn.today {
+          background: #e7f3ff;
+          font-weight: bold;
+        }
+        
+        .today-badge {
+          position: absolute;
+          right: 0.5rem;
+          background: #28a745;
+          color: white;
+          padding: 0.1rem 0.4rem;
+          border-radius: 10px;
+          font-size: 0.7rem;
+          font-weight: normal;
         }
         
         .calendar-date-btn:last-child {
