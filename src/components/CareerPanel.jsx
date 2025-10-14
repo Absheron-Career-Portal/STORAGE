@@ -1113,14 +1113,6 @@ const CareerPanel = () => {
           border-radius: 4px;
           cursor: pointer;
         }
-        .delete-btn {
-          background: #dc3545;
-          color: white;
-          border: none;
-          padding: 5px 10px;
-          border-radius: 4px;
-          cursor: pointer;
-        }
         
         .status {
           margin-left: 8px;

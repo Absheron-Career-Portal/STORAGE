@@ -1,109 +1,91 @@
+// pages/api/github/save-description.js
 export default async function handler(req, res) {
-  // Enable CORS
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' })
   }
 
-  if (req.method === 'POST') {
+  try {
+    const { fileName, content } = req.body
+
+    if (!fileName || content === undefined) {
+      return res.status(400).json({ error: 'FileName and content are required' })
+    }
+
+    // GitHub API configuration
+    const owner = 'Absheron-Career-Portal'
+    const repo = 'STORAGE'
+    const path = `public/docs/${fileName}`
+    const branch = 'main'
+    const token = process.env.GITHUB_TOKEN
+
+    if (!token) {
+      return res.status(500).json({ error: 'GitHub token not configured' })
+    }
+
+    // Get the current file SHA if it exists
+    let sha = null
     try {
-      const { data } = req.body;
-      
-      console.log('📡 Saving careers to GitHub...');
-      
-      if (!data) {
-        return res.status(400).json({ 
-          success: false,
-          error: 'No data provided' 
-        });
-      }
-
-      const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
-      const GITHUB_REPO = process.env.GITHUB_REPO;
-
-      if (!GITHUB_TOKEN || !GITHUB_REPO) {
-        return res.status(500).json({
-          success: false,
-          error: 'GitHub configuration missing'
-        });
-      }
-
-      // Update path to public/data/ folder
-      const filePath = 'public/data/career.json';
-      const apiUrl = `https://api.github.com/repos/${GITHUB_REPO}/contents/${filePath}`;
-
-      console.log('🔗 GitHub API URL:', apiUrl);
-
-      // Get the current file to get its SHA
-      const getFileResponse = await fetch(apiUrl, {
-        headers: {
-          'Authorization': `Bearer ${GITHUB_TOKEN}`,
-          'Accept': 'application/vnd.github.v3+json',
+      const getResponse = await fetch(
+        `https://api.github.com/repos/${owner}/${repo}/contents/${path}`,
+        {
+          headers: {
+            Authorization: `token ${token}`,
+            Accept: 'application/vnd.github.v3+json',
+          },
         }
-      });
+      )
 
-      let sha = null;
-      if (getFileResponse.status === 200) {
-        const fileData = await getFileResponse.json();
-        sha = fileData.sha;
-        console.log('📄 Found existing file with SHA:', sha);
-      } else if (getFileResponse.status === 404) {
-        console.log('📄 File does not exist, will create new file');
-      } else {
-        const errorText = await getFileResponse.text();
-        console.error('❌ GitHub API error:', getFileResponse.status, errorText);
-        return res.status(500).json({
-          success: false,
-          error: `GitHub API error: ${getFileResponse.status}`
-        });
+      if (getResponse.ok) {
+        const fileData = await getResponse.json()
+        sha = fileData.sha
       }
+    } catch (error) {
+      // File doesn't exist, which is fine for new files
+    }
 
-      // Update the file
-      const updateResponse = await fetch(apiUrl, {
+    // Encode content to base64
+    const encodedContent = Buffer.from(content).toString('base64')
+
+    const response = await fetch(
+      `https://api.github.com/repos/${owner}/${repo}/contents/${path}`,
+      {
         method: 'PUT',
         headers: {
-          'Authorization': `Bearer ${GITHUB_TOKEN}`,
-          'Accept': 'application/vnd.github.v3+json',
+          Authorization: `token ${token}`,
+          Accept: 'application/vnd.github.v3+json',
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          message: `Update careers - ${new Date().toISOString()}`,
-          content: Buffer.from(JSON.stringify(data, null, 2)).toString('base64'),
-          sha: sha
-        })
-      });
-
-      const responseData = await updateResponse.json();
-
-      if (!updateResponse.ok) {
-        console.error('❌ GitHub API error:', updateResponse.status, responseData);
-        return res.status(500).json({
-          success: false,
-          error: `GitHub API error: ${responseData.message || updateResponse.status}`
-        });
+          message: `Update description file: ${fileName}`,
+          content: encodedContent,
+          sha: sha,
+          branch: branch,
+        }),
       }
+    )
 
-      console.log('✅ Careers saved to GitHub successfully!');
-      
-      return res.status(200).json({ 
-        success: true,
-        message: 'Careers saved to GitHub successfully'
-      });
-    } catch (error) {
-      console.error('❌ Error saving careers to GitHub:', error);
-      return res.status(500).json({ 
-        success: false,
-        error: 'Failed to save careers: ' + error.message 
-      });
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error('GitHub API error:', errorText)
+      return res.status(response.status).json({ 
+        error: `GitHub API error: ${response.status}`,
+        details: errorText
+      })
     }
-  } else {
-    res.setHeader('Allow', ['POST']);
-    return res.status(405).json({ 
-      success: false,
-      error: `Method ${req.method} Not Allowed` 
-    });
+
+    const result = await response.json()
+    console.log('✅ Description file saved successfully:', fileName)
+    
+    res.status(200).json({ 
+      success: true, 
+      message: 'Description file saved successfully',
+      file: result.content 
+    })
+  } catch (error) {
+    console.error('Error saving description file:', error)
+    res.status(500).json({ 
+      error: 'Failed to save description file',
+      details: error.message 
+    })
   }
 }
