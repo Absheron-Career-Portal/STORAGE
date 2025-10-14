@@ -147,7 +147,8 @@ const updateJSONFile = async (updatedCareers) => {
 
 const saveDescriptionToFile = async (description, fileName, retryCount = 0) => {
   try {
-    console.log('📝 Saving description to file:', fileName)
+    console.log(`📝 Saving description to file: ${fileName} (attempt ${retryCount + 1})`)
+    
     const baseUrl = window.location.origin
     const response = await fetch(`${baseUrl}/api/github/save-career`, {
       method: 'POST',
@@ -161,12 +162,14 @@ const saveDescriptionToFile = async (description, fileName, retryCount = 0) => {
 
     if (!response.ok) {
       const errorText = await response.text()
+      console.error(`GitHub API error for ${fileName}:`, response.status, errorText)
       
-      // If it's a 409 error and we haven't retried too many times
+      // If it's a 409 conflict error, retry with exponential backoff
       if (response.status === 409 && retryCount < 3) {
-        console.log(`🔄 Retrying ${fileName} due to SHA conflict (attempt ${retryCount + 1})`)
-        // Wait a bit before retrying (increasing delay)
-        await new Promise(resolve => setTimeout(resolve, 2000 * (retryCount + 1)))
+        const delay = 2000 * Math.pow(2, retryCount) // 2s, 4s, 8s
+        console.log(`🔄 SHA conflict detected. Retrying ${fileName} in ${delay}ms (attempt ${retryCount + 1})`)
+        
+        await new Promise(resolve => setTimeout(resolve, delay))
         return saveDescriptionToFile(description, fileName, retryCount + 1)
       }
       
@@ -174,14 +177,14 @@ const saveDescriptionToFile = async (description, fileName, retryCount = 0) => {
     }
 
     const result = await response.json()
-    console.log('✅ Description file saved:', result)
-    return result.success
+    console.log('✅ Description file saved:', fileName)
+    return true
+    
   } catch (error) {
     console.error('❌ Error saving description file:', error)
     return false
   }
 }
-
   const generateFileName = (title) => {
     // Convert title to safe filename
     const safeTitle = title
@@ -215,7 +218,21 @@ const publishChanges = async () => {
   try {
     setLoading(true)
     
-    // Process description files SEQUENTIALLY to avoid SHA conflicts
+    console.log('🚀 Starting publish process...')
+    
+    // First, update the JSON file with current data
+    console.log('📄 Step 1: Updating career.json file...')
+    const jsonUpdated = await updateJSONFile(careers)
+    
+    if (!jsonUpdated) {
+      alert('Failed to update career data! Check console for errors.')
+      return
+    }
+    
+    console.log('✅ Career JSON file updated successfully')
+    
+    // Then process description files SEQUENTIALLY with delays
+    console.log('📝 Step 2: Updating description files...')
     let failedFiles = []
     
     for (let i = 0; i < careers.length; i++) {
@@ -230,30 +247,23 @@ const publishChanges = async () => {
           failedFiles.push(career.title)
           console.error(`❌ Failed to save description for: ${career.title}`)
         } else {
-          console.log(`✅ Successfully saved description for: ${career.title}`)
+          console.log(`✅ Successfully saved description for: ${carer.title}`)
         }
         
         // Add delay between requests to reduce conflict chances
-        await new Promise(resolve => setTimeout(resolve, 1000))
+        await new Promise(resolve => setTimeout(resolve, 1500))
       }
     }
     
     if (failedFiles.length > 0) {
-      alert(`Failed to save description files for: ${failedFiles.join(', ')}\n\nCheck console for details.`)
-      return
-    }
-    
-    // Then update the JSON file
-    const jsonUpdated = await updateJSONFile(careers)
-    
-    if (jsonUpdated) {
-      alert('Changes published successfully! JSON file and description files updated.')
-      setHasUnsavedChanges(false)
+      alert(`Some description files failed to save: ${failedFiles.join(', ')}\n\nBut career data was updated successfully.`)
     } else {
-      alert('Failed to publish changes! Check console for errors.')
+      alert('✅ All changes published successfully!')
+      setHasUnsavedChanges(false)
     }
+    
   } catch (error) {
-    console.error('Error publishing changes:', error)
+    console.error('❌ Error publishing changes:', error)
     alert('Error publishing changes: ' + error.message)
   } finally {
     setLoading(false)
