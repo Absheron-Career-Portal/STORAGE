@@ -1,19 +1,20 @@
-// pages/api/github/save-description.js
+// pages/api/github/save-career.js
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
   try {
-    const { fileName, content } = req.body
+    const { data } = req.body  // Changed from fileName, content to data
 
-    if (!fileName || content === undefined) {
-      return res.status(400).json({ error: 'FileName and content are required' })
+    if (!data) {
+      return res.status(400).json({ error: 'Career data is required' })
     }
 
+    // GitHub API configuration - update to save career.json file
     const owner = 'Absheron-Career-Portal'
     const repo = 'STORAGE'
-    const path = `public/docs/${fileName}`
+    const path = 'public/data/career.json'  // Fixed path for the JSON file
     const branch = 'main'
     const token = process.env.GITHUB_TOKEN
 
@@ -38,9 +39,11 @@ export default async function handler(req, res) {
         sha = fileData.sha
       }
     } catch (error) {
+      console.log('Career.json file does not exist or error fetching SHA')
     }
 
-    // Encode content to base64
+    // Encode the career data to base64
+    const content = JSON.stringify(data, null, 2)  // Convert array to JSON string
     const encodedContent = Buffer.from(content).toString('base64')
 
     const response = await fetch(
@@ -53,7 +56,7 @@ export default async function handler(req, res) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          message: `Update description file: ${fileName}`,
+          message: `Update career data`,
           content: encodedContent,
           sha: sha,
           branch: branch,
@@ -71,17 +74,16 @@ export default async function handler(req, res) {
     }
 
     const result = await response.json()
-    console.log('✅ Description file saved successfully:', fileName)
+    console.log('✅ Career JSON file saved successfully')
     
     res.status(200).json({ 
       success: true, 
-      message: 'Description file saved successfully',
-      file: result.content 
+      message: 'Career data saved successfully'
     })
   } catch (error) {
-    console.error('Error saving description file:', error)
+    console.error('Error saving career data:', error)
     res.status(500).json({ 
-      error: 'Failed to save description file',
+      error: 'Failed to save career data',
       details: error.message 
     })
   }
