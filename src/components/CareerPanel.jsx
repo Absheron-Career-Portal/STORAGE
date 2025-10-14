@@ -145,22 +145,31 @@ const updateJSONFile = async (updatedCareers) => {
   }
 }
 
-const saveDescriptionToFile = async (description, fileName) => {
+const saveDescriptionToFile = async (description, fileName, retryCount = 0) => {
   try {
     console.log('📝 Saving description to file:', fileName)
     const baseUrl = window.location.origin
-    const response = await fetch(`${baseUrl}/api/github/save-career`, {  // Changed to save-career
+    const response = await fetch(`${baseUrl}/api/github/save-career`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
         fileName: fileName,
         content: description,
-        action: 'save-description'  // Added action parameter
+        action: 'save-description'
       }),
     })
 
     if (!response.ok) {
       const errorText = await response.text()
+      
+      // If it's a 409 error and we haven't retried too many times
+      if (response.status === 409 && retryCount < 3) {
+        console.log(`🔄 Retrying ${fileName} due to SHA conflict (attempt ${retryCount + 1})`)
+        // Wait a bit before retrying (increasing delay)
+        await new Promise(resolve => setTimeout(resolve, 2000 * (retryCount + 1)))
+        return saveDescriptionToFile(description, fileName, retryCount + 1)
+      }
+      
       throw new Error(`GitHub API error: ${response.status} - ${errorText}`)
     }
 
@@ -202,44 +211,54 @@ const saveDescriptionToFile = async (description, fileName) => {
     }
   }
 
-  const publishChanges = async () => {
-    try {
-      setLoading(true)
-      
-      // First, save all description files to GitHub
-      const descriptionPromises = careers.map(async (career) => {
-        if (career.descriptionFile && career.descriptionContent) {
-          const fileName = career.descriptionFile.replace('../docs/', '')
-          return await saveDescriptionToFile(career.descriptionContent, fileName)
+const publishChanges = async () => {
+  try {
+    setLoading(true)
+    
+    // Process description files SEQUENTIALLY to avoid SHA conflicts
+    let failedFiles = []
+    
+    for (let i = 0; i < careers.length; i++) {
+      const career = careers[i]
+      if (career.descriptionFile && career.descriptionContent) {
+        const fileName = career.descriptionFile.replace('../docs/', '')
+        console.log(`📝 Saving description ${i + 1}/${careers.length}: ${fileName}`)
+        
+        const success = await saveDescriptionToFile(career.descriptionContent, fileName)
+        
+        if (!success) {
+          failedFiles.push(career.title)
+          console.error(`❌ Failed to save description for: ${career.title}`)
+        } else {
+          console.log(`✅ Successfully saved description for: ${career.title}`)
         }
-        return true
-      })
-      
-      const descriptionResults = await Promise.all(descriptionPromises)
-      const allDescriptionsSaved = descriptionResults.every(result => result === true)
-      
-      if (!allDescriptionsSaved) {
-        alert('Some description files failed to save. Check console for errors.')
-        return
+        
+        // Add delay between requests to reduce conflict chances
+        await new Promise(resolve => setTimeout(resolve, 1000))
       }
-      
-      // Then update the JSON file
-      const jsonUpdated = await updateJSONFile(careers)
-      
-      if (jsonUpdated) {
-        alert('Changes published successfully! JSON file and description files updated.')
-        setHasUnsavedChanges(false)
-      } else {
-        alert('Failed to publish changes! Check console for errors.')
-      }
-    } catch (error) {
-      console.error('Error publishing changes:', error)
-      alert('Error publishing changes: ' + error.message)
-    } finally {
-      setLoading(false)
     }
+    
+    if (failedFiles.length > 0) {
+      alert(`Failed to save description files for: ${failedFiles.join(', ')}\n\nCheck console for details.`)
+      return
+    }
+    
+    // Then update the JSON file
+    const jsonUpdated = await updateJSONFile(careers)
+    
+    if (jsonUpdated) {
+      alert('Changes published successfully! JSON file and description files updated.')
+      setHasUnsavedChanges(false)
+    } else {
+      alert('Failed to publish changes! Check console for errors.')
+    }
+  } catch (error) {
+    console.error('Error publishing changes:', error)
+    alert('Error publishing changes: ' + error.message)
+  } finally {
+    setLoading(false)
   }
-
+}
   const discardChanges = () => {
     if (window.confirm('Are you sure you want to discard all unsaved changes?')) {
       loadCareers()
