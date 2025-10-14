@@ -142,41 +142,35 @@ const CareerPanel = () => {
     }
   }
 
-const saveDescriptionToFile = async (description, fileName, retryCount = 0) => {
-  try {
-    console.log('Saving description to file:', fileName)
-    const baseUrl = window.location.origin
-    const response = await fetch(`${baseUrl}/api/github/save-description`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        fileName: fileName,
-        content: description 
-      }),
-    })
+  const saveDescriptionToFile = async (description, fileName) => {
+    try {
+      console.log('📝 Saving description to file:', fileName)
+      const baseUrl = window.location.origin
+      const response = await fetch(`${baseUrl}/api/github/save-description`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          fileName: fileName,
+          content: description 
+        }),
+      })
 
-    if (!response.ok) {
-      const errorText = await response.text()
-      
-      if (response.status === 409 && retryCount < 3) {
-        console.log(`Retrying ${fileName} due to SHA conflict (attempt ${retryCount + 1})`)
-        await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1)))
-        return saveDescriptionToFile(description, fileName, retryCount + 1)
+      if (!response.ok) {
+        const errorText = await response.text()
+        throw new Error(`GitHub API error: ${response.status} - ${errorText}`)
       }
-      
-      throw new Error(`GitHub API error: ${response.status} - ${errorText}`)
-    }
 
-    const result = await response.json()
-    console.log('Description file saved:', result)
-    return result.success
-  } catch (error) {
-    console.error('Error saving description file:', error)
-    return false
+      const result = await response.json()
+      console.log('✅ Description file saved:', result)
+      return result.success
+    } catch (error) {
+      console.error('❌ Error saving description file:', error)
+      return false
+    }
   }
-}
 
   const generateFileName = (title) => {
+    // Convert title to safe filename
     const safeTitle = title
       .toLowerCase()
       .replace(/[^a-z0-9əüöğıçş\s]/g, '')
@@ -195,7 +189,7 @@ const saveDescriptionToFile = async (description, fileName, retryCount = 0) => {
 
   const saveCareersLocally = (updatedCareers) => {
     try {
-      console.log('Saving careers locally:', updatedCareers)
+      console.log('💾 Saving careers locally:', updatedCareers)
       setCareers(updatedCareers)
       localStorage.setItem('careers', JSON.stringify(updatedCareers))
       setHasUnsavedChanges(true)
@@ -204,52 +198,43 @@ const saveDescriptionToFile = async (description, fileName, retryCount = 0) => {
     }
   }
 
-const publishChanges = async () => {
-  try {
-    setLoading(true)
-    
-    // Process description files sequentially to avoid SHA conflicts
-    let allDescriptionsSaved = true
-    
-    for (const career of careers) {
-      if (career.descriptionFile && career.descriptionContent) {
-        const fileName = career.descriptionFile.replace('../docs/', '')
-        const success = await saveDescriptionToFile(career.descriptionContent, fileName)
-        
-        if (!success) {
-          console.error(`❌ Failed to save description for: ${career.title}`)
-          allDescriptionsSaved = false
-          // Continue with other files instead of stopping completely
-        } else {
-          console.log(`✅ Successfully saved description for: ${career.title}`)
+  const publishChanges = async () => {
+    try {
+      setLoading(true)
+      
+      // First, save all description files to GitHub
+      const descriptionPromises = careers.map(async (career) => {
+        if (career.descriptionFile && career.descriptionContent) {
+          const fileName = career.descriptionFile.replace('../docs/', '')
+          return await saveDescriptionToFile(career.descriptionContent, fileName)
         }
-        
-        // Small delay between requests to reduce conflict chances
-        await new Promise(resolve => setTimeout(resolve, 500))
+        return true
+      })
+      
+      const descriptionResults = await Promise.all(descriptionPromises)
+      const allDescriptionsSaved = descriptionResults.every(result => result === true)
+      
+      if (!allDescriptionsSaved) {
+        alert('Some description files failed to save. Check console for errors.')
+        return
       }
+      
+      // Then update the JSON file
+      const jsonUpdated = await updateJSONFile(careers)
+      
+      if (jsonUpdated) {
+        alert('Changes published successfully! JSON file and description files updated.')
+        setHasUnsavedChanges(false)
+      } else {
+        alert('Failed to publish changes! Check console for errors.')
+      }
+    } catch (error) {
+      console.error('Error publishing changes:', error)
+      alert('Error publishing changes: ' + error.message)
+    } finally {
+      setLoading(false)
     }
-    
-    if (!allDescriptionsSaved) {
-      alert('Some description files failed to save. Check console for errors.')
-      return
-    }
-    
-    // Then update the JSON file
-    const jsonUpdated = await updateJSONFile(careers)
-    
-    if (jsonUpdated) {
-      alert('Changes published successfully! JSON file and description files updated.')
-      setHasUnsavedChanges(false)
-    } else {
-      alert('Failed to publish changes! Check console for errors.')
-    }
-  } catch (error) {
-    console.error('Error publishing changes:', error)
-    alert('Error publishing changes: ' + error.message)
-  } finally {
-    setLoading(false)
   }
-}
 
   const discardChanges = () => {
     if (window.confirm('Are you sure you want to discard all unsaved changes?')) {
