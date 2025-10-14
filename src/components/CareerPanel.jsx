@@ -15,7 +15,7 @@ const CareerPanel = () => {
     link: '',
     isVisible: true
   })
-  const [showDatePicker, setShowDatePicker] = useState(null) // 'postDate' or 'expireDate'
+  const [showDatePicker, setShowDatePicker] = useState(null)
   const [currentMonth, setCurrentMonth] = useState(new Date())
   const [expireMonth, setExpireMonth] = useState(new Date())
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
@@ -52,28 +52,80 @@ const CareerPanel = () => {
       const data = await response.json()
       console.log('📥 Loaded careers:', data)
 
-      const fixedData = data.map(career => ({
+      // Load description content for each career
+      const careersWithDescriptions = await Promise.all(
+        data.map(async (career) => {
+          if (career.description && career.description.startsWith('../docs/')) {
+            try {
+              // Convert relative path to GitHub raw URL
+              const fileName = career.description.replace('../docs/', '')
+              const descResponse = await fetch(`https://raw.githubusercontent.com/Absheron-Career-Portal/STORAGE/main/public/docs/${fileName}?t=${Date.now()}`)
+              if (descResponse.ok) {
+                const descriptionText = await descResponse.text()
+                return { 
+                  ...career, 
+                  descriptionContent: descriptionText,
+                  descriptionFile: career.description
+                }
+              }
+            } catch (error) {
+              console.error(`Error loading description for ${career.title}:`, error)
+            }
+          }
+          return { 
+            ...career, 
+            descriptionContent: career.description || '',
+            descriptionFile: career.description || ''
+          }
+        })
+      )
+
+      const fixedData = careersWithDescriptions.map(career => ({
         ...career,
         isVisible: career.isVisible === undefined ? true : career.isVisible
       }))
 
       setCareers(fixedData)
-      setHasUnsavedChanges(false) // Reset unsaved changes when loading fresh data
+      setHasUnsavedChanges(false)
     } catch (error) {
       console.error('Error loading careers:', error)
       const localCareers = localStorage.getItem('careers')
-      if (localCareers) setCareers(JSON.parse(localCareers))
+      if (localCareers) {
+        const parsedCareers = JSON.parse(localCareers)
+        setCareers(parsedCareers.map(career => ({
+          ...career,
+          descriptionContent: career.descriptionContent || career.description || '',
+          descriptionFile: career.descriptionFile || career.description || ''
+        })))
+      }
     }
   }
 
   const updateJSONFile = async (updatedCareers) => {
     try {
       console.log('🔄 Sending careers to GitHub API...')
+      
+      // Prepare careers for JSON (only file paths, not content)
+      const careersForJSON = updatedCareers.map(career => ({
+        id: career.id,
+        dateImage: career.dateImage,
+        date: career.date,
+        expireDate: career.expireDate,
+        location: career.location,
+        type: career.type,
+        typeImage: career.typeImage,
+        view: career.view,
+        title: career.title,
+        description: career.descriptionFile, // Use file path instead of content
+        isVisible: career.isVisible,
+        link: career.link
+      }))
+
       const baseUrl = window.location.origin
       const response = await fetch(`${baseUrl}/api/github/save-career`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ data: updatedCareers }),
+        body: JSON.stringify({ data: careersForJSON }),
       })
 
       if (!response.ok) {
@@ -90,14 +142,57 @@ const CareerPanel = () => {
     }
   }
 
-  // FIXED: Only save to localStorage, NOT to GitHub
+  const saveDescriptionToFile = async (description, fileName) => {
+    try {
+      console.log('📝 Saving description to file:', fileName)
+      const baseUrl = window.location.origin
+      const response = await fetch(`${baseUrl}/api/github/save-description`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          fileName: fileName,
+          content: description 
+        }),
+      })
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        throw new Error(`GitHub API error: ${response.status} - ${errorText}`)
+      }
+
+      const result = await response.json()
+      console.log('✅ Description file saved:', result)
+      return result.success
+    } catch (error) {
+      console.error('❌ Error saving description file:', error)
+      return false
+    }
+  }
+
+  const generateFileName = (title) => {
+    // Convert title to safe filename
+    const safeTitle = title
+      .toLowerCase()
+      .replace(/[^a-z0-9əüöğıçş\s]/g, '')
+      .replace(/ə/g, 'e')
+      .replace(/ü/g, 'u')
+      .replace(/ö/g, 'o')
+      .replace(/ı/g, 'i')
+      .replace(/ğ/g, 'g')
+      .replace(/ç/g, 'c')
+      .replace(/ş/g, 's')
+      .replace(/\s+/g, '')
+      .trim()
+    
+    return `${safeTitle}.txt`
+  }
+
   const saveCareersLocally = (updatedCareers) => {
     try {
       console.log('💾 Saving careers locally:', updatedCareers)
       setCareers(updatedCareers)
       localStorage.setItem('careers', JSON.stringify(updatedCareers))
       setHasUnsavedChanges(true)
-      // NO auto-save to GitHub - only on publish
     } catch (error) {
       console.error('Error saving careers:', error)
     }
@@ -106,9 +201,29 @@ const CareerPanel = () => {
   const publishChanges = async () => {
     try {
       setLoading(true)
+      
+      // First, save all description files to GitHub
+      const descriptionPromises = careers.map(async (career) => {
+        if (career.descriptionFile && career.descriptionContent) {
+          const fileName = career.descriptionFile.replace('../docs/', '')
+          return await saveDescriptionToFile(career.descriptionContent, fileName)
+        }
+        return true
+      })
+      
+      const descriptionResults = await Promise.all(descriptionPromises)
+      const allDescriptionsSaved = descriptionResults.every(result => result === true)
+      
+      if (!allDescriptionsSaved) {
+        alert('Some description files failed to save. Check console for errors.')
+        return
+      }
+      
+      // Then update the JSON file
       const jsonUpdated = await updateJSONFile(careers)
+      
       if (jsonUpdated) {
-        alert('Changes published successfully! JSON file updated.')
+        alert('Changes published successfully! JSON file and description files updated.')
         setHasUnsavedChanges(false)
       } else {
         alert('Failed to publish changes! Check console for errors.')
@@ -123,7 +238,7 @@ const CareerPanel = () => {
 
   const discardChanges = () => {
     if (window.confirm('Are you sure you want to discard all unsaved changes?')) {
-      loadCareers() // Reload from original source
+      loadCareers()
       setHasUnsavedChanges(false)
     }
   }
@@ -132,7 +247,7 @@ const CareerPanel = () => {
     setEditingId(career.id)
     setNewCareer({
       title: career.title,
-      description: career.description,
+      description: career.descriptionContent || '', // Use the actual content for editing
       date: career.date,
       expireDate: career.expireDate || '',
       location: career.location || 'Bakı, Azərbaycan',
@@ -149,7 +264,7 @@ const CareerPanel = () => {
         ? {
             ...career,
             title: newCareer.title,
-            description: newCareer.description,
+            descriptionContent: newCareer.description, // Update the content
             date: newCareer.date,
             expireDate: newCareer.expireDate,
             location: newCareer.location,
@@ -160,7 +275,7 @@ const CareerPanel = () => {
           }
         : career
     )
-    saveCareersLocally(updatedCareers) // FIXED: Use local save only
+    saveCareersLocally(updatedCareers)
     setEditingId(null)
     resetForm()
   }
@@ -171,12 +286,21 @@ const CareerPanel = () => {
       return
     }
 
+    if (!newCareer.description.trim()) {
+      alert('Please enter a description')
+      return
+    }
+
     const newId = careers.length > 0 ? Math.max(...careers.map(c => c.id)) + 1 : 1
+    const fileName = generateFileName(newCareer.title)
+    const filePath = `../docs/${fileName}`
 
     const newCareerItem = {
       id: newId,
       title: newCareer.title,
-      description: newCareer.description,
+      description: newCareer.description, // Keep content for local editing
+      descriptionContent: newCareer.description, // Store content for local editing
+      descriptionFile: filePath, // Store file path for JSON
       dateImage: "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
       date: newCareer.date,
       expireDate: newCareer.expireDate,
@@ -189,14 +313,14 @@ const CareerPanel = () => {
     }
 
     const updatedCareers = [...careers, newCareerItem]
-    saveCareersLocally(updatedCareers) // FIXED: Use local save only
+    saveCareersLocally(updatedCareers)
     resetForm()
   }
 
   const handleDelete = (id) => {
     if (window.confirm('Are you sure you want to delete this career?')) {
       const updatedCareers = careers.filter(career => career.id !== id)
-      saveCareersLocally(updatedCareers) // FIXED: Use local save only
+      saveCareersLocally(updatedCareers)
     }
   }
 
@@ -204,7 +328,7 @@ const CareerPanel = () => {
     const updatedCareers = careers.map(career =>
       career.id === id ? { ...career, isVisible: !career.isVisible } : career
     )
-    saveCareersLocally(updatedCareers) // FIXED: Use local save only
+    saveCareersLocally(updatedCareers)
   }
 
   const resetForm = () => {
@@ -363,8 +487,10 @@ const CareerPanel = () => {
             placeholder="Enter job description"
             rows="6"
           />
+          <small>Description will be saved as a separate text file in the docs folder</small>
         </div>
 
+        {/* Rest of the form remains the same */}
         <div className="form-group">
           <label>Post Date:</label>
           <div className="date-input-container">
@@ -611,7 +737,8 @@ const CareerPanel = () => {
             <div key={career.id} className={`career-item ${!career.isVisible ? 'hidden' : ''}`}>
               <div className="career-info">
                 <h3>{career.title}</h3>
-                <p><strong>Description:</strong> {career.description.substring(0, 100)}...</p>
+                <p><strong>Description File:</strong> {career.descriptionFile || 'No file'}</p>
+                <p><strong>Content Preview:</strong> {career.descriptionContent?.substring(0, 100)}...</p>
                 <p><strong>Date:</strong> {career.date}</p>
                 <p><strong>Expire:</strong> {career.expireDate}</p>
                 <p><strong>Location:</strong> {career.location}</p>
@@ -640,6 +767,7 @@ const CareerPanel = () => {
       </div>
 
       <style jsx>{`
+        /* Your existing CSS styles remain the same */
         .career-panel {
           display: grid;
           grid-template-columns: 1fr 1fr;
@@ -977,6 +1105,14 @@ const CareerPanel = () => {
           color: white;
         }
         
+        .delete-btn {
+          background: #dc3545;
+          color: white;
+          border: none;
+          padding: 5px 10px;
+          border-radius: 4px;
+          cursor: pointer;
+        }
         .delete-btn {
           background: #dc3545;
           color: white;
