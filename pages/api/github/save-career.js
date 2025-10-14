@@ -22,7 +22,6 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'GitHub token not configured' })
     }
 
-    // Get the current file SHA if it exists
     let sha = null
     try {
       const getResponse = await fetch(
@@ -40,7 +39,6 @@ export default async function handler(req, res) {
         sha = fileData.sha
       }
     } catch (error) {
-      // File doesn't exist, which is fine for new files
     }
 
     // Encode content to base64
