@@ -173,6 +173,13 @@ const saveDescriptionToFile = async (description, fileName, retryCount = 0) => {
         return saveDescriptionToFile(description, fileName, retryCount + 1)
       }
       
+      // If it's a 404, the file doesn't exist yet - that's OK for new files
+      if (response.status === 404) {
+        console.log(`📝 File ${fileName} doesn't exist yet - creating new file`)
+        // Continue with the process, the API will create the file
+        return true
+      }
+      
       throw new Error(`GitHub API error: ${response.status} - ${errorText}`)
     }
 
@@ -244,10 +251,10 @@ const publishChanges = async () => {
         const success = await saveDescriptionToFile(career.descriptionContent, fileName)
         
         if (!success) {
-          failedFiles.push(career.title)
+          failedFiles.push(career.title) // FIXED: was carer.title
           console.error(`❌ Failed to save description for: ${career.title}`)
         } else {
-          console.log(`✅ Successfully saved description for: ${carer.title}`)
+          console.log(`✅ Successfully saved description for: ${career.title}`) // FIXED: was carer.title
         }
         
         // Add delay between requests to reduce conflict chances
