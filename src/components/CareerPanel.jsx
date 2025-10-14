@@ -101,73 +101,77 @@ const CareerPanel = () => {
     }
   }
 
-  const updateJSONFile = async (updatedCareers) => {
-    try {
-      console.log('🔄 Sending careers to GitHub API...')
-      
-      // Prepare careers for JSON (only file paths, not content)
-      const careersForJSON = updatedCareers.map(career => ({
-        id: career.id,
-        dateImage: career.dateImage,
-        date: career.date,
-        expireDate: career.expireDate,
-        location: career.location,
-        type: career.type,
-        typeImage: career.typeImage,
-        view: career.view,
-        title: career.title,
-        description: career.descriptionFile, // Use file path instead of content
-        isVisible: career.isVisible,
-        link: career.link
-      }))
+const updateJSONFile = async (updatedCareers) => {
+  try {
+    console.log('🔄 Sending careers to GitHub API...')
+    
+    // Prepare careers for JSON (only file paths, not content)
+    const careersForJSON = updatedCareers.map(career => ({
+      id: career.id,
+      dateImage: career.dateImage,
+      date: career.date,
+      expireDate: career.expireDate,
+      location: career.location,
+      type: career.type,
+      typeImage: career.typeImage,
+      view: career.view,
+      title: career.title,
+      description: career.descriptionFile, // Use file path instead of content
+      isVisible: career.isVisible,
+      link: career.link
+    }))
 
-      const baseUrl = window.location.origin
-      const response = await fetch(`${baseUrl}/api/github/save-career`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ data: careersForJSON }),
-      })
+    const baseUrl = window.location.origin
+    const response = await fetch(`${baseUrl}/api/github/save-career`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        data: careersForJSON,
+        action: 'save-career-json'  // Added action parameter
+      }),
+    })
 
-      if (!response.ok) {
-        const errorText = await response.text()
-        throw new Error(`GitHub API error: ${response.status} - ${errorText}`)
-      }
-
-      const result = await response.json()
-      console.log('✅ GitHub API response:', result)
-      return result.success
-    } catch (error) {
-      console.error('❌ Error updating careers via GitHub:', error)
-      return false
+    if (!response.ok) {
+      const errorText = await response.text()
+      throw new Error(`GitHub API error: ${response.status} - ${errorText}`)
     }
+
+    const result = await response.json()
+    console.log('✅ GitHub API response:', result)
+    return result.success
+  } catch (error) {
+    console.error('❌ Error updating careers via GitHub:', error)
+    return false
   }
+}
 
-  const saveDescriptionToFile = async (description, fileName) => {
-    try {
-      console.log('📝 Saving description to file:', fileName)
-      const baseUrl = window.location.origin
-      const response = await fetch(`${baseUrl}/api/github/save-description`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          fileName: fileName,
-          content: description 
-        }),
-      })
+const saveDescriptionToFile = async (description, fileName) => {
+  try {
+    console.log('📝 Saving description to file:', fileName)
+    const baseUrl = window.location.origin
+    const response = await fetch(`${baseUrl}/api/github/save-career`, {  // Changed to save-career
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        fileName: fileName,
+        content: description,
+        action: 'save-description'  // Added action parameter
+      }),
+    })
 
-      if (!response.ok) {
-        const errorText = await response.text()
-        throw new Error(`GitHub API error: ${response.status} - ${errorText}`)
-      }
-
-      const result = await response.json()
-      console.log('✅ Description file saved:', result)
-      return result.success
-    } catch (error) {
-      console.error('❌ Error saving description file:', error)
-      return false
+    if (!response.ok) {
+      const errorText = await response.text()
+      throw new Error(`GitHub API error: ${response.status} - ${errorText}`)
     }
+
+    const result = await response.json()
+    console.log('✅ Description file saved:', result)
+    return result.success
+  } catch (error) {
+    console.error('❌ Error saving description file:', error)
+    return false
   }
+}
 
   const generateFileName = (title) => {
     // Convert title to safe filename
