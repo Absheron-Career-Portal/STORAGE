@@ -144,5 +144,19 @@
     "description": "../docs/JRAdministrativeSpecialist.txt",
     "isVisible": true,
     "link": "https://jobs.glorri.az/vacancies/absheronport/absheronport-is-tklif-uzre-mutexessis-26775?isLocal=true"
+  },
+  {
+    "id": 11,
+    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
+    "date": "14 Oktyabr, 2025",
+    "expireDate": "14 Oktyabr, 2026",
+    "location": "Daşkənd, Özbəkistan",
+    "type": "Tam iş günü",
+    "typeImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/suitcase.svg",
+    "view": 0,
+    "title": "Logistika Meneceri",
+    "description": "../docs/logistikameneceri.txt",
+    "isVisible": true,
+    "link": ""
   }
 ]
