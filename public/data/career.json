@@ -172,5 +172,19 @@
     "description": "../docs/logistikasatismeneceri.txt",
     "isVisible": true,
     "link": ""
+  },
+  {
+    "id": 13,
+    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
+    "date": "15 Oktyabr, 2025",
+    "expireDate": "15 Oktyabr, 2026",
+    "location": "Bakı, Azərbaycan",
+    "type": "Tam iş günü",
+    "typeImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/suitcase.svg",
+    "view": 0,
+    "title": "juyj",
+    "description": "../docs/juyj.txt",
+    "isVisible": true,
+    "link": ""
   }
 ]
