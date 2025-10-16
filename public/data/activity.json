@@ -71,13 +71,13 @@
   },
   {
     "id": 4,
-    "image": "/image/social/bbu/0.jpg",
+    "image": "/image/social/activity_4/0.jpg",
     "linkImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/landscape.crop.rectangle.svg",
     "imageTotal": "3",
     "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
     "date": "23 May, 2025",
     "title": "BBU karyera sərgisi",
-    "description": "23 may tarixində Bakı Biznes Universitetində keçirilən karyera sərgisində Abşeron Logistika...",
+    "description": "23 may tarixində Bakı Biznes Universitetində keçirilən karyera sərgisində Abşeron Logistika Mərkəzi ...",
     "additionalImages": [
       "/image/social/bbu/1.jpg",
       "/image/social/bbu/2.jpg",
@@ -105,13 +105,13 @@
   },
   {
     "id": 6,
-    "image": "/image/social/ada/0.jpg",
+    "image": "/image/social/activity_6/0.jpg",
     "linkImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/landscape.crop.rectangle.svg",
     "imageTotal": "3",
     "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
     "date": "2 May, 2025",
     "title": "ADA Universiteti karyera sərgisi",
-    "description": "2 May tarixində ADA Universitetində keçirilmiş karyera sərgisində Abşeron Logistika...",
+    "description": "2 May tarixində ADA Universitetində keçirilmiş karyera sərgisində Abşeron Logistika Mərkəzi də iştir...",
     "additionalImages": [
       "/image/social/ada/1.jpg",
       "/image/social/ada/2.jpg",
@@ -122,13 +122,13 @@
   },
   {
     "id": 7,
-    "image": "/image/social/unec/0.jpg",
+    "image": "/image/social/activity_7/0.jpg",
     "linkImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/landscape.crop.rectangle.svg",
     "imageTotal": "3",
     "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
     "date": "7 May, 2025",
     "title": "UNEC karyera sərgisi",
-    "description": "7 may tarixində UNEC-də təşkil olunmuş karyera sərgisində Abşeron Logistika Mərkəzi...",
+    "description": "7 may tarixində UNEC-də təşkil olunmuş karyera sərgisində Abşeron Logistika Mərkəzi də fəal iştirak ...",
     "additionalImages": [
       "/image/social/unec/1.jpg",
       "/image/social/unec/2.jpg",
@@ -139,13 +139,13 @@
   },
   {
     "id": 8,
-    "image": "/image/social/bau/0.jpg",
+    "image": "/image/social/activity_8/0.jpg",
     "linkImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/landscape.crop.rectangle.svg",
     "imageTotal": "2",
     "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
     "date": "11 Noyabr, 2024",
     "title": "BAU ilə memorandum imzalanıb",
-    "description": "Memorandumda BAAU-da bakalavriat və magistratura səviyyələrində təhsil alan və ixtisas...",
+    "description": "Memorandumda BAAU-da bakalavriat və magistratura səviyyələrində təhsil alan və ixtisas meyarları Abş...",
     "additionalImages": [
       "/image/social/bau/1.jpg",
       "/image/social/bau/2.jpg"
@@ -172,13 +172,13 @@
   },
   {
     "id": 10,
-    "image": "/image/social/switz/0.jpg",
+    "image": "/image/social/activity_10/0.jpg",
     "linkImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/landscape.crop.rectangle.svg",
     "imageTotal": "3",
     "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
     "date": "1 Oktyabr, 2024",
     "title": "Xarici tələbələrin ALM səfəri",
-    "description": "Azərbaycan Dövlət İqtisad Universiteti ilə əməkdaşlıq çərçivəsində İsveçrəli tələbələr...",
+    "description": "Azərbaycan Dövlət İqtisad Universiteti (UNEC) ilə əməkdaşlıq çərçivəsində İsveçrəli tələbələr Abşero...",
     "additionalImages": [
       "/image/social/switz/1.jpg",
       "/image/social/switz/2.jpg",
