@@ -53,13 +53,13 @@
   },
   {
     "id": 3,
-    "image": "/image/social/bdu/0.jpg",
+    "image": "/image/social/activity_3/0.jpg",
     "linkImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/landscape.crop.rectangle.svg",
     "imageTotal": "4",
     "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
     "date": "27 May, 2025",
     "title": "BDU karyera sərgisi",
-    "description": "Abşeron Logistika Mərkəzi 27 may tarixində Bakı Dövlət Universitetində keçirilən karyera...",
+    "description": "Abşeron Logistika Mərkəzi 27 may tarixində Bakı Dövlət Universitetində keçirilən karyera sərgisində ...",
     "additionalImages": [
       "/image/social/bdu/1.jpg",
       "/image/social/bdu/2.jpg",
