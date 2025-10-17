@@ -21,7 +21,7 @@
     "id": 1,
     "image": "/image/social/activity_1/0.jpg",
     "linkImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/landscape.crop.rectangle.svg",
-    "imageTotal": "3",
+    "imageTotal": "4",
     "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
     "date": "13 Avqust, 2025",
     "title": "Brain Storm 2025",
@@ -29,7 +29,8 @@
     "additionalImages": [
       "/image/social/brainstorm/1.jpg",
       "/image/social/brainstorm/2.jpg",
-      "/image/social/brainstorm/3.jpg"
+      "/image/social/activity_1/3.jpg",
+      "/image/social/activity_1/4.jpg"
     ],
     "isVisible": true,
     "extendedDescription": "13 avqust tarixində Abşeron Logistika Mərkəzinin 7 illiyi münasibətilə ənənəvi “Brain Storm 2025” intellektual yarışması keçirlmişdir. Həyəcanlı və maraqlı keçən yarışda Maliyyə departamenti, Abşeron Express və İR əməkdaşlarından ibarət komandalar ilk üç yeri qazanmışdır. Qaliblər kubok, sertifikat və dəyərli hədiyyələrlə mükafatlandırılıb. Bütün iştirakçıları təbrik edir, gələcək fəaliyyətlərində bol-bol uğurlar arzulayırıq!"
