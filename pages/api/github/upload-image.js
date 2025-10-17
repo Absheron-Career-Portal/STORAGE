@@ -12,7 +12,7 @@ export default async function handler(req, res) {
     try {
       const { image, folderName, imageNumber, baseFolder } = req.body;
       
-      console.log('📡 GitHub Image Upload API called');
+      console.log('🚀 NEW UPLOAD METHOD - Force upload');
       console.log('📁 Upload parameters:', { folderName, imageNumber, baseFolder });
       
       if (!image) {
@@ -22,11 +22,10 @@ export default async function handler(req, res) {
         });
       }
 
-      // Check image size (max 4MB for GitHub)
       const base64Data = image.replace(/^data:image\/\w+;base64,/, '');
-      const imageSize = (base64Data.length * 3) / 4; // Approximate size in bytes
+      const imageSize = (base64Data.length * 3) / 4;
       
-      if (imageSize > 4 * 1024 * 1024) { // 4MB limit
+      if (imageSize > 4 * 1024 * 1024) {
         return res.status(413).json({
           success: false,
           error: 'Image too large. Maximum size is 4MB.'
@@ -43,81 +42,100 @@ export default async function handler(req, res) {
         });
       }
 
-      // FIXED: Use the baseFolder parameter or default to image/social
       const targetBaseFolder = baseFolder || 'image/social';
-      
-      // Create folder structure: public/{targetBaseFolder}/{folderName}/
       const fileName = `${imageNumber}.jpg`;
       const filePath = `public/${targetBaseFolder}/${folderName}/${fileName}`;
       const apiUrl = `https://api.github.com/repos/${GITHUB_REPO}/contents/${filePath}`;
 
-      console.log('📁 Uploading to:', filePath);
+      console.log('🎯 Target path:', filePath);
 
-      // ✅✅✅ FIXED: Get the current file to get its SHA (MISSING FROM YOUR CODE)
-      const getFileResponse = await fetch(apiUrl, {
+      // METHOD 1: Try to delete existing file first
+      console.log('🗑️ Checking if file exists to delete...');
+      const getResponse = await fetch(apiUrl, {
         headers: {
           'Authorization': `Bearer ${GITHUB_TOKEN}`,
           'Accept': 'application/vnd.github.v3+json',
         }
       });
 
-      let sha = null;
-      if (getFileResponse.status === 200) {
-        const fileData = await getFileResponse.json();
-        sha = fileData.sha;
-        console.log('📄 Found existing file with SHA:', sha);
-      } else if (getFileResponse.status === 404) {
-        console.log('📄 File does not exist, will create new file');
-      } else {
-        const errorText = await getFileResponse.text();
-        console.error('❌ GitHub API error:', getFileResponse.status, errorText);
-        return res.status(500).json({
-          success: false,
-          error: `GitHub API error: ${getFileResponse.status}`
+      if (getResponse.status === 200) {
+        const existingFile = await getResponse.json();
+        console.log('📄 Found existing file, deleting...');
+        
+        const deleteResponse = await fetch(apiUrl, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${GITHUB_TOKEN}`,
+            'Accept': 'application/vnd.github.v3+json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            message: `Delete old image ${fileName} - ${new Date().toISOString()}`,
+            sha: existingFile.sha
+          })
         });
+
+        if (!deleteResponse.ok) {
+          console.log('⚠️ Could not delete old file, will try to overwrite');
+        } else {
+          console.log('✅ Old file deleted successfully');
+        }
       }
 
-      // ✅✅✅ FIXED: Prepare request body with SHA (MISSING FROM YOUR CODE)
-      const requestBody = {
-        message: `Upload image ${fileName} - ${new Date().toISOString()}`,
-        content: base64Data
-      };
-
-      // Only include SHA if we found an existing file
-      if (sha) {
-        requestBody.sha = sha;
-      }
-
-      console.log('🚀 Uploading with request body:', { 
-        hasSha: !!sha,
-        message: requestBody.message 
-      });
-
-      // ✅✅✅ FIXED: Use the proper request body with SHA
-      const response = await fetch(apiUrl, {
+      // METHOD 2: Force create new file
+      console.log('⬆️ Uploading new image...');
+      const uploadResponse = await fetch(apiUrl, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${GITHUB_TOKEN}`,
           'Accept': 'application/vnd.github.v3+json',
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(requestBody)
+        body: JSON.stringify({
+          message: `Upload image ${fileName} - ${new Date().toISOString()}`,
+          content: base64Data
+        })
       });
 
-      const responseData = await response.json();
+      const result = await uploadResponse.json();
 
-      if (!response.ok) {
-        console.error('❌ GitHub API error:', response.status, responseData);
-        return res.status(500).json({
-          success: false,
-          error: `GitHub API error: ${responseData.message || response.status}`
+      if (!uploadResponse.ok) {
+        console.error('❌ Upload failed:', uploadResponse.status, result);
+        
+        // METHOD 3: If still failing, try with branch specification
+        console.log('🔄 Trying alternative upload method...');
+        const altResponse = await fetch(apiUrl, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${GITHUB_TOKEN}`,
+            'Accept': 'application/vnd.github.v3+json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            message: `Upload image ${fileName} - ${new Date().toISOString()}`,
+            content: base64Data,
+            branch: 'main' // Explicitly specify branch
+          })
+        });
+
+        const altResult = await altResponse.json();
+        
+        if (!altResponse.ok) {
+          throw new Error(`GitHub API error: ${altResult.message || altResponse.status}`);
+        }
+
+        console.log('✅ Image uploaded via alternative method!');
+        const relativePath = `/${targetBaseFolder}/${folderName}/${fileName}`;
+        
+        return res.status(200).json({ 
+          success: true,
+          path: relativePath,
+          message: 'Image uploaded successfully' 
         });
       }
 
-      // Return relative path for frontend (not full URL)
+      console.log('✅ Image uploaded successfully!');
       const relativePath = `/${targetBaseFolder}/${folderName}/${fileName}`;
-
-      console.log('✅ Image uploaded to GitHub successfully! Path:', relativePath);
       
       return res.status(200).json({ 
         success: true,
@@ -125,10 +143,10 @@ export default async function handler(req, res) {
         message: 'Image uploaded successfully' 
       });
     } catch (error) {
-      console.error('❌ Error uploading image to GitHub:', error);
+      console.error('💥 Final error:', error);
       return res.status(500).json({ 
         success: false,
-        error: 'Failed to upload image: ' + error.message 
+        error: 'Upload failed: ' + error.message 
       });
     }
   } else {
