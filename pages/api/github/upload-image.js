@@ -53,7 +53,7 @@ export default async function handler(req, res) {
 
       console.log('📁 Uploading to:', filePath);
 
-      // FIXED: Get the current file to get its SHA (same as your activities code)
+      // ✅✅✅ FIXED: Get the current file to get its SHA (MISSING FROM YOUR CODE)
       const getFileResponse = await fetch(apiUrl, {
         headers: {
           'Authorization': `Bearer ${GITHUB_TOKEN}`,
@@ -77,7 +77,7 @@ export default async function handler(req, res) {
         });
       }
 
-      // FIXED: Prepare request body with conditional SHA (same as your activities code)
+      // ✅✅✅ FIXED: Prepare request body with SHA (MISSING FROM YOUR CODE)
       const requestBody = {
         message: `Upload image ${fileName} - ${new Date().toISOString()}`,
         content: base64Data
@@ -88,7 +88,12 @@ export default async function handler(req, res) {
         requestBody.sha = sha;
       }
 
-      // Upload image to GitHub
+      console.log('🚀 Uploading with request body:', { 
+        hasSha: !!sha,
+        message: requestBody.message 
+      });
+
+      // ✅✅✅ FIXED: Use the proper request body with SHA
       const response = await fetch(apiUrl, {
         method: 'PUT',
         headers: {
