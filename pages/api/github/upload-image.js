@@ -52,22 +52,52 @@ export default async function handler(req, res) {
 
       console.log('📁 Uploading to:', filePath);
 
-      // Upload image to GitHub
-      const response = await fetch(
-        `https://api.github.com/repos/${GITHUB_REPO}/contents/${filePath}`,
-        {
-          method: 'PUT',
+      const apiUrl = `https://api.github.com/repos/${GITHUB_REPO}/contents/${filePath}`;
+
+      // First, check if the file already exists to get its SHA
+      let sha = null;
+      try {
+        const getFileResponse = await fetch(apiUrl, {
           headers: {
             'Authorization': `Bearer ${GITHUB_TOKEN}`,
             'Accept': 'application/vnd.github.v3+json',
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            message: `Upload image ${fileName} - ${new Date().toISOString()}`,
-            content: base64Data
-          })
+          }
+        });
+
+        if (getFileResponse.status === 200) {
+          const fileData = await getFileResponse.json();
+          sha = fileData.sha;
+          console.log('📄 Found existing file with SHA:', sha);
+        } else if (getFileResponse.status === 404) {
+          console.log('📄 File does not exist, will create new file');
+        } else {
+          const errorText = await getFileResponse.text();
+          console.error('❌ GitHub API error when checking file:', getFileResponse.status, errorText);
         }
-      );
+      } catch (error) {
+        console.error('❌ Error checking existing file:', error);
+      }
+
+      // Upload image to GitHub
+      const requestBody = {
+        message: `Upload image ${fileName} - ${new Date().toISOString()}`,
+        content: base64Data
+      };
+
+      // Only include SHA if we found an existing file
+      if (sha) {
+        requestBody.sha = sha;
+      }
+
+      const response = await fetch(apiUrl, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${GITHUB_TOKEN}`,
+          'Accept': 'application/vnd.github.v3+json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody)
+      });
 
       const responseData = await response.json();
 
