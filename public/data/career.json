@@ -86,7 +86,7 @@
     "view": 1449,
     "title": "Avtoyükləyici (avtokar, elektrokar)",
     "description": "../docs/CarCharger.txt",
-    "isVisible": true,
+    "isVisible": false,
     "link": "https://jobs.glorri.az/vacancies/absheronport/absheronport-huquqshunas-26775?isLocal=true"
   },
   {
@@ -142,7 +142,7 @@
     "view": 0,
     "title": "Logistika Meneceri",
     "description": "../docs/logistikameneceri.txt",
-    "isVisible": true,
+    "isVisible": false,
     "link": ""
   },
   {
@@ -156,7 +156,7 @@
     "view": 0,
     "title": "Logistika Satış Meneceri",
     "description": "../docs/logistikasatismeneceri.txt",
-    "isVisible": true,
+    "isVisible": false,
     "link": ""
   },
   {
@@ -184,6 +184,62 @@
     "view": 0,
     "title": "Avtokar operatoru",
     "description": "../docs/avtokaroperatoru.txt",
+    "isVisible": true,
+    "link": ""
+  },
+  {
+    "id": 15,
+    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
+    "date": "22 Oktyabr, 2025",
+    "expireDate": "22 Yanvar, 2026",
+    "location": "Bakı, Azərbaycan",
+    "type": "Tam iş günü",
+    "typeImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/suitcase.svg",
+    "view": 0,
+    "title": "Anbar əməliyyatlarına nəzarət üzrə kiçik mütəxəssis",
+    "description": "../docs/anbaremeliyyatlarinanezaretuzrekicikmutexessis.txt",
+    "isVisible": true,
+    "link": ""
+  },
+  {
+    "id": 16,
+    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
+    "date": "22 Oktyabr, 2025",
+    "expireDate": "22 Yanvar, 2026",
+    "location": "Bakı, Azərbaycan",
+    "type": "Tam iş günü",
+    "typeImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/suitcase.svg",
+    "view": 0,
+    "title": "Baş mühafizəçi",
+    "description": "../docs/basmuhafizeci.txt",
+    "isVisible": true,
+    "link": ""
+  },
+  {
+    "id": 17,
+    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
+    "date": "22 Oktyabr, 2025",
+    "expireDate": "22 Yanvar, 2026",
+    "location": "Daşkənd, Özbəkistan",
+    "type": "Tam iş günü",
+    "typeImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/suitcase.svg",
+    "view": 0,
+    "title": "Logistika üzrə menecer",
+    "description": "../docs/logistikauzremenecer.txt",
+    "isVisible": true,
+    "link": ""
+  },
+  {
+    "id": 18,
+    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
+    "date": "22 Oktyabr, 2025",
+    "expireDate": "22 Yanvar, 2026",
+    "location": "Daşkənd, Özbəkistan",
+    "type": "Tam iş günü",
+    "typeImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/suitcase.svg",
+    "view": 0,
+    "title": "Özbəkistan ofisində logistik xidmətlərin satışı üzrə menecer",
+    "description": "../docs/ozbekistanofisindelogistikxidmetlerinsatisiuzremenecer.txt",
     "isVisible": true,
     "link": ""
   }
