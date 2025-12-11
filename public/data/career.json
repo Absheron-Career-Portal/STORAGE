@@ -242,5 +242,19 @@
     "description": "../docs/hesabatliquzrekicikmutexessis.txt",
     "isVisible": true,
     "link": ""
+  },
+  {
+    "id": 22,
+    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
+    "date": "11 Dekabr, 2025",
+    "expireDate": "11 Yanvar, 2026",
+    "location": "Bakı, Azərbaycan",
+    "type": "Tam iş günü",
+    "typeImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/suitcase.svg",
+    "view": 0,
+    "title": "Logistika üzrə koordinator",
+    "description": "../docs/logistikauzrekoordinator.txt",
+    "isVisible": true,
+    "link": ""
   }
 ]
