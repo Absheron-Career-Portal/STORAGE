@@ -14,7 +14,7 @@ NAMİZƏDƏ QARŞI TƏLƏBLƏR:
 • IT və Helpdesk sahəsində fundamental proseslərə dair bilik;
 • Windows Server, Active Directory və Group Policy anlayışından məlumatlı olmaq.
 
-PEŞƏKARLIK BACARIQLARI:
+PEŞƏKARLIQ BACARIQLARI:
 • Təhlil etmək və problem həll etmə bacarığı;
 • Çevik yanaşma və yeni vəziyyətlərə uyğunlaşma qabiliyyəti;
 • Komandada işləmək bacarığı.
