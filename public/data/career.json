@@ -20,20 +20,6 @@
     "link": "https://jobs.glorri.az/vacancies/absheronport/absheronport-inzibatilesdirme-uzre-kicik-mutexessis-43581?isLocal=true"
   },
   {
-    "id": 2,
-    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
-    "date": "1 Sentyabr, 2023",
-    "expireDate": "1 Oktyabr, 2026",
-    "location": "Bakı, Azərbaycan",
-    "type": "Tam iş günü",
-    "typeImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/suitcase.svg",
-    "view": 1502,
-    "title": "Kran operatoru",
-    "description": "../docs/CraneOperator.txt",
-    "isVisible": false,
-    "link": "https://www.jobsearch.az/vacancies/abseron-logistika-merkezi-marketinq-ve-ictimaiyyetle-elaqeler-uzre-aparici-mutexessis-116325"
-  },
-  {
     "id": 3,
     "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
     "date": "1 Sentyabr, 2024",
@@ -118,20 +104,6 @@
     "link": ""
   },
   {
-    "id": 13,
-    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
-    "date": "22 Oktyabr, 2025",
-    "expireDate": "22 Yanvar, 2026",
-    "location": "Bakı, Azərbaycan",
-    "type": "Tam iş günü",
-    "typeImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/suitcase.svg",
-    "view": 0,
-    "title": "Yük operatoru",
-    "description": "../docs/yukoperatoru.txt",
-    "isVisible": false,
-    "link": ""
-  },
-  {
     "id": 14,
     "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
     "date": "22 Oktyabr, 2025",
@@ -146,62 +118,6 @@
     "link": ""
   },
   {
-    "id": 15,
-    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
-    "date": "22 Oktyabr, 2025",
-    "expireDate": "22 Yanvar, 2026",
-    "location": "Bakı, Azərbaycan",
-    "type": "Tam iş günü",
-    "typeImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/suitcase.svg",
-    "view": 0,
-    "title": "Anbar əməliyyatlarına nəzarət üzrə kiçik mütəxəssis",
-    "description": "../docs/anbaremeliyyatlarinanezaretuzrekicikmutexessis.txt",
-    "isVisible": false,
-    "link": ""
-  },
-  {
-    "id": 16,
-    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
-    "date": "22 Oktyabr, 2025",
-    "expireDate": "22 Yanvar, 2026",
-    "location": "Bakı, Azərbaycan",
-    "type": "Tam iş günü",
-    "typeImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/suitcase.svg",
-    "view": 0,
-    "title": "Baş mühafizəçi",
-    "description": "../docs/basmuhafizeci.txt",
-    "isVisible": true,
-    "link": ""
-  },
-  {
-    "id": 17,
-    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
-    "date": "22 Oktyabr, 2025",
-    "expireDate": "22 Yanvar, 2026",
-    "location": "Daşkənd, Özbəkistan",
-    "type": "Tam iş günü",
-    "typeImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/suitcase.svg",
-    "view": 0,
-    "title": "Logistika üzrə menecer",
-    "description": "../docs/logistikauzremenecer.txt",
-    "isVisible": false,
-    "link": ""
-  },
-  {
-    "id": 18,
-    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
-    "date": "22 Oktyabr, 2025",
-    "expireDate": "22 Yanvar, 2026",
-    "location": "Daşkənd, Özbəkistan",
-    "type": "Tam iş günü",
-    "typeImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/suitcase.svg",
-    "view": 0,
-    "title": "Özbəkistan ofisində logistik xidmətlərin satışı üzrə menecer",
-    "description": "../docs/ozbekistanofisindelogistikxidmetlerinsatisiuzremenecer.txt",
-    "isVisible": false,
-    "link": ""
-  },
-  {
     "id": 19,
     "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
     "date": "12 Noyabr, 2025",
@@ -213,20 +129,6 @@
     "title": "Hüquq departamentində Sənədlərlə iş üzrə təcrübəçi",
     "description": "../docs/huquqdepartamentindesenedlerleisuzretecrubecikicikmutexessis.txt",
     "isVisible": true,
-    "link": ""
-  },
-  {
-    "id": 21,
-    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
-    "date": "2 Dekabr, 2025",
-    "expireDate": "2 Yanvar, 2026",
-    "location": "Bakı, Azərbaycan",
-    "type": "Tam iş günü",
-    "typeImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/suitcase.svg",
-    "view": 0,
-    "title": "Hesabatlıq üzrə kiçik mütəxəssis",
-    "description": "../docs/hesabatliquzrekicikmutexessis.txt",
-    "isVisible": false,
     "link": ""
   },
   {
