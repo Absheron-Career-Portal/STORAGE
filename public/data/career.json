@@ -30,7 +30,7 @@
     "view": 1502,
     "title": "Kran operatoru",
     "description": "../docs/CraneOperator.txt",
-    "isVisible": true,
+    "isVisible": false,
     "link": "https://www.jobsearch.az/vacancies/abseron-logistika-merkezi-marketinq-ve-ictimaiyyetle-elaqeler-uzre-aparici-mutexessis-116325"
   },
   {
@@ -156,7 +156,7 @@
     "view": 0,
     "title": "Anbar əməliyyatlarına nəzarət üzrə kiçik mütəxəssis",
     "description": "../docs/anbaremeliyyatlarinanezaretuzrekicikmutexessis.txt",
-    "isVisible": true,
+    "isVisible": false,
     "link": ""
   },
   {
@@ -184,7 +184,7 @@
     "view": 0,
     "title": "Logistika üzrə menecer",
     "description": "../docs/logistikauzremenecer.txt",
-    "isVisible": true,
+    "isVisible": false,
     "link": ""
   },
   {
@@ -198,7 +198,7 @@
     "view": 0,
     "title": "Özbəkistan ofisində logistik xidmətlərin satışı üzrə menecer",
     "description": "../docs/ozbekistanofisindelogistikxidmetlerinsatisiuzremenecer.txt",
-    "isVisible": true,
+    "isVisible": false,
     "link": ""
   },
   {
@@ -226,7 +226,7 @@
     "view": 0,
     "title": "SƏTƏM üzrə mütəxəssis",
     "description": "../docs/setemuzremutexessis.txt",
-    "isVisible": true,
+    "isVisible": false,
     "link": ""
   },
   {
@@ -240,7 +240,7 @@
     "view": 0,
     "title": "Hesabatlıq üzrə kiçik mütəxəssis",
     "description": "../docs/hesabatliquzrekicikmutexessis.txt",
-    "isVisible": true,
+    "isVisible": false,
     "link": ""
   },
   {
