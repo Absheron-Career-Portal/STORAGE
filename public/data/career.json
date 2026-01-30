@@ -104,34 +104,6 @@
     "link": ""
   },
   {
-    "id": 14,
-    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
-    "date": "22 Oktyabr, 2025",
-    "expireDate": "22 Yanvar, 2026",
-    "location": "Bakı, Azərbaycan",
-    "type": "Tam iş günü",
-    "typeImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/suitcase.svg",
-    "view": 0,
-    "title": "Avtokar operatoru",
-    "description": "../docs/avtokaroperatoru.txt",
-    "isVisible": true,
-    "link": ""
-  },
-  {
-    "id": 19,
-    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
-    "date": "12 Noyabr, 2025",
-    "expireDate": "12 Fevral, 2026",
-    "location": "Bakı, Azərbaycan",
-    "type": "Tam iş günü",
-    "typeImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/suitcase.svg",
-    "view": 0,
-    "title": "Hüquq departamentində Sənədlərlə iş üzrə təcrübəçi",
-    "description": "../docs/huquqdepartamentindesenedlerleisuzretecrubecikicikmutexessis.txt",
-    "isVisible": true,
-    "link": ""
-  },
-  {
     "id": 22,
     "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
     "date": "30 Yanvar, 2026",
