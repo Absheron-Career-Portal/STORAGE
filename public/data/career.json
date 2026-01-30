@@ -128,7 +128,7 @@
     "view": 0,
     "title": "Yük operatoru",
     "description": "../docs/yukoperatoru.txt",
-    "isVisible": true,
+    "isVisible": false,
     "link": ""
   },
   {
