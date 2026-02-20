@@ -130,5 +130,19 @@
     "description": "../docs/kicikdaxiliauditor.txt",
     "isVisible": true,
     "link": ""
+  },
+  {
+    "id": 25,
+    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
+    "date": "20 Fevral, 2026",
+    "expireDate": "20 Mart, 2026",
+    "location": "Bakı, Azərbaycan",
+    "type": "Tam iş günü",
+    "typeImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/suitcase.svg",
+    "view": 0,
+    "title": "Bəyannaməçi",
+    "description": "../docs/beyannameci.txt",
+    "isVisible": true,
+    "link": ""
   }
 ]
