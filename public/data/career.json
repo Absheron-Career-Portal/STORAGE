@@ -158,5 +158,19 @@
     "description": "../docs/techizatuzrekicikmutexessis.txt",
     "isVisible": true,
     "link": ""
+  },
+  {
+    "id": 27,
+    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
+    "date": "8 Aprel, 2026",
+    "expireDate": "8 May, 2026",
+    "location": "Bakı, Azərbaycan",
+    "type": "Tam iş günü",
+    "typeImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/suitcase.svg",
+    "view": 0,
+    "title": "Baş mühafizəçi",
+    "description": "../docs/basmuhafizeci.txt",
+    "isVisible": true,
+    "link": ""
   }
 ]
