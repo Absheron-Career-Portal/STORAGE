@@ -200,5 +200,19 @@
     "description": "../docs/tehlukesizlikuzremenecer.txt",
     "isVisible": true,
     "link": ""
+  },
+  {
+    "id": 30,
+    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
+    "date": "23 Aprel, 2026",
+    "expireDate": "23 May, 2026",
+    "location": "Bakı, Azərbaycan",
+    "type": "Tam iş günü",
+    "typeImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/suitcase.svg",
+    "view": 0,
+    "title": "Mühafizəçi",
+    "description": "../docs/muhafizeci.txt",
+    "isVisible": true,
+    "link": ""
   }
 ]
