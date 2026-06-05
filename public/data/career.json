@@ -230,20 +230,6 @@
     "link": ""
   },
   {
-    "id": 32,
-    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
-    "date": "4 İyun, 2026",
-    "expireDate": "5 İyul, 2026",
-    "location": "Bakı, Azərbaycan",
-    "type": "Tam iş günü",
-    "typeImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/suitcase.svg",
-    "view": 7272,
-    "title": "Risklərə nəzarət və monitorinq üzrə aparıcı mütəxəssis",
-    "description": "../docs/risklerenezaretvemonitorinqmeneceri.txt",
-    "isVisible": true,
-    "link": ""
-  },
-  {
     "id": 33,
     "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
     "date": "21 May, 2026",
@@ -268,6 +254,20 @@
     "view": 0,
     "title": "İctimaiyyətlə əlaqələr və marketinq şöbəsinin müdiri",
     "description": "../docs/ictimaiyyetleelaqelervemarketinqsobesininmudiri.txt",
+    "isVisible": true,
+    "link": ""
+  },
+  {
+    "id": 35,
+    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
+    "date": "5 İyun, 2026",
+    "expireDate": "5 İyul, 2026",
+    "location": "Bakı, Azərbaycan",
+    "type": "Tam iş günü",
+    "typeImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/suitcase.svg",
+    "view": 0,
+    "title": "Risklərə nəzarət və monitorinq üzrə aparıcı mütəxəssis",
+    "description": "../docs/risklerenezaretvemonitorinquzreaparicimutexessis.txt",
     "isVisible": true,
     "link": ""
   }
