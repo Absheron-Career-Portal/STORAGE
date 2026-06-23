@@ -1,0 +1,26 @@
+ÜMUMİ VƏZİFƏ ÖHDƏLİKLƏRİ:
+• C# və ASP.NET Core Web API texnologiyaları ilə backend hissənin hazırlanması;
+• Entity Framework Core ilə verilənlər bazası əməliyyatlarının həyata keçirilməsi;
+• PostgreSQL verilənlər bazasının qurulması, idarə edilməsi və performansının optimallaşdırılması;
+• API inteqrasiyalarının hazırlanması və dəstəklənməsi;
+• REST API-lərin hazırlanması və inteqrasiyası;
+• Mövcud sistemlərin təkmilləşdirilməsi və problemlərin aradan qaldırılması;
+• Angular platformasında istifadəçi interfeyslərinin hazırlanması və təkmilləşdirilməsi;
+• Docker / Docker Compose vasitəsilə tətbiqlərin konteynerləşdirilməsi və idarə edilməsi;
+• Linux server mühitində tətbiqlərin işləməsinə dəstək göstərilməsi.
+
+NAMİZƏDƏ QARŞI TƏLƏBLƏR:
+• Müvafiq sahədə ali təhsil;
+• Full Stack Development sahəsində minimum 3 il iş təcrübəsi;
+• C#, ASP.NET Core, Entity Framework, Web API texnologiyalarında bilik və təcrübə;
+• PostgreSQL verilənlər bazası ilə işləmə təcrübəsi;
+• REST API-lərin hazırlanması və inteqrasiyası üzrə təcrübə;
+• TypeScript dili və Angular framework-u ilə iş təcrübəsi;
+• Docker və Docker Compose üzrə orta səviyyədə biliklər;
+
+PEŞƏKARLIQ BACARIQLARI:
+• Təhlil etmək və problem həll etmək bacarığı;
+• Analitik düşünmə və problem həll etmə bacarıqları;
+• Komandada işləmək və effektiv ünsiyyət bacarığı;
+• Proses idarəçiliyi bacarığı;
+• Yaradıcılıq, kreativlik.
