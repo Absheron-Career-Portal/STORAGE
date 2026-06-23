@@ -1,0 +1,28 @@
+ÜMUMİ VƏZİFƏ ÖHDƏLİKLƏRİ:
+• Yeni hazırlanmış modulların manual testlərinin aparılması;
+• Formlar, cədvəllər, filtrlər, axtarış funksiyaları, hesabatlar və düymlərin yoxlanılması;
+• Biznes məntiqinin tələblərə uyğun işləməsinin test edilməsi;
+• İstifadəçi rolları və icazələrinin düzgün işləməsinin yoxlanılması;
+• Daxil edilən məlumatların düzgün saxlanılması və emal edilməsinin test edilməsi;
+• Yanlış və ya boş məlumat daxil edildikdə sistem davranışının yoxlanılması;
+• Aşkarlanan xətaların (bug-ların) detallı şəkildə təsvir edilməsi;
+• Xətalar aradan qaldırıldıqdan sonra təkrar testlərin (re-testing) aparılması;
+• Yeni dəyişikliklərdən sonra mövcud funksionallığın pozulmadığının yoxlanılması (regression testing);
+• Test case və checklist-lərin hazırlanması və yenilənməsi;
+• Developer komandası ilə sıx əməkdaşlıq.
+
+NAMİZƏDƏ QARŞI TƏLƏBLƏR:
+• Müvafiq sahədə ali təhsil;
+• QA testing üzrə minimum 2 il təcrübəsi;
+• Manual Testing üzrə əsas biliklər;
+• Web tətbiqlərin test edilməsi üzrə anlayış;
+• Test case, checklist və bug report hazırlamaq bacarığı;
+• Biznes məntiqini anlama və detallara diqqətli yanaşma;
+• Müxtəlif istifadəçi rolları üzrə test ssenarilərini həyata keçirmək bacarığı;
+
+PEŞƏKARLIQ BACARIQLARI:
+• Manual testing, Functional testing, Regression testing bilikləri;
+• UI testing bacarığı;
+• User role / permission test etmə qabiliyyəti;
+• Bug reporting bacarıqları;
+• Html, Css, Javascript, Jquery, C#, Asp.net, Winform, Sql Server proqramlaşdırma bilikləri.
