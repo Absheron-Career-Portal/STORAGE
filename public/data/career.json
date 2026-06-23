@@ -254,7 +254,7 @@
     "view": 0,
     "title": "İctimaiyyətlə əlaqələr və marketinq şöbəsinin müdiri",
     "description": "../docs/ictimaiyyetleelaqelervemarketinqsobesininmudiri.txt",
-    "isVisible": true,
+    "isVisible": false,
     "link": ""
   },
   {
@@ -268,7 +268,7 @@
     "view": 0,
     "title": "Risklərə nəzarət və monitorinq üzrə aparıcı mütəxəssis",
     "description": "../docs/risklerenezaretvemonitorinquzreaparicimutexessis.txt",
-    "isVisible": true,
+    "isVisible": false,
     "link": ""
   },
   {
