@@ -1,19 +1,35 @@
 import React, { useState, useEffect } from 'react'
 
+const RAW_BASE = 'https://raw.githubusercontent.com/Absheron-Career-Portal/STORAGE/main/public'
+
+const azerbaijaniMonths = [
+  'Yanvar', 'Fevral', 'Mart', 'Aprel', 'May', 'İyun',
+  'İyul', 'Avqust', 'Sentyabr', 'Oktyabr', 'Noyabr', 'Dekabr',
+]
+const azerbaijaniWeekdays = ['B', 'Be', 'Ça', 'Ç', 'Ca', 'C', 'Ş']
+
+// "29 İyun, 2026" -> { day, monthIndex, year }
+const parseAzDate = (str) => {
+  if (!str) return null
+  const m = String(str).trim().match(/^(\d{1,2})\s+(\S+),\s*(\d{4})$/)
+  if (!m) return null
+  const monthIndex = azerbaijaniMonths.indexOf(m[2])
+  if (monthIndex === -1) return null
+  return { day: parseInt(m[1], 10), monthIndex, year: parseInt(m[3], 10) }
+}
+const azDateToObj = (str) => {
+  const p = parseAzDate(str)
+  return p ? new Date(p.year, p.monthIndex, p.day) : new Date()
+}
+const formatAz = (d) => `${d.getDate()} ${azerbaijaniMonths[d.getMonth()]}, ${d.getFullYear()}`
+
 const CareerPanel = () => {
   const [careers, setCareers] = useState([])
   const [editingId, setEditingId] = useState(null)
   const [loading, setLoading] = useState(false)
   const [newCareer, setNewCareer] = useState({
-    title: '',
-    description: '',
-    date: '',
-    expireDate: '',
-    location: 'Bakı, Azərbaycan',
-    type: 'Tam iş günü',
-    view: '0',
-    link: '',
-    isVisible: true
+    title: '', description: '', date: '', expireDate: '',
+    location: 'Bakı, Azərbaycan', type: 'Tam iş günü', view: '0', link: '', isVisible: true,
   })
   const [showDatePicker, setShowDatePicker] = useState(null)
   const [currentMonth, setCurrentMonth] = useState(new Date())
@@ -27,259 +43,182 @@ const CareerPanel = () => {
 
   const setTodayDates = () => {
     const today = new Date()
-    const day = today.getDate()
-    const month = azerbaijaniMonths[today.getMonth()]
-    const year = today.getFullYear()
-    const formattedDate = `${day} ${month}, ${year}`
-    
-    setNewCareer(prev => ({ ...prev, date: formattedDate }))
-    
+    setNewCareer((prev) => ({ ...prev, date: formatAz(today) }))
     const nextYear = new Date(today)
     nextYear.setFullYear(today.getFullYear() + 1)
-    const expireDay = nextYear.getDate()
-    const expireMonth = azerbaijaniMonths[nextYear.getMonth()]
-    const expireYear = nextYear.getFullYear()
-    const formattedExpireDate = `${expireDay} ${expireMonth}, ${expireYear}`
-    
-    setNewCareer(prev => ({ ...prev, expireDate: formattedExpireDate }))
+    setNewCareer((prev) => ({ ...prev, expireDate: formatAz(nextYear) }))
+  }
+
+  // Resolve a "../docs/x.txt" reference to its text content
+  const hydrateDescription = async (career) => {
+    if (career.description && String(career.description).startsWith('../docs/')) {
+      try {
+        const fileName = career.description.replace('../docs/', '')
+        const r = await fetch(`${RAW_BASE}/docs/${fileName}?t=${Date.now()}`)
+        if (r.ok) {
+          const text = await r.text()
+          return { ...career, descriptionContent: text, descriptionFile: career.description }
+        }
+      } catch (e) {
+        console.error(`Description load failed for ${career.title}:`, e)
+      }
+    }
+    return {
+      ...career,
+      descriptionContent: career.description || '',
+      descriptionFile: career.description || '',
+    }
   }
 
   const loadCareers = async () => {
+    setLoading(true)
     try {
-      const response = await fetch('https://raw.githubusercontent.com/Absheron-Career-Portal/STORAGE/main/public/data/career.json?t=' + Date.now())
-      if (!response.ok) throw new Error(`Failed to load careers: ${response.status}`)
+      const [careerRes, backupRes] = await Promise.all([
+        fetch(`${RAW_BASE}/data/career.json?t=${Date.now()}`),
+        fetch(`${RAW_BASE}/data/backup.json?t=${Date.now()}`).catch(() => null),
+      ])
 
-      const data = await response.json()
-      console.log('📥 Loaded careers:', data)
+      if (!careerRes.ok) throw new Error(`Failed to load careers: ${careerRes.status}`)
+      const visibleRaw = await careerRes.json()
 
-      // Load description content for each career
-      const careersWithDescriptions = await Promise.all(
-        data.map(async (career) => {
-          if (career.description && career.description.startsWith('../docs/')) {
-            try {
-              // Convert relative path to GitHub raw URL
-              const fileName = career.description.replace('../docs/', '')
-              const descResponse = await fetch(`https://raw.githubusercontent.com/Absheron-Career-Portal/STORAGE/main/public/docs/${fileName}?t=${Date.now()}`)
-              if (descResponse.ok) {
-                const descriptionText = await descResponse.text()
-                return { 
-                  ...career, 
-                  descriptionContent: descriptionText,
-                  descriptionFile: career.description
-                }
-              }
-            } catch (error) {
-              console.error(`Error loading description for ${career.title}:`, error)
-            }
-          }
-          return { 
-            ...career, 
-            descriptionContent: career.description || '',
-            descriptionFile: career.description || ''
-          }
-        })
-      )
+      let hiddenRaw = []
+      if (backupRes && backupRes.ok) {
+        try { hiddenRaw = await backupRes.json() } catch { hiddenRaw = [] }
+      }
 
-      const fixedData = careersWithDescriptions.map(career => ({
-        ...career,
-        isVisible: career.isVisible === undefined ? true : career.isVisible
-      }))
+      // Visible items win on id conflicts; archived items are added only if absent.
+      const byId = new Map()
+      visibleRaw.forEach((c) => byId.set(c.id, { ...c, isVisible: true }))
+      hiddenRaw.forEach((c) => { if (!byId.has(c.id)) byId.set(c.id, { ...c, isVisible: false }) })
 
-      setCareers(fixedData)
+      const merged = await Promise.all([...byId.values()].map(hydrateDescription))
+      setCareers(merged)
       setHasUnsavedChanges(false)
     } catch (error) {
       console.error('Error loading careers:', error)
-      const localCareers = localStorage.getItem('careers')
-      if (localCareers) {
-        const parsedCareers = JSON.parse(localCareers)
-        setCareers(parsedCareers.map(career => ({
-          ...career,
-          descriptionContent: career.descriptionContent || career.description || '',
-          descriptionFile: career.descriptionFile || career.description || ''
+      const local = localStorage.getItem('careers')
+      if (local) {
+        const parsed = JSON.parse(local)
+        setCareers(parsed.map((c) => ({
+          ...c,
+          descriptionContent: c.descriptionContent || c.description || '',
+          descriptionFile: c.descriptionFile || c.description || '',
         })))
       }
+    } finally {
+      setLoading(false)
     }
   }
 
-const updateJSONFile = async (updatedCareers) => {
-  try {
-    console.log('🔄 Sending careers to GitHub API...')
-    
-    // Prepare careers for JSON (only file paths, not content)
-    const careersForJSON = updatedCareers.map(career => ({
-      id: career.id,
-      dateImage: career.dateImage,
-      date: career.date,
-      expireDate: career.expireDate,
-      location: career.location,
-      type: career.type,
-      typeImage: career.typeImage,
-      view: career.view,
-      title: career.title,
-      description: career.descriptionFile, // Use file path instead of content
-      isVisible: career.isVisible,
-      link: career.link
-    }))
+  const toJSON = (c) => ({
+    id: c.id,
+    dateImage: c.dateImage || 'https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg',
+    date: c.date,
+    expireDate: c.expireDate,
+    location: c.location,
+    type: c.type,
+    typeImage: c.typeImage || 'https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/suitcase.svg',
+    view: c.view,
+    title: c.title,
+    description: c.descriptionFile, // store the file path, not the content
+    isVisible: c.isVisible,
+    link: c.link,
+  })
 
+  const saveDataFile = async (action, data) => {
     const baseUrl = window.location.origin
-    const response = await fetch(`${baseUrl}/api/github/save-career`, {
+    const res = await fetch(`${baseUrl}/api/github/save-career`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        data: careersForJSON,
-        action: 'save-career-json'  // Added action parameter
-      }),
+      body: JSON.stringify({ data, action }),
     })
-
-    if (!response.ok) {
-      const errorText = await response.text()
-      throw new Error(`GitHub API error: ${response.status} - ${errorText}`)
+    if (!res.ok) {
+      const t = await res.text()
+      throw new Error(`${action} failed: ${res.status} - ${t}`)
     }
-
-    const result = await response.json()
-    console.log('✅ GitHub API response:', result)
+    const result = await res.json()
     return result.success
-  } catch (error) {
-    console.error('❌ Error updating careers via GitHub:', error)
-    return false
   }
-}
 
-const saveDescriptionToFile = async (description, fileName, retryCount = 0) => {
-  try {
-    console.log(`📝 Saving description to file: ${fileName} (attempt ${retryCount + 1})`)
-    
-    const baseUrl = window.location.origin
-    const response = await fetch(`${baseUrl}/api/github/save-career`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        fileName: fileName,
-        content: description,
-        action: 'save-description'
-      }),
-    })
-
-    if (!response.ok) {
-      const errorText = await response.text()
-      console.error(`GitHub API error for ${fileName}:`, response.status, errorText)
-      
-      // If it's a 409 conflict error, retry with exponential backoff
-      if (response.status === 409 && retryCount < 3) {
-        const delay = 2000 * Math.pow(2, retryCount) // 2s, 4s, 8s
-        console.log(`🔄 SHA conflict detected. Retrying ${fileName} in ${delay}ms (attempt ${retryCount + 1})`)
-        
-        await new Promise(resolve => setTimeout(resolve, delay))
-        return saveDescriptionToFile(description, fileName, retryCount + 1)
+  const saveDescriptionToFile = async (description, fileName, retryCount = 0) => {
+    try {
+      const baseUrl = window.location.origin
+      const res = await fetch(`${baseUrl}/api/github/save-career`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fileName, content: description, action: 'save-description' }),
+      })
+      if (!res.ok) {
+        if (res.status === 409 && retryCount < 3) {
+          await new Promise((r) => setTimeout(r, 2000 * Math.pow(2, retryCount)))
+          return saveDescriptionToFile(description, fileName, retryCount + 1)
+        }
+        if (res.status === 404) return true
+        throw new Error(`GitHub API error: ${res.status}`)
       }
-      
-      // If it's a 404, the file doesn't exist yet - that's OK for new files
-      if (response.status === 404) {
-        console.log(`📝 File ${fileName} doesn't exist yet - creating new file`)
-        // Continue with the process, the API will create the file
-        return true
-      }
-      
-      throw new Error(`GitHub API error: ${response.status} - ${errorText}`)
+      return true
+    } catch (e) {
+      console.error('Error saving description file:', e)
+      return false
     }
-
-    const result = await response.json()
-    console.log('✅ Description file saved:', fileName)
-    return true
-    
-  } catch (error) {
-    console.error('❌ Error saving description file:', error)
-    return false
   }
-}
+
   const generateFileName = (title) => {
-    // Convert title to safe filename
-    const safeTitle = title
+    const safe = title
       .toLowerCase()
-      .replace(/[^a-z0-9əüöğıçş\s]/g, '')
-      .replace(/ə/g, 'e')
-      .replace(/ü/g, 'u')
-      .replace(/ö/g, 'o')
-      .replace(/ı/g, 'i')
-      .replace(/ğ/g, 'g')
-      .replace(/ç/g, 'c')
-      .replace(/ş/g, 's')
+      .replace(/ə/g, 'e').replace(/ü/g, 'u').replace(/ö/g, 'o')
+      .replace(/ı/g, 'i').replace(/ğ/g, 'g').replace(/ç/g, 'c').replace(/ş/g, 's')
+      .replace(/[^a-z0-9\s]/g, '')
       .replace(/\s+/g, '')
       .trim()
-    
-    return `${safeTitle}.txt`
+    return `${safe}.txt`
   }
 
-  const saveCareersLocally = (updatedCareers) => {
-    try {
-      console.log('💾 Saving careers locally:', updatedCareers)
-      setCareers(updatedCareers)
-      localStorage.setItem('careers', JSON.stringify(updatedCareers))
-      setHasUnsavedChanges(true)
-    } catch (error) {
-      console.error('Error saving careers:', error)
-    }
+  const saveCareersLocally = (updated) => {
+    setCareers(updated)
+    localStorage.setItem('careers', JSON.stringify(updated))
+    setHasUnsavedChanges(true)
   }
 
-const publishChanges = async () => {
-  try {
+  const publishChanges = async () => {
     setLoading(true)
-    
-    console.log('🚀 Starting publish process...')
-    
-    // First, update the JSON file with current data
-    console.log('📄 Step 1: Updating career.json file...')
-    const jsonUpdated = await updateJSONFile(careers)
-    
-    if (!jsonUpdated) {
-      alert('Failed to update career data! Check console for errors.')
-      return
-    }
-    
-    console.log('✅ Career JSON file updated successfully')
-    
-    // Then process description files SEQUENTIALLY with delays
-    console.log('📝 Step 2: Updating description files...')
-    let failedFiles = []
-    
-    for (let i = 0; i < careers.length; i++) {
-      const career = careers[i]
-      if (career.descriptionFile && career.descriptionContent) {
-        const fileName = career.descriptionFile.replace('../docs/', '')
-        console.log(`📝 Saving description ${i + 1}/${careers.length}: ${fileName}`)
-        
-        const success = await saveDescriptionToFile(career.descriptionContent, fileName)
-        
-        if (!success) {
-          failedFiles.push(career.title) // FIXED: was carer.title
-          console.error(`❌ Failed to save description for: ${career.title}`)
-        } else {
-          console.log(`✅ Successfully saved description for: ${career.title}`) // FIXED: was carer.title
+    try {
+      const visible = careers.filter((c) => c.isVisible)
+      const hidden = careers.filter((c) => !c.isVisible)
+
+      // 1) career.json = visible jobs only
+      await saveDataFile('save-career-json', visible.map(toJSON))
+      // 2) backup.json = hidden jobs (the archive)
+      await saveDataFile('save-backup-json', hidden.map(toJSON))
+
+      // 3) keep every description file in sync (visible + hidden)
+      const failed = []
+      for (const career of careers) {
+        if (career.descriptionFile && career.descriptionContent) {
+          const fileName = career.descriptionFile.replace('../docs/', '')
+          const ok = await saveDescriptionToFile(career.descriptionContent, fileName)
+          if (!ok) failed.push(career.title)
+          await new Promise((r) => setTimeout(r, 1200))
         }
-        
-        // Add delay between requests to reduce conflict chances
-        await new Promise(resolve => setTimeout(resolve, 1500))
       }
+
+      if (failed.length) {
+        alert(`Saved, but some description files failed: ${failed.join(', ')}`)
+      } else {
+        alert('Published. career.json and backup.json are up to date.')
+        setHasUnsavedChanges(false)
+      }
+    } catch (error) {
+      console.error('Error publishing changes:', error)
+      alert('Could not publish: ' + error.message)
+    } finally {
+      setLoading(false)
     }
-    
-    if (failedFiles.length > 0) {
-      alert(`Some description files failed to save: ${failedFiles.join(', ')}\n\nBut career data was updated successfully.`)
-    } else {
-      alert('✅ All changes published successfully!')
-      setHasUnsavedChanges(false)
-    }
-    
-  } catch (error) {
-    console.error('❌ Error publishing changes:', error)
-    alert('Error publishing changes: ' + error.message)
-  } finally {
-    setLoading(false)
   }
-}
+
   const discardChanges = () => {
-    if (window.confirm('Are you sure you want to discard all unsaved changes?')) {
+    if (window.confirm('Discard all unsaved changes and reload from GitHub?')) {
       loadCareers()
-      setHasUnsavedChanges(false)
     }
   }
 
@@ -287,917 +226,506 @@ const publishChanges = async () => {
     setEditingId(career.id)
     setNewCareer({
       title: career.title,
-      description: career.descriptionContent || '', // Use the actual content for editing
+      description: career.descriptionContent || '',
       date: career.date,
       expireDate: career.expireDate || '',
       location: career.location || 'Bakı, Azərbaycan',
       type: career.type || 'Tam iş günü',
       view: career.view?.toString() || '0',
       link: career.link || '',
-      isVisible: career.isVisible === undefined ? true : career.isVisible
+      isVisible: career.isVisible === undefined ? true : career.isVisible,
     })
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const handleSave = () => {
-    const updatedCareers = careers.map(career => 
-      career.id === editingId 
+    const updated = careers.map((career) =>
+      career.id === editingId
         ? {
             ...career,
             title: newCareer.title,
-            descriptionContent: newCareer.description, // Update the content
+            descriptionContent: newCareer.description,
             date: newCareer.date,
             expireDate: newCareer.expireDate,
             location: newCareer.location,
             type: newCareer.type,
             view: parseInt(newCareer.view) || 0,
             link: newCareer.link,
-            isVisible: newCareer.isVisible
+            isVisible: newCareer.isVisible,
           }
         : career
     )
-    saveCareersLocally(updatedCareers)
-    setEditingId(null)
+    saveCareersLocally(updated)
     resetForm()
   }
 
-  const handleAdd = async () => {
-    if (!newCareer.title.trim()) {
-      alert('Please enter a title')
-      return
-    }
+  const handleAdd = () => {
+    if (!newCareer.title.trim()) return alert('Add a title first.')
+    if (!newCareer.description.trim()) return alert('Add a description first.')
 
-    if (!newCareer.description.trim()) {
-      alert('Please enter a description')
-      return
-    }
+    const newId = careers.length ? Math.max(...careers.map((c) => c.id)) + 1 : 1
+    const filePath = `../docs/${generateFileName(newCareer.title)}`
 
-    const newId = careers.length > 0 ? Math.max(...careers.map(c => c.id)) + 1 : 1
-    const fileName = generateFileName(newCareer.title)
-    const filePath = `../docs/${fileName}`
-
-    const newCareerItem = {
+    const item = {
       id: newId,
       title: newCareer.title,
-      description: newCareer.description, // Keep content for local editing
-      descriptionContent: newCareer.description, // Store content for local editing
-      descriptionFile: filePath, // Store file path for JSON
-      dateImage: "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
+      description: newCareer.description,
+      descriptionContent: newCareer.description,
+      descriptionFile: filePath,
       date: newCareer.date,
       expireDate: newCareer.expireDate,
       location: newCareer.location,
       type: newCareer.type,
-      typeImage: "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/suitcase.svg",
       view: parseInt(newCareer.view) || 0,
       link: newCareer.link,
-      isVisible: newCareer.isVisible
+      isVisible: newCareer.isVisible,
     }
-
-    const updatedCareers = [...careers, newCareerItem]
-    saveCareersLocally(updatedCareers)
+    saveCareersLocally([...careers, item])
     resetForm()
   }
 
   const handleDelete = (id) => {
-    if (window.confirm('Are you sure you want to delete this career?')) {
-      const updatedCareers = careers.filter(career => career.id !== id)
-      saveCareersLocally(updatedCareers)
+    if (window.confirm('Delete this job permanently?')) {
+      saveCareersLocally(careers.filter((c) => c.id !== id))
     }
   }
 
+  // Hide -> will land in backup.json on publish. Show -> back to career.json.
   const toggleCareerVisibility = (id) => {
-    const updatedCareers = careers.map(career =>
-      career.id === id ? { ...career, isVisible: !career.isVisible } : career
+    saveCareersLocally(
+      careers.map((c) => (c.id === id ? { ...c, isVisible: !c.isVisible } : c))
     )
-    saveCareersLocally(updatedCareers)
   }
 
   const resetForm = () => {
     setNewCareer({
-      title: '',
-      description: '',
-      date: '',
-      expireDate: '',
-      location: 'Bakı, Azərbaycan',
-      type: 'Tam iş günü',
-      view: '0',
-      link: '',
-      isVisible: true
+      title: '', description: '', date: '', expireDate: '',
+      location: 'Bakı, Azərbaycan', type: 'Tam iş günü', view: '0', link: '', isVisible: true,
     })
     setEditingId(null)
     setShowDatePicker(null)
     setTodayDates()
   }
 
-  // Azerbaijani month names and weekdays
-  const azerbaijaniMonths = [
-    'Yanvar', 'Fevral', 'Mart', 'Aprel', 'May', 'İyun',
-    'İyul', 'Avqust', 'Sentyabr', 'Oktyabr', 'Noyabr', 'Dekabr'
-  ]
-
-  const azerbaijaniWeekdays = ['B', 'Be', 'Ça', 'Ç', 'Ca', 'C', 'Ş']
+  const openPicker = (which) => {
+    if (showDatePicker === which) return setShowDatePicker(null)
+    if (which === 'postDate') setCurrentMonth(azDateToObj(newCareer.date))
+    else setExpireMonth(azDateToObj(newCareer.expireDate))
+    setShowDatePicker(which)
+  }
 
   const handleDateSelect = (selectedDate, field) => {
-    const day = selectedDate.getDate()
-    const month = azerbaijaniMonths[selectedDate.getMonth()]
-    const year = selectedDate.getFullYear()
-    const formattedDate = `${day} ${month}, ${year}`
-    
-    if (field === 'postDate') {
-      setNewCareer(prev => ({ ...prev, date: formattedDate }))
-    } else if (field === 'expireDate') {
-      setNewCareer(prev => ({ ...prev, expireDate: formattedDate }))
-    }
-    
+    const formatted = formatAz(selectedDate)
+    if (field === 'postDate') setNewCareer((p) => ({ ...p, date: formatted }))
+    else setNewCareer((p) => ({ ...p, expireDate: formatted }))
     setShowDatePicker(null)
   }
 
   const generateCalendarDays = (month) => {
     const year = month.getFullYear()
     const monthIndex = month.getMonth()
-    
-    const firstDay = new Date(year, monthIndex, 1)
-    const lastDay = new Date(year, monthIndex + 1, 0)
-    const daysInMonth = lastDay.getDate()
-    
-    const startingDay = firstDay.getDay()
-    const days = []
-
-    // Previous month days
+    const firstDay = new Date(year, monthIndex, 1).getDay()
+    const daysInMonth = new Date(year, monthIndex + 1, 0).getDate()
     const prevMonthLastDay = new Date(year, monthIndex, 0).getDate()
-    for (let i = startingDay - 1; i >= 0; i--) {
-      days.push(new Date(year, monthIndex - 1, prevMonthLastDay - i))
-    }
-
-    // Current month days
-    for (let i = 1; i <= daysInMonth; i++) {
-      days.push(new Date(year, monthIndex, i))
-    }
-
-    // Next month days
-    const totalCells = 42 // 6 weeks
-    const nextMonthDays = totalCells - days.length
-    for (let i = 1; i <= nextMonthDays; i++) {
-      days.push(new Date(year, monthIndex + 1, i))
-    }
-
+    const days = []
+    for (let i = firstDay - 1; i >= 0; i--) days.push(new Date(year, monthIndex - 1, prevMonthLastDay - i))
+    for (let i = 1; i <= daysInMonth; i++) days.push(new Date(year, monthIndex, i))
+    const remaining = 42 - days.length
+    for (let i = 1; i <= remaining; i++) days.push(new Date(year, monthIndex + 1, i))
     return days
   }
 
-  const navigateMonth = (direction, calendarType) => {
-    if (calendarType === 'postDate') {
-      setCurrentMonth(prev => {
-        const newMonth = new Date(prev)
-        newMonth.setMonth(prev.getMonth() + direction)
-        return newMonth
-      })
-    } else if (calendarType === 'expireDate') {
-      setExpireMonth(prev => {
-        const newMonth = new Date(prev)
-        newMonth.setMonth(prev.getMonth() + direction)
-        return newMonth
-      })
-    }
+  const navigateMonth = (direction, type) => {
+    const setter = type === 'postDate' ? setCurrentMonth : setExpireMonth
+    setter((prev) => {
+      const m = new Date(prev)
+      m.setMonth(prev.getMonth() + direction)
+      return m
+    })
   }
 
-  // Quick date options for expire date
   const quickExpireOptions = [
-    { label: '1 ay', months: 1 },
-    { label: '3 ay', months: 3 },
-    { label: '6 ay', months: 6 },
-    { label: '1 il', months: 12 },
-    { label: '2 il', months: 24 }
+    { label: '1 ay', months: 1 }, { label: '3 ay', months: 3 },
+    { label: '6 ay', months: 6 }, { label: '1 il', months: 12 }, { label: '2 il', months: 24 },
   ]
-
   const handleQuickExpireSelect = (months) => {
-    const today = new Date()
-    const expireDate = new Date(today)
-    expireDate.setMonth(today.getMonth() + months)
-    
-    const day = expireDate.getDate()
-    const month = azerbaijaniMonths[expireDate.getMonth()]
-    const year = expireDate.getFullYear()
-    const formattedDate = `${day} ${month}, ${year}`
-    
-    setNewCareer(prev => ({ ...prev, expireDate: formattedDate }))
+    const d = new Date()
+    d.setMonth(d.getMonth() + months)
+    setNewCareer((p) => ({ ...p, expireDate: formatAz(d) }))
   }
 
-  const postCalendarDays = generateCalendarDays(currentMonth)
-  const expireCalendarDays = generateCalendarDays(expireMonth)
-  const today = new Date()
+  const renderCalendar = (field, monthState) => {
+    const days = generateCalendarDays(monthState)
+    const today = new Date()
+    const selected = field === 'postDate' ? parseAzDate(newCareer.date) : parseAzDate(newCareer.expireDate)
+    return (
+      <div className="date-picker-popup" onClick={(e) => e.stopPropagation()}>
+        <div className="date-picker-header">
+          <button type="button" className="nav-btn" onClick={() => navigateMonth(-1, field)}>‹</button>
+          <h4>{azerbaijaniMonths[monthState.getMonth()]} {monthState.getFullYear()}</h4>
+          <button type="button" className="nav-btn" onClick={() => navigateMonth(1, field)}>›</button>
+          <button type="button" className="close-picker-btn" onClick={() => setShowDatePicker(null)}>✕</button>
+        </div>
+
+        {field === 'expireDate' && (
+          <div className="quick-date-options">
+            <h5>Sürətli seçim</h5>
+            <div className="quick-buttons">
+              {quickExpireOptions.map((o) => (
+                <button key={o.label} type="button" className="quick-date-btn"
+                  onClick={() => handleQuickExpireSelect(o.months)}>{o.label}</button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="calendar-weekdays">
+          {azerbaijaniWeekdays.map((d) => <div key={d} className="weekday">{d}</div>)}
+        </div>
+        <div className="calendar-grid">
+          {days.map((date, i) => {
+            const isCurrentMonth = date.getMonth() === monthState.getMonth()
+            const isToday = date.toDateString() === today.toDateString()
+            const isSelected = selected &&
+              date.getDate() === selected.day &&
+              date.getMonth() === selected.monthIndex &&
+              date.getFullYear() === selected.year
+            return (
+              <button key={i} type="button" disabled={!isCurrentMonth}
+                className={`calendar-day ${!isCurrentMonth ? 'other-month' : ''} ${isToday ? 'today' : ''} ${isSelected ? 'selected' : ''}`}
+                onClick={() => isCurrentMonth && handleDateSelect(date, field)}>
+                {date.getDate()}
+              </button>
+            )
+          })}
+        </div>
+      </div>
+    )
+  }
+
+  const visibleCareers = careers.filter((c) => c.isVisible)
+  const hiddenCareers = careers.filter((c) => !c.isVisible)
+
+  const CareerCard = ({ career }) => (
+    <div className={`career-item ${!career.isVisible ? 'is-hidden' : ''}`}>
+      <div className="career-info">
+        <div className="career-head">
+          <h3>{career.title}</h3>
+          <span className={`status ${career.isVisible ? 'visible' : 'hidden'}`}>
+            {career.isVisible ? 'Aktiv' : 'Arxiv'}
+          </span>
+        </div>
+        <p className="preview">{(career.descriptionContent || '').replace(/\s+/g, ' ').slice(0, 130)}…</p>
+        <div className="meta">
+          <span>📅 {career.date}</span>
+          <span>⏳ {career.expireDate}</span>
+          <span>📍 {career.location}</span>
+          <span>💼 {career.type}</span>
+          <span>👁 {career.view}</span>
+          {career.link ? <span>🔗 Link</span> : null}
+        </div>
+      </div>
+      <div className="career-actions">
+        <button className="btn btn-secondary" onClick={() => handleEdit(career)}>Düzəliş</button>
+        <button className="btn btn-ghost" onClick={() => toggleCareerVisibility(career.id)}>
+          {career.isVisible ? 'Gizlət' : 'Göstər'}
+        </button>
+        <button className="btn btn-danger" onClick={() => handleDelete(career.id)}>Sil</button>
+      </div>
+    </div>
+  )
 
   return (
-    <div className="career-panel">
-      {/* Publish Button */}
+    <div className="career-panel" onClick={() => showDatePicker && setShowDatePicker(null)}>
       {hasUnsavedChanges && (
         <div className="publish-bar">
           <div className="publish-content">
-            <span className="unsaved-changes">⚠️ You have unsaved changes</span>
+            <span className="unsaved-changes">Yadda saxlanmamış dəyişikliklər var</span>
             <div className="publish-actions">
-              <button className="discard-btn" onClick={discardChanges}>
-                Cancel Changes
-              </button>
-              <button className="publish-btn" onClick={publishChanges}>
-                📢 Publish All Changes
+              <button className="btn btn-secondary" onClick={discardChanges}>Ləğv et</button>
+              <button className="btn btn-primary" onClick={publishChanges} disabled={loading}>
+                {loading ? 'Yüklənir…' : 'Dərc et'}
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {loading && <div className="loading">Loading...</div>}
-      
-      <div className="form-section">
-        <h2>{editingId !== null ? 'Edit Career' : 'Add New Career'}</h2>
-        
-        <div className="form-group">
-          <label>Title:</label>
-          <input
-            type="text"
-            value={newCareer.title}
-            onChange={(e) => setNewCareer(prev => ({...prev, title: e.target.value}))}
-            placeholder="Enter career title"
-          />
-        </div>
+      <div className="grid">
+        {/* ---------- Form ---------- */}
+        <section className="card form-section" onClick={(e) => e.stopPropagation()}>
+          <h2>{editingId !== null ? 'Vəzifəni redaktə et' : 'Yeni vəzifə'}</h2>
 
-        <div className="form-group">
-          <label>Description:</label>
-          <textarea
-            value={newCareer.description}
-            onChange={(e) => setNewCareer(prev => ({...prev, description: e.target.value}))}
-            placeholder="Enter job description"
-            rows="6"
-          />
-          <small>Description will be saved as a separate text file in the docs folder</small>
-        </div>
-
-        {/* Rest of the form remains the same */}
-        <div className="form-group">
-          <label>Post Date:</label>
-          <div className="date-input-container">
-            <input
-              type="text"
-              value={newCareer.date}
-              readOnly
-              onClick={() => setShowDatePicker('postDate')}
-              placeholder="Click to select date"
-              className="date-input"
-            />
-            <button 
-              type="button" 
-              className="calendar-toggle-btn"
-              onClick={() => setShowDatePicker(showDatePicker === 'postDate' ? null : 'postDate')}
-            >
-              📅
-            </button>
-            
-            {showDatePicker === 'postDate' && (
-              <div className="date-picker-popup">
-                <div className="date-picker-header">
-                  <button 
-                    type="button" 
-                    className="nav-btn"
-                    onClick={() => navigateMonth(-1, 'postDate')}
-                  >
-                    ‹
-                  </button>
-                  <h4>{azerbaijaniMonths[currentMonth.getMonth()]} {currentMonth.getFullYear()}</h4>
-                  <button 
-                    type="button" 
-                    className="nav-btn"
-                    onClick={() => navigateMonth(1, 'postDate')}
-                  >
-                    ›
-                  </button>
-                  <button 
-                    type="button" 
-                    className="close-picker-btn"
-                    onClick={() => setShowDatePicker(null)}
-                  >
-                    ✕
-                  </button>
-                </div>
-                
-                <div className="calendar-weekdays">
-                  {azerbaijaniWeekdays.map(day => (
-                    <div key={day} className="weekday">{day}</div>
-                  ))}
-                </div>
-                
-                <div className="calendar-grid">
-                  {postCalendarDays.map((date, index) => {
-                    const isCurrentMonth = date.getMonth() === currentMonth.getMonth()
-                    const isToday = date.toDateString() === today.toDateString()
-                    const isSelected = newCareer.date.includes(date.getDate().toString()) && 
-                                      newCareer.date.includes(azerbaijaniMonths[date.getMonth()])
-                    
-                    return (
-                      <button
-                        key={index}
-                        type="button"
-                        className={`calendar-day ${!isCurrentMonth ? 'other-month' : ''} ${isToday ? 'today' : ''} ${isSelected ? 'selected' : ''}`}
-                        onClick={() => isCurrentMonth && handleDateSelect(date, 'postDate')}
-                        disabled={!isCurrentMonth}
-                      >
-                        {date.getDate()}
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-            )}
+          <div className="form-group">
+            <label>Başlıq</label>
+            <input type="text" value={newCareer.title}
+              onChange={(e) => setNewCareer((p) => ({ ...p, title: e.target.value }))}
+              placeholder="Vəzifənin adı" />
           </div>
-          <small>Format: 1 Sentyabr, 2024 (Azerbaijani format)</small>
-        </div>
 
-        <div className="form-group">
-          <label>Expire Date:</label>
-          <div className="date-input-container">
-            <input
-              type="text"
-              value={newCareer.expireDate}
-              readOnly
-              onClick={() => setShowDatePicker('expireDate')}
-              placeholder="Click to select date"
-              className="date-input"
-            />
-            <button 
-              type="button" 
-              className="calendar-toggle-btn"
-              onClick={() => setShowDatePicker(showDatePicker === 'expireDate' ? null : 'expireDate')}
-            >
-              📅
-            </button>
-            
-            {showDatePicker === 'expireDate' && (
-              <div className="date-picker-popup">
-                <div className="date-picker-header">
-                  <button 
-                    type="button" 
-                    className="nav-btn"
-                    onClick={() => navigateMonth(-1, 'expireDate')}
-                  >
-                    ‹
-                  </button>
-                  <h4>{azerbaijaniMonths[expireMonth.getMonth()]} {expireMonth.getFullYear()}</h4>
-                  <button 
-                    type="button" 
-                    className="nav-btn"
-                    onClick={() => navigateMonth(1, 'expireDate')}
-                  >
-                    ›
-                  </button>
-                  <button 
-                    type="button" 
-                    className="close-picker-btn"
-                    onClick={() => setShowDatePicker(null)}
-                  >
-                    ✕
-                  </button>
-                </div>
-
-                <div className="quick-date-options">
-                  <h5>Sürətli seçim:</h5>
-                  <div className="quick-buttons">
-                    {quickExpireOptions.map((option, index) => (
-                      <button
-                        key={index}
-                        type="button"
-                        className="quick-date-btn"
-                        onClick={() => handleQuickExpireSelect(option.months)}
-                      >
-                        {option.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                
-                <div className="calendar-weekdays">
-                  {azerbaijaniWeekdays.map(day => (
-                    <div key={day} className="weekday">{day}</div>
-                  ))}
-                </div>
-                
-                <div className="calendar-grid">
-                  {expireCalendarDays.map((date, index) => {
-                    const isCurrentMonth = date.getMonth() === expireMonth.getMonth()
-                    const isToday = date.toDateString() === today.toDateString()
-                    const isSelected = newCareer.expireDate.includes(date.getDate().toString()) && 
-                                      newCareer.expireDate.includes(azerbaijaniMonths[date.getMonth()])
-                    
-                    return (
-                      <button
-                        key={index}
-                        type="button"
-                        className={`calendar-day ${!isCurrentMonth ? 'other-month' : ''} ${isToday ? 'today' : ''} ${isSelected ? 'selected' : ''}`}
-                        onClick={() => isCurrentMonth && handleDateSelect(date, 'expireDate')}
-                        disabled={!isCurrentMonth}
-                      >
-                        {date.getDate()}
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-            )}
+          <div className="form-group">
+            <label>Təsvir</label>
+            <textarea rows="6" value={newCareer.description}
+              onChange={(e) => setNewCareer((p) => ({ ...p, description: e.target.value }))}
+              placeholder="İş təsviri" />
+            <small>Təsvir docs qovluğunda ayrıca mətn faylı kimi saxlanılır.</small>
           </div>
-          <small>Format: 1 Oktyabr, 2026 (Azerbaijani format) - Automatically set to 1 year from today</small>
-        </div>
 
-        <div className="form-group">
-          <label>Location:</label>
-          <input
-            type="text"
-            value={newCareer.location}
-            onChange={(e) => setNewCareer(prev => ({...prev, location: e.target.value}))}
-            placeholder="Enter location"
-          />
-        </div>
-
-        <div className="form-group">
-          <label>Job Type:</label>
-          <input
-            type="text"
-            value={newCareer.type}
-            onChange={(e) => setNewCareer(prev => ({...prev, type: e.target.value}))}
-            placeholder="Enter job type"
-          />
-        </div>
-
-        <div className="form-group">
-          <label>Views:</label>
-          <input
-            type="number"
-            value={newCareer.view}
-            onChange={(e) => setNewCareer(prev => ({...prev, view: e.target.value}))}
-            placeholder="Enter view count"
-          />
-        </div>
-
-        <div className="form-group">
-          <label>Application Link:</label>
-          <input
-            type="text"
-            value={newCareer.link}
-            onChange={(e) => setNewCareer(prev => ({...prev, link: e.target.value}))}
-            placeholder="Enter application URL"
-          />
-        </div>
-
-        <div className="form-group">
-          <label className="checkbox-label">
-            <input
-              type="checkbox"
-              checked={newCareer.isVisible}
-              onChange={(e) => setNewCareer(prev => ({...prev, isVisible: e.target.checked}))}
-            />
-            Show this career on website
-          </label>
-        </div>
-
-        <div className="form-actions">
-          {editingId !== null ? (
-            <>
-              <button className="save-btn" onClick={handleSave}>Save Changes</button>
-              <button className="cancel-btn" onClick={resetForm}>Cancel</button>
-            </>
-          ) : (
-            <button className="add-btn" onClick={handleAdd}>Add Career</button>
-          )}
-        </div>
-      </div>
-
-      <div className="careers-list">
-        <h2>Existing Careers ({careers.length})</h2>
-        {loading ? (
-          <p>Loading careers...</p>
-        ) : careers.length === 0 ? (
-          <p>No careers found. Add your first career!</p>
-        ) : (
-          careers.map(career => (
-            <div key={career.id} className={`career-item ${!career.isVisible ? 'hidden' : ''}`}>
-              <div className="career-info">
-                <h3>{career.title}</h3>
-                <p><strong>Description File:</strong> {career.descriptionFile || 'No file'}</p>
-                <p><strong>Content Preview:</strong> {career.descriptionContent?.substring(0, 100)}...</p>
-                <p><strong>Date:</strong> {career.date}</p>
-                <p><strong>Expire:</strong> {career.expireDate}</p>
-                <p><strong>Location:</strong> {career.location}</p>
-                <p><strong>Type:</strong> {career.type}</p>
-                <p><strong>Views:</strong> {career.view}</p>
-                <p><strong>Link:</strong> {career.link ? 'Yes' : 'No'}</p>
-                <p><strong>Status:</strong> 
-                  <span className={`status ${career.isVisible ? 'visible' : 'hidden'}`}>
-                    {career.isVisible ? 'Visible' : 'Hidden'}
-                  </span>
-                </p>
-              </div>
-              <div className="career-actions">
-                <button className="edit-btn" onClick={() => handleEdit(career)}>Edit</button>
-                <button 
-                  className={`visibility-btn ${career.isVisible ? 'hide-btn' : 'show-btn'}`}
-                  onClick={() => toggleCareerVisibility(career.id)}
-                >
-                  {career.isVisible ? 'Hide' : 'Show'}
-                </button>
-                <button className="delete-btn" onClick={() => handleDelete(career.id)}>Delete</button>
-              </div>
+          <div className="form-group">
+            <label>Dərc tarixi</label>
+            <div className="date-input-container">
+              <input type="text" readOnly value={newCareer.date}
+                onClick={() => openPicker('postDate')} placeholder="Tarix seçin" className="date-input" />
+              <button type="button" className="calendar-toggle-btn" onClick={() => openPicker('postDate')}>📅</button>
+              {showDatePicker === 'postDate' && renderCalendar('postDate', currentMonth)}
             </div>
-          ))
-        )}
+          </div>
+
+          <div className="form-group">
+            <label>Bitmə tarixi</label>
+            <div className="date-input-container">
+              <input type="text" readOnly value={newCareer.expireDate}
+                onClick={() => openPicker('expireDate')} placeholder="Tarix seçin" className="date-input" />
+              <button type="button" className="calendar-toggle-btn" onClick={() => openPicker('expireDate')}>📅</button>
+              {showDatePicker === 'expireDate' && renderCalendar('expireDate', expireMonth)}
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label>Yer</label>
+              <input type="text" value={newCareer.location}
+                onChange={(e) => setNewCareer((p) => ({ ...p, location: e.target.value }))} />
+            </div>
+            <div className="form-group">
+              <label>İş növü</label>
+              <input type="text" value={newCareer.type}
+                onChange={(e) => setNewCareer((p) => ({ ...p, type: e.target.value }))} />
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label>Baxış sayı</label>
+              <input type="number" value={newCareer.view}
+                onChange={(e) => setNewCareer((p) => ({ ...p, view: e.target.value }))} />
+            </div>
+            <div className="form-group">
+              <label>Müraciət linki</label>
+              <input type="text" value={newCareer.link}
+                onChange={(e) => setNewCareer((p) => ({ ...p, link: e.target.value }))} placeholder="https://" />
+            </div>
+          </div>
+
+          <label className="switch-row">
+            <input type="checkbox" checked={newCareer.isVisible}
+              onChange={(e) => setNewCareer((p) => ({ ...p, isVisible: e.target.checked }))} />
+            <span>Saytda göstər</span>
+          </label>
+
+          <div className="form-actions">
+            {editingId !== null ? (
+              <>
+                <button className="btn btn-primary" onClick={handleSave}>Yadda saxla</button>
+                <button className="btn btn-secondary" onClick={resetForm}>Ləğv et</button>
+              </>
+            ) : (
+              <button className="btn btn-primary" onClick={handleAdd}>Vəzifə əlavə et</button>
+            )}
+          </div>
+        </section>
+
+        {/* ---------- List ---------- */}
+        <section className="list-col" onClick={(e) => e.stopPropagation()}>
+          <div className="list-block">
+            <div className="list-header">
+              <h2>Aktiv vəzifələr</h2>
+              <span className="count">{visibleCareers.length}</span>
+            </div>
+            {loading && !careers.length ? (
+              <p className="empty">Yüklənir…</p>
+            ) : visibleCareers.length === 0 ? (
+              <p className="empty">Aktiv vəzifə yoxdur. Birincini əlavə edin.</p>
+            ) : (
+              visibleCareers.map((c) => <CareerCard key={c.id} career={c} />)
+            )}
+          </div>
+
+          <div className="list-block">
+            <div className="list-header">
+              <h2>Arxiv <small>(backup.json)</small></h2>
+              <span className="count muted">{hiddenCareers.length}</span>
+            </div>
+            {hiddenCareers.length === 0 ? (
+              <p className="empty">Arxiv boşdur. Gizlədilən vəzifələr burada saxlanılır.</p>
+            ) : (
+              hiddenCareers.map((c) => <CareerCard key={c.id} career={c} />)
+            )}
+          </div>
+        </section>
       </div>
 
       <style jsx>{`
-        /* Your existing CSS styles remain the same */
-        .career-panel {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 30px;
-          padding: 20px;
-          padding-bottom: 80px;
-        }
-        
+        .career-panel { position: relative; }
+
         .publish-bar {
-          position: fixed;
-          bottom: 0;
-          left: 0;
-          right: 0;
-          background: #ffc107;
-          padding: 1rem;
-          z-index: 1000;
-          border-top: 2px solid #e0a800;
+          position: fixed; bottom: 0; left: 0; right: 0; z-index: 50;
+          background: var(--surface);
+          border-top: 1px solid var(--line);
+          box-shadow: 0 -4px 24px rgba(0,0,0,.06);
+          padding: 14px 28px;
         }
-        
         .publish-content {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          max-width: 1200px;
-          margin: 0 auto;
+          display: flex; justify-content: space-between; align-items: center;
+          max-width: 1200px; margin: 0 auto; gap: 16px;
         }
-        
-        .publish-actions {
-          display: flex;
-          gap: 1rem;
-          align-items: center;
+        .unsaved-changes { font-size: 13.5px; font-weight: 500; color: var(--ink-2); }
+        .unsaved-changes::before {
+          content: ''; display: inline-block; width: 8px; height: 8px;
+          background: var(--blue); border-radius: 50%; margin-right: 9px; vertical-align: middle;
         }
-        
-        .unsaved-changes {
-          font-weight: bold;
-          color: #856404;
+        .publish-actions { display: flex; gap: 10px; }
+
+        .grid {
+          display: grid;
+          grid-template-columns: minmax(0, 420px) minmax(0, 1fr);
+          gap: 24px;
+          align-items: start;
         }
-        
-        .publish-btn {
-          background: #28a745;
-          color: white;
-          border: none;
-          padding: 0.75rem 1.5rem;
-          border-radius: 4px;
-          cursor: pointer;
-          font-weight: bold;
+
+        .card {
+          background: var(--surface);
+          border: 1px solid var(--line);
+          border-radius: var(--r-md);
+          box-shadow: var(--shadow-1);
         }
-        
-        .publish-btn:hover {
-          background: #218838;
-        }
-        
-        .discard-btn {
-          background: #6c757d;
-          color: white;
-          border: none;
-          padding: 0.75rem 1.5rem;
-          border-radius: 4px;
-          cursor: pointer;
-          font-weight: bold;
-        }
-        
-        .discard-btn:hover {
-          background: #5a6268;
-        }
-        
-        .form-section {
-          background: #f9f9f9;
-          padding: 20px;
-          border-radius: 8px;
-        }
-        
-        .form-group {
-          margin-bottom: 15px;
-          position: relative;
-        }
-        
+        .form-section { padding: 22px; position: sticky; top: 84px; }
+        .form-section h2 { margin: 0 0 18px; font-size: 17px; letter-spacing: -.01em; }
+
+        .form-group { margin-bottom: 16px; position: relative; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
         .form-group label {
-          display: block;
-          margin-bottom: 5px;
-          font-weight: bold;
+          display: block; margin-bottom: 6px;
+          font-size: 12.5px; font-weight: 500; color: var(--ink-2);
         }
-        
         .form-group input,
         .form-group textarea {
-          width: 100%;
-          padding: 8px;
-          border: 1px solid #ddd;
-          border-radius: 4px;
-          box-sizing: border-box;
+          width: 100%; padding: 10px 12px;
+          border: 1px solid var(--line-strong); border-radius: var(--r-sm);
+          background: var(--surface-2); color: var(--ink);
+          font: inherit; font-size: 14px; resize: vertical;
+          transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
         }
-        
-        .date-input-container {
-          position: relative;
-          display: flex;
-          align-items: center;
+        .form-group input:focus,
+        .form-group textarea:focus {
+          outline: none; border-color: var(--blue); background: var(--surface);
+          box-shadow: 0 0 0 3px var(--blue-soft);
         }
-        
-        .date-input {
-          flex: 1;
-          padding-right: 2.5rem;
-          cursor: pointer;
-          background: white;
-          border: 1px solid #ddd;
-          border-radius: 4px;
-          padding: 8px;
-        }
-        
+        small { display: block; margin-top: 6px; font-size: 11.5px; color: var(--ink-3); }
+
+        .date-input-container { position: relative; }
+        .date-input { cursor: pointer; padding-right: 40px !important; }
         .calendar-toggle-btn {
-          position: absolute;
-          right: 0.5rem;
-          background: none;
-          border: none;
-          font-size: 1.2rem;
-          cursor: pointer;
-          padding: 0.25rem;
+          position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+          background: none; border: none; font-size: 16px; cursor: pointer; padding: 4px;
         }
-        
+
+        .switch-row {
+          display: flex; align-items: center; gap: 10px;
+          font-size: 14px; color: var(--ink); margin: 4px 0 20px; cursor: pointer;
+        }
+        .switch-row input { width: 17px; height: 17px; accent-color: var(--blue); }
+
+        .form-actions { display: flex; gap: 10px; }
+
+        /* Date picker */
         .date-picker-popup {
-          position: absolute;
-          top: 100%;
-          left: 0;
-          right: 0;
-          background: white;
-          border: 1px solid #ddd;
-          border-radius: 8px;
-          box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-          z-index: 1000;
-          margin-top: 0.5rem;
-          padding: 1rem;
+          position: absolute; top: calc(100% + 8px); left: 0; right: 0; z-index: 40;
+          background: var(--surface); border: 1px solid var(--line);
+          border-radius: var(--r-md); box-shadow: var(--shadow-pop); padding: 14px;
         }
-        
         .date-picker-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 1rem;
+          display: flex; align-items: center; gap: 6px; margin-bottom: 12px;
         }
-        
-        .nav-btn {
-          background: none;
-          border: none;
-          font-size: 1.5rem;
-          cursor: pointer;
-          padding: 0.25rem 0.5rem;
+        .date-picker-header h4 { flex: 1; margin: 0; font-size: 14px; text-align: center; }
+        .nav-btn, .close-picker-btn {
+          background: var(--surface-2); border: 1px solid var(--line);
+          width: 30px; height: 30px; border-radius: 8px; cursor: pointer;
+          font-size: 16px; color: var(--ink-2); display: grid; place-items: center;
         }
-        
-        .nav-btn:hover {
-          background: #f0f0f0;
-          border-radius: 4px;
-        }
-        
-        .close-picker-btn {
-          background: none;
-          border: none;
-          font-size: 1.2rem;
-          cursor: pointer;
-          padding: 0.25rem;
-        }
-        
-        .quick-date-options {
-          padding: 0.75rem;
-          border-bottom: 1px solid #eee;
-          background: #f0f8ff;
-          margin-bottom: 1rem;
-        }
-        
-        .quick-date-options h5 {
-          margin: 0 0 0.5rem 0;
-          font-size: 0.8rem;
-          color: #666;
-        }
-        
-        .quick-buttons {
-          display: flex;
-          gap: 0.5rem;
-          flex-wrap: wrap;
-        }
-        
+        .nav-btn:hover, .close-picker-btn:hover { background: var(--blue-soft); color: var(--blue); }
+        .quick-date-options { padding: 10px 0 12px; border-bottom: 1px solid var(--line); margin-bottom: 12px; }
+        .quick-date-options h5 { margin: 0 0 8px; font-size: 11.5px; color: var(--ink-3); font-weight: 500; }
+        .quick-buttons { display: flex; gap: 6px; flex-wrap: wrap; }
         .quick-date-btn {
-          background: #007bff;
-          color: white;
-          border: none;
-          padding: 0.4rem 0.8rem;
-          border-radius: 4px;
-          cursor: pointer;
-          font-size: 0.8rem;
+          background: var(--blue-soft); color: var(--blue); border: none;
+          padding: 6px 11px; border-radius: var(--r-pill); cursor: pointer; font-size: 12px; font-weight: 500;
         }
-        
-        .quick-date-btn:hover {
-          background: #0056b3;
+        .quick-date-btn:hover { background: #dbe9fb; }
+        .calendar-weekdays, .calendar-grid {
+          display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px;
         }
-        
-        .calendar-weekdays {
-          display: grid;
-          grid-template-columns: repeat(7, 1fr);
-          gap: 2px;
-          margin-bottom: 0.5rem;
-        }
-        
-        .weekday {
-          text-align: center;
-          font-weight: bold;
-          font-size: 0.8rem;
-          color: #666;
-          padding: 0.5rem;
-        }
-        
-        .calendar-grid {
-          display: grid;
-          grid-template-columns: repeat(7, 1fr);
-          gap: 2px;
-        }
-        
+        .weekday { text-align: center; font-size: 11px; font-weight: 600; color: var(--ink-3); padding: 6px 0; }
         .calendar-day {
-          border: none;
-          background: none;
-          padding: 0.75rem;
-          cursor: pointer;
-          border-radius: 4px;
-          font-size: 0.9rem;
+          border: none; background: none; aspect-ratio: 1; border-radius: 8px;
+          cursor: pointer; font-size: 13px; color: var(--ink);
+          transition: background .12s ease, color .12s ease;
         }
-        
-        .calendar-day:hover:not(:disabled) {
-          background: #007bff;
-          color: white;
+        .calendar-day:hover:not(:disabled) { background: var(--blue-soft); }
+        .calendar-day.today { color: var(--blue); font-weight: 700; }
+        .calendar-day.selected { background: var(--blue); color: #fff; font-weight: 600; }
+        .calendar-day.other-month { color: var(--line-strong); cursor: default; }
+
+        /* List */
+        .list-col { display: flex; flex-direction: column; gap: 22px; }
+        .list-header { display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px; }
+        .list-header h2 { margin: 0; font-size: 16px; letter-spacing: -.01em; }
+        .list-header h2 small { font-size: 12px; color: var(--ink-3); font-weight: 400; }
+        .count {
+          font-size: 12px; font-weight: 600; color: var(--blue);
+          background: var(--blue-soft); padding: 2px 9px; border-radius: var(--r-pill);
         }
-        
-        .calendar-day.today {
-          background: #e7f3ff;
-          font-weight: bold;
+        .count.muted { color: var(--ink-2); background: var(--surface-2); border: 1px solid var(--line); }
+        .empty {
+          color: var(--ink-3); font-size: 13.5px; padding: 22px;
+          background: var(--surface-2); border: 1px dashed var(--line-strong); border-radius: var(--r-md);
         }
-        
-        .calendar-day.selected {
-          background: #28a745;
-          color: white;
-        }
-        
-        .calendar-day.other-month {
-          color: #ccc;
-          cursor: not-allowed;
-        }
-        
-        .calendar-day:disabled {
-          cursor: not-allowed;
-          opacity: 0.5;
-        }
-        
-        .checkbox-label {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          font-weight: normal;
-        }
-        
-        .form-actions {
-          display: flex;
-          gap: 10px;
-          margin-top: 20px;
-        }
-        
-        .save-btn, .add-btn {
-          background: #0070f3;
-          color: white;
-          border: none;
-          padding: 10px 20px;
-          border-radius: 4px;
-          cursor: pointer;
-        }
-        
-        .cancel-btn {
-          background: #6c757d;
-          color: white;
-          border: none;
-          padding: 10px 20px;
-          border-radius: 4px;
-          cursor: pointer;
-        }
-        
-        .careers-list {
-          background: white;
-          padding: 20px;
-          border-radius: 8px;
-          border: 1px solid #ddd;
-        }
-        
+
         .career-item {
-          border: 1px solid #eee;
-          padding: 15px;
-          margin-bottom: 15px;
-          border-radius: 6px;
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
+          display: flex; gap: 16px; justify-content: space-between;
+          background: var(--surface); border: 1px solid var(--line);
+          border-radius: var(--r-md); padding: 16px 18px; margin-bottom: 12px;
+          box-shadow: var(--shadow-1);
+          transition: box-shadow .15s ease, transform .15s ease;
         }
-        
-        .career-item.hidden {
-          background: #f8f9fa;
-          opacity: 0.7;
-        }
-        
-        .career-info {
-          flex: 1;
-        }
-        
-        .career-actions {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-        }
-        
-        .edit-btn {
-          background: #28a745;
-          color: white;
-          border: none;
-          padding: 5px 10px;
-          border-radius: 4px;
-          cursor: pointer;
-        }
-        
-        .visibility-btn {
-          border: none;
-          padding: 5px 10px;
-          border-radius: 4px;
-          cursor: pointer;
-        }
-        
-        .hide-btn {
-          background: #ffc107;
-          color: black;
-        }
-        
-        .show-btn {
-          background: #17a2b8;
-          color: white;
-        }
-        
-        .delete-btn {
-          background: #dc3545;
-          color: white;
-          border: none;
-          padding: 5px 10px;
-          border-radius: 4px;
-          cursor: pointer;
-        }
-        
+        .career-item:hover { box-shadow: var(--shadow-2); transform: translateY(-1px); }
+        .career-item.is-hidden { background: var(--surface-2); }
+        .career-item.is-hidden .career-info { opacity: .68; }
+
+        .career-info { min-width: 0; flex: 1; }
+        .career-head { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+        .career-head h3 { margin: 0; font-size: 15px; letter-spacing: -.01em; }
+        .preview { margin: 0 0 10px; font-size: 13px; color: var(--ink-2); line-height: 1.45; }
+        .meta { display: flex; flex-wrap: wrap; gap: 8px 14px; font-size: 12px; color: var(--ink-3); }
+
         .status {
-          margin-left: 8px;
-          padding: 2px 8px;
-          border-radius: 12px;
-          font-size: 12px;
-          font-weight: bold;
+          font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: var(--r-pill);
         }
-        
-        .status.visible {
-          background: #d4edda;
-          color: #155724;
+        .status.visible { color: var(--green-ink); background: var(--green-soft); }
+        .status.hidden { color: var(--ink-2); background: var(--surface-2); border: 1px solid var(--line); }
+
+        .career-actions { display: flex; flex-direction: column; gap: 7px; flex: none; }
+        .career-actions .btn { width: 100%; }
+
+        @media (max-width: 1040px) {
+          .grid { grid-template-columns: 1fr; }
+          .form-section { position: static; }
         }
-        
-        .status.hidden {
-          background: #f8d7da;
-          color: #721c24;
-        }
-        
-        .loading {
-          position: fixed;
-          top: 20px;
-          right: 20px;
-          background: #0070f3;
-          color: white;
-          padding: 10px 20px;
-          border-radius: 4px;
-          z-index: 1000;
-        }
-        
-        small {
-          color: #666;
-          font-size: 0.8rem;
-          display: block;
-          margin-top: 0.25rem;
-        }
-        
-        @media (max-width: 768px) {
-          .career-panel {
-            grid-template-columns: 1fr;
-          }
-          
-          .quick-buttons {
-            justify-content: center;
-          }
+        @media (max-width: 560px) {
+          .form-row { grid-template-columns: 1fr; }
+          .career-item { flex-direction: column; }
+          .career-actions { flex-direction: row; }
+          .publish-bar { padding: 12px 16px; }
         }
       `}</style>
     </div>

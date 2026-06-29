@@ -1,15 +1,30 @@
 import React, { useState, useEffect } from 'react'
 
+const azerbaijaniMonths = [
+  'Yanvar', 'Fevral', 'Mart', 'Aprel', 'May', 'İyun',
+  'İyul', 'Avqust', 'Sentyabr', 'Oktyabr', 'Noyabr', 'Dekabr',
+]
+const azerbaijaniWeekdays = ['B', 'Be', 'Ça', 'Ç', 'Ca', 'C', 'Ş']
+
+const parseAzDate = (str) => {
+  if (!str) return null
+  const m = String(str).trim().match(/^(\d{1,2})\s+(\S+),\s*(\d{4})$/)
+  if (!m) return null
+  const monthIndex = azerbaijaniMonths.indexOf(m[2])
+  if (monthIndex === -1) return null
+  return { day: parseInt(m[1], 10), monthIndex, year: parseInt(m[3], 10) }
+}
+const azDateToObj = (str) => {
+  const p = parseAzDate(str)
+  return p ? new Date(p.year, p.monthIndex, p.day) : new Date()
+}
+const formatAz = (d) => `${d.getDate()} ${azerbaijaniMonths[d.getMonth()]}, ${d.getFullYear()}`
+
 const ActivityPanel = () => {
   const [activities, setActivities] = useState([])
   const [editingId, setEditingId] = useState(null)
   const [newActivity, setNewActivity] = useState({
-    title: '',
-    extendedDescription: '',
-    date: '',
-    image: '',
-    additionalImages: [''],
-    isVisible: true
+    title: '', extendedDescription: '', date: '', image: '', additionalImages: [''], isVisible: true,
   })
   const [uploadingImage, setUploadingImage] = useState(false)
   const [showDatePicker, setShowDatePicker] = useState(false)
@@ -21,102 +36,64 @@ const ActivityPanel = () => {
     setTodayDate()
   }, [])
 
-  const setTodayDate = () => {
-    const today = new Date()
-    const day = today.getDate()
-    const month = azerbaijaniMonths[today.getMonth()]
-    const year = today.getFullYear()
-    const formattedDate = `${day} ${month}, ${year}`
-    setNewActivity(prev => ({ ...prev, date: formattedDate }))
-  }
+  const setTodayDate = () => setNewActivity((p) => ({ ...p, date: formatAz(new Date()) }))
 
   const loadActivities = async () => {
     try {
       const response = await fetch('https://raw.githubusercontent.com/Absheron-Career-Portal/STORAGE/main/public/data/activity.json?t=' + Date.now())
       if (!response.ok) throw new Error(`Failed to load activities: ${response.status}`)
-
       const data = await response.json()
-      console.log('📥 Loaded activities:', data)
-
-      const fixedData = data.map(activity => ({
-        ...activity,
-        isVisible: activity.isVisible === undefined ? true : activity.isVisible
-      }))
-
-      setActivities(fixedData)
+      setActivities(data.map((a) => ({ ...a, isVisible: a.isVisible === undefined ? true : a.isVisible })))
     } catch (error) {
       console.error('Error loading activities:', error)
-      const localActivities = localStorage.getItem('activities')
-      if (localActivities) setActivities(JSON.parse(localActivities))
+      const local = localStorage.getItem('activities')
+      if (local) setActivities(JSON.parse(local))
     }
   }
 
-  const updateJSONFile = async (updatedActivities) => {
+  const updateJSONFile = async (updated) => {
     try {
-      console.log('🔄 Sending activities to GitHub API...')
       const baseUrl = window.location.origin
       const response = await fetch(`${baseUrl}/api/github/save-activity`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ data: updatedActivities }),
+        body: JSON.stringify({ data: updated }),
       })
-
-      if (!response.ok) {
-        const errorText = await response.text()
-        throw new Error(`GitHub API error: ${response.status} - ${errorText}`)
-      }
-
+      if (!response.ok) throw new Error(`GitHub API error: ${response.status}`)
       const result = await response.json()
-      console.log('✅ GitHub API response:', result)
       return result.success
     } catch (error) {
-      console.error('❌ Error updating activities via GitHub:', error)
+      console.error('Error updating activities via GitHub:', error)
       return false
     }
   }
 
   const uploadImage = async (file, folderName, imageNumber) => {
     try {
-      if (file.size > 2 * 1024 * 1024) {
-        throw new Error('Image too large. Maximum size is 2MB. Please compress your image.')
-      }
-
+      if (file.size > 2 * 1024 * 1024) throw new Error('Image too large. Maximum size is 2MB.')
       const base64Image = await new Promise((resolve, reject) => {
         const reader = new FileReader()
         reader.onload = () => resolve(reader.result)
         reader.onerror = reject
         reader.readAsDataURL(file)
       })
-
       const compressedBase64 = await compressImage(base64Image, 0.7)
       const baseUrl = window.location.origin
-
       const response = await fetch(`${baseUrl}/api/github/upload-image`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          image: compressedBase64,
-          folderName: folderName,
-          imageNumber: imageNumber,
-          baseFolder: 'image/social'
-        }),
+        body: JSON.stringify({ image: compressedBase64, folderName, imageNumber, baseFolder: 'image/social' }),
       })
-
-      if (!response.ok) {
-        const errorText = await response.text()
-        throw new Error(`Upload failed: ${response.status} - ${errorText}`)
-      }
-
-      const result = await response.json()
-      return result
+      if (!response.ok) throw new Error(`Upload failed: ${response.status}`)
+      return await response.json()
     } catch (error) {
-      console.error('❌ Error uploading image:', error)
+      console.error('Error uploading image:', error)
       return { success: false, error: error.message || 'Upload failed' }
     }
   }
 
-  const compressImage = (base64String, quality = 0.7) => {
-    return new Promise((resolve) => {
+  const compressImage = (base64String, quality = 0.7) =>
+    new Promise((resolve) => {
       const img = new Image()
       img.src = base64String
       img.onload = () => {
@@ -124,53 +101,38 @@ const ActivityPanel = () => {
         const ctx = canvas.getContext('2d')
         let { width, height } = img
         const maxWidth = 1200
-
-        if (width > maxWidth) {
-          height = (height * maxWidth) / width
-          width = maxWidth
-        }
-
+        if (width > maxWidth) { height = (height * maxWidth) / width; width = maxWidth }
         canvas.width = width
         canvas.height = height
         ctx.drawImage(img, 0, 0, width, height)
-        const compressedBase64 = canvas.toDataURL('image/jpeg', quality)
-        resolve(compressedBase64)
+        resolve(canvas.toDataURL('image/jpeg', quality))
       }
       img.onerror = () => resolve(base64String)
     })
-  }
 
-  // FIXED: Only save to localStorage, NOT to GitHub
-  const saveActivitiesLocally = (updatedActivities) => {
-    try {
-      console.log('💾 Saving activities locally:', updatedActivities)
-      setActivities(updatedActivities)
-      localStorage.setItem('activities', JSON.stringify(updatedActivities))
-      setHasUnsavedChanges(true)
-      // NO auto-save to GitHub - only on publish
-    } catch (error) {
-      console.error('Error saving activities:', error)
-    }
+  const saveActivitiesLocally = (updated) => {
+    setActivities(updated)
+    localStorage.setItem('activities', JSON.stringify(updated))
+    setHasUnsavedChanges(true)
   }
 
   const publishChanges = async () => {
     try {
-      const jsonUpdated = await updateJSONFile(activities)
-      if (jsonUpdated) {
-        alert('Changes published successfully! JSON file updated.')
+      const ok = await updateJSONFile(activities)
+      if (ok) {
+        alert('Published. activity.json is up to date.')
         setHasUnsavedChanges(false)
       } else {
-        alert('Failed to publish changes! Check console for errors.')
+        alert('Could not publish. Check the console for details.')
       }
     } catch (error) {
-      console.error('Error publishing changes:', error)
-      alert('Error publishing changes: ' + error.message)
+      alert('Could not publish: ' + error.message)
     }
   }
 
   const discardChanges = () => {
-    if (window.confirm('Are you sure you want to discard all unsaved changes?')) {
-      loadActivities() // Reload from original source
+    if (window.confirm('Discard all unsaved changes and reload from GitHub?')) {
+      loadActivities()
       setHasUnsavedChanges(false)
     }
   }
@@ -178,27 +140,15 @@ const ActivityPanel = () => {
   const handleImageUpload = async (event, isAdditional = false, index = null) => {
     const file = event.target.files[0]
     if (!file) return
-
-    if (!file.type.startsWith('image/')) {
-      alert('Please select an image file')
-      return
-    }
-
-    if (file.size > 2 * 1024 * 1024) {
-      alert('Image too large. Please select an image smaller than 2MB.')
-      return
-    }
+    if (!file.type.startsWith('image/')) return alert('Please choose an image file.')
+    if (file.size > 2 * 1024 * 1024) return alert('Image too large. Choose one under 2MB.')
 
     setUploadingImage(true)
     try {
       let folderName
-      if (editingId !== null) {
-        folderName = `activity_${editingId}`
-      } else if (newActivity.title) {
-        folderName = newActivity.title.toLowerCase().replace(/[^a-z0-9]/g, '_')
-      } else {
-        folderName = 'temp_activity'
-      }
+      if (editingId !== null) folderName = `activity_${editingId}`
+      else if (newActivity.title) folderName = newActivity.title.toLowerCase().replace(/[^a-z0-9]/g, '_')
+      else folderName = 'temp_activity'
 
       const imageNumber = isAdditional ? `${index + 1}` : '0'
       const result = await uploadImage(file, folderName, imageNumber)
@@ -206,18 +156,18 @@ const ActivityPanel = () => {
       if (result.success) {
         const imagePath = result.path
         if (isAdditional) {
-          setNewActivity(prev => ({
+          setNewActivity((prev) => ({
             ...prev,
-            additionalImages: prev.additionalImages.map((img, i) => i === index ? imagePath : img)
+            additionalImages: prev.additionalImages.map((img, i) => (i === index ? imagePath : img)),
           }))
         } else {
-          setNewActivity(prev => ({ ...prev, image: imagePath }))
+          setNewActivity((prev) => ({ ...prev, image: imagePath }))
         }
       } else {
-        alert('Failed to upload image: ' + (result.error || 'Unknown error'))
+        alert('Could not upload image: ' + (result.error || 'unknown error'))
       }
     } catch (error) {
-      alert('Error uploading image: ' + error.message)
+      alert('Could not upload image: ' + error.message)
     } finally {
       setUploadingImage(false)
       event.target.value = ''
@@ -233,723 +183,449 @@ const ActivityPanel = () => {
       image: activity.image,
       additionalImages: activity.additionalImages && activity.additionalImages.length > 0
         ? [...activity.additionalImages] : [''],
-      isVisible: activity.isVisible === undefined ? true : activity.isVisible
+      isVisible: activity.isVisible === undefined ? true : activity.isVisible,
     })
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const handleSave = () => {
-    const updatedActivities = activities.map(activity =>
+    const updated = activities.map((activity) =>
       activity.id === editingId
         ? {
             ...activity,
             ...newActivity,
             description: newActivity.extendedDescription.substring(0, 100) + '...',
-            imageTotal: newActivity.additionalImages.filter(img => img.trim() !== '').length.toString(),
-            isVisible: newActivity.isVisible
+            imageTotal: newActivity.additionalImages.filter((img) => img.trim() !== '').length.toString(),
+            isVisible: newActivity.isVisible,
           }
         : activity
     )
-    saveActivitiesLocally(updatedActivities) // FIXED: Use local save only
-    setEditingId(null)
+    saveActivitiesLocally(updated)
     resetForm()
   }
 
   const handleAdd = () => {
-    const newId = activities.length > 0 ? Math.max(...activities.map(a => a.id)) + 1 : 1
-    const newActivityItem = {
+    const newId = activities.length ? Math.max(...activities.map((a) => a.id)) + 1 : 1
+    const item = {
       id: newId,
       image: newActivity.image,
-      linkImage: "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/landscape.crop.rectangle.svg",
-      imageTotal: newActivity.additionalImages.filter(img => img.trim() !== '').length.toString(),
-      dateImage: "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
+      linkImage: 'https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/landscape.crop.rectangle.svg',
+      imageTotal: newActivity.additionalImages.filter((img) => img.trim() !== '').length.toString(),
+      dateImage: 'https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg',
       date: newActivity.date,
       title: newActivity.title,
       description: newActivity.extendedDescription.substring(0, 100) + '...',
-      additionalImages: newActivity.additionalImages.filter(img => img.trim() !== ''),
+      additionalImages: newActivity.additionalImages.filter((img) => img.trim() !== ''),
       extendedDescription: newActivity.extendedDescription,
-      isVisible: true
+      isVisible: newActivity.isVisible,
     }
-
-    const updatedActivities = [...activities, newActivityItem]
-    saveActivitiesLocally(updatedActivities) // FIXED: Use local save only
+    saveActivitiesLocally([...activities, item])
     resetForm()
   }
 
   const handleDelete = (id) => {
-    if (window.confirm('Are you sure you want to delete this activity?')) {
-      const updatedActivities = activities.filter(activity => activity.id !== id)
-      saveActivitiesLocally(updatedActivities) // FIXED: Use local save only
+    if (window.confirm('Delete this activity permanently?')) {
+      saveActivitiesLocally(activities.filter((a) => a.id !== id))
     }
   }
 
   const toggleActivityVisibility = (id) => {
-    const updatedActivities = activities.map(activity =>
-      activity.id === id ? { ...activity, isVisible: !activity.isVisible } : activity
-    )
-    saveActivitiesLocally(updatedActivities) // FIXED: Use local save only
+    saveActivitiesLocally(activities.map((a) => (a.id === id ? { ...a, isVisible: !a.isVisible } : a)))
   }
 
   const resetForm = () => {
-    setNewActivity({
-      title: '',
-      extendedDescription: '',
-      date: '',
-      image: '',
-      additionalImages: [''],
-      isVisible: true
-    })
+    setNewActivity({ title: '', extendedDescription: '', date: '', image: '', additionalImages: [''], isVisible: true })
     setEditingId(null)
     setShowDatePicker(false)
     setTodayDate()
   }
 
-  const addImageField = () => {
-    setNewActivity(prev => ({
-      ...prev,
-      additionalImages: [...prev.additionalImages, '']
-    }))
-  }
-
+  const addImageField = () => setNewActivity((p) => ({ ...p, additionalImages: [...p.additionalImages, ''] }))
   const removeImageField = (index) => {
     if (newActivity.additionalImages.length > 1) {
-      setNewActivity(prev => ({
-        ...prev,
-        additionalImages: prev.additionalImages.filter((_, i) => i !== index)
-      }))
+      setNewActivity((p) => ({ ...p, additionalImages: p.additionalImages.filter((_, i) => i !== index) }))
     }
   }
+  const updateImageField = (index, value) =>
+    setNewActivity((p) => ({ ...p, additionalImages: p.additionalImages.map((img, i) => (i === index ? value : img)) }))
 
-  const updateImageField = (index, value) => {
-    setNewActivity(prev => ({
-      ...prev,
-      additionalImages: prev.additionalImages.map((img, i) => i === index ? value : img)
-    }))
+  const openPicker = () => {
+    if (showDatePicker) return setShowDatePicker(false)
+    setCurrentMonth(azDateToObj(newActivity.date))
+    setShowDatePicker(true)
   }
 
-  // Azerbaijani month names
-  const azerbaijaniMonths = [
-    'Yanvar', 'Fevral', 'Mart', 'Aprel', 'May', 'İyun',
-    'İyul', 'Avqust', 'Sentyabr', 'Oktyabr', 'Noyabr', 'Dekabr'
-  ]
-
-  const azerbaijaniWeekdays = ['B', 'Be', 'Ça', 'Ç', 'Ca', 'C', 'Ş']
-
   const handleDateSelect = (selectedDate) => {
-    const day = selectedDate.getDate()
-    const month = azerbaijaniMonths[selectedDate.getMonth()]
-    const year = selectedDate.getFullYear()
-    const formattedDate = `${day} ${month}, ${year}`
-    setNewActivity(prev => ({ ...prev, date: formattedDate }))
+    setNewActivity((p) => ({ ...p, date: formatAz(selectedDate) }))
     setShowDatePicker(false)
   }
 
   const generateCalendarDays = () => {
     const year = currentMonth.getFullYear()
     const month = currentMonth.getMonth()
-    
-    const firstDay = new Date(year, month, 1)
-    const lastDay = new Date(year, month + 1, 0)
-    const daysInMonth = lastDay.getDate()
-    
-    const startingDay = firstDay.getDay()
-    const days = []
-
-    // Previous month days
+    const firstDay = new Date(year, month, 1).getDay()
+    const daysInMonth = new Date(year, month + 1, 0).getDate()
     const prevMonthLastDay = new Date(year, month, 0).getDate()
-    for (let i = startingDay - 1; i >= 0; i--) {
-      days.push(new Date(year, month - 1, prevMonthLastDay - i))
-    }
-
-    // Current month days
-    for (let i = 1; i <= daysInMonth; i++) {
-      days.push(new Date(year, month, i))
-    }
-
-    // Next month days
-    const totalCells = 42 // 6 weeks
-    const nextMonthDays = totalCells - days.length
-    for (let i = 1; i <= nextMonthDays; i++) {
-      days.push(new Date(year, month + 1, i))
-    }
-
+    const days = []
+    for (let i = firstDay - 1; i >= 0; i--) days.push(new Date(year, month - 1, prevMonthLastDay - i))
+    for (let i = 1; i <= daysInMonth; i++) days.push(new Date(year, month, i))
+    const remaining = 42 - days.length
+    for (let i = 1; i <= remaining; i++) days.push(new Date(year, month + 1, i))
     return days
   }
 
-  const navigateMonth = (direction) => {
-    setCurrentMonth(prev => {
-      const newMonth = new Date(prev)
-      newMonth.setMonth(prev.getMonth() + direction)
-      return newMonth
+  const navigateMonth = (direction) =>
+    setCurrentMonth((prev) => {
+      const m = new Date(prev)
+      m.setMonth(prev.getMonth() + direction)
+      return m
     })
-  }
 
   const fixImageUrl = (url) => {
     if (!url) return ''
     if (url.startsWith('http')) return url
     if (url.startsWith('/image/')) {
-      const imagePath = url.substring(1)
-      return `https://raw.githubusercontent.com/Absheron-Career-Portal/STORAGE/refs/heads/main/public/${imagePath}`
+      return `https://raw.githubusercontent.com/Absheron-Career-Portal/STORAGE/refs/heads/main/public${url}`
     }
     return url
   }
 
   const calendarDays = generateCalendarDays()
-  const currentMonthName = azerbaijaniMonths[currentMonth.getMonth()]
-  const currentYear = currentMonth.getFullYear()
   const today = new Date()
+  const selected = parseAzDate(newActivity.date)
+
+  const visibleActivities = activities.filter((a) => a.isVisible)
+  const hiddenActivities = activities.filter((a) => !a.isVisible)
+
+  const ActivityCard = ({ activity }) => (
+    <div className={`activity-item ${!activity.isVisible ? 'is-hidden' : ''}`}>
+      <div className="activity-thumb">
+        <img src={fixImageUrl(activity.image)} alt={activity.title} loading="lazy" />
+        {!activity.isVisible && <span className="thumb-tag">Arxiv</span>}
+      </div>
+      <div className="activity-info">
+        <div className="activity-head">
+          <h3>{activity.title}</h3>
+          <span className={`status ${activity.isVisible ? 'visible' : 'hidden'}`}>
+            {activity.isVisible ? 'Aktiv' : 'Arxiv'}
+          </span>
+        </div>
+        <p className="preview">{activity.description}</p>
+        <div className="meta">
+          <span>📅 {activity.date}</span>
+          <span>🖼 {activity.additionalImages ? activity.additionalImages.length : 0} şəkil</span>
+        </div>
+      </div>
+      <div className="activity-actions">
+        <button className="btn btn-secondary" onClick={() => handleEdit(activity)}>Düzəliş</button>
+        <button className="btn btn-ghost" onClick={() => toggleActivityVisibility(activity.id)}>
+          {activity.isVisible ? 'Gizlət' : 'Göstər'}
+        </button>
+        <button className="btn btn-danger" onClick={() => handleDelete(activity.id)}>Sil</button>
+      </div>
+    </div>
+  )
 
   return (
-    <div className="activity-panel">
-      {/* Publish Button */}
+    <div className="activity-panel" onClick={() => showDatePicker && setShowDatePicker(false)}>
       {hasUnsavedChanges && (
         <div className="publish-bar">
           <div className="publish-content">
-            <span className="unsaved-changes">⚠️ You have unsaved changes</span>
+            <span className="unsaved-changes">Yadda saxlanmamış dəyişikliklər var</span>
             <div className="publish-actions">
-              <button className="discard-btn" onClick={discardChanges}>
-                Cancel Changes
-              </button>
-              <button className="publish-btn" onClick={publishChanges}>
-                📢 Publish All Changes
-              </button>
+              <button className="btn btn-secondary" onClick={discardChanges}>Ləğv et</button>
+              <button className="btn btn-primary" onClick={publishChanges}>Dərc et</button>
             </div>
           </div>
         </div>
       )}
 
-      <div className="form-section">
-        <h2>{editingId !== null ? 'Edit Activity' : 'Add New Activity'}</h2>
+      <div className="grid">
+        <section className="card form-section" onClick={(e) => e.stopPropagation()}>
+          <h2>{editingId !== null ? 'Fəaliyyəti redaktə et' : 'Yeni fəaliyyət'}</h2>
 
-        <div className="form-group">
-          <label>Title:</label>
-          <input
-            type="text"
-            value={newActivity.title}
-            onChange={(e) => setNewActivity(prev => ({ ...prev, title: e.target.value }))}
-            placeholder="Enter activity title"
-          />
-        </div>
-
-        <div className="form-group">
-          <label>Extended Description:</label>
-          <textarea
-            value={newActivity.extendedDescription}
-            onChange={(e) => setNewActivity(prev => ({ ...prev, extendedDescription: e.target.value }))}
-            placeholder="Enter full description"
-            rows="4"
-          />
-        </div>
-
-        <div className="form-group">
-          <label>Date:</label>
-          <div className="date-input-container">
-            <input
-              type="text"
-              value={newActivity.date}
-              readOnly
-              onClick={() => setShowDatePicker(true)}
-              placeholder="Click to select date"
-              className="date-input"
-            />
-            <button 
-              type="button" 
-              className="calendar-toggle-btn"
-              onClick={() => setShowDatePicker(!showDatePicker)}
-            >
-              📅
-            </button>
-            
-            {showDatePicker && (
-              <div className="date-picker-popup">
-                <div className="date-picker-header">
-                  <button 
-                    type="button" 
-                    className="nav-btn"
-                    onClick={() => navigateMonth(-1)}
-                  >
-                    ‹
-                  </button>
-                  <h4>{currentMonthName} {currentYear}</h4>
-                  <button 
-                    type="button" 
-                    className="nav-btn"
-                    onClick={() => navigateMonth(1)}
-                  >
-                    ›
-                  </button>
-                  <button 
-                    type="button" 
-                    className="close-picker-btn"
-                    onClick={() => setShowDatePicker(false)}
-                  >
-                    ✕
-                  </button>
-                </div>
-                
-                <div className="calendar-weekdays">
-                  {azerbaijaniWeekdays.map(day => (
-                    <div key={day} className="weekday">{day}</div>
-                  ))}
-                </div>
-                
-                <div className="calendar-grid">
-                  {calendarDays.map((date, index) => {
-                    const isCurrentMonth = date.getMonth() === currentMonth.getMonth()
-                    const isToday = date.toDateString() === today.toDateString()
-                    const isSelected = newActivity.date.includes(date.getDate().toString()) && 
-                                      newActivity.date.includes(azerbaijaniMonths[date.getMonth()])
-                    
-                    return (
-                      <button
-                        key={index}
-                        type="button"
-                        className={`calendar-day ${!isCurrentMonth ? 'other-month' : ''} ${isToday ? 'today' : ''} ${isSelected ? 'selected' : ''}`}
-                        onClick={() => isCurrentMonth && handleDateSelect(date)}
-                        disabled={!isCurrentMonth}
-                      >
-                        {date.getDate()}
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-            )}
+          <div className="form-group">
+            <label>Başlıq</label>
+            <input type="text" value={newActivity.title}
+              onChange={(e) => setNewActivity((p) => ({ ...p, title: e.target.value }))}
+              placeholder="Fəaliyyətin adı" />
           </div>
-          <small>Format: 1 Sentyabr, 2025 (Azerbaijani format)</small>
-        </div>
 
-        {/* Rest of the form remains the same */}
-        <div className="form-group">
-          <label>Main Image (0.jpg):</label>
-          <div className="image-upload-section">
-            <div className="image-upload-options">
-              <div className="url-option">
-                <label>URL:</label>
-                <input
-                  type="text"
-                  value={newActivity.image}
-                  onChange={(e) => setNewActivity(prev => ({ ...prev, image: e.target.value }))}
-                  placeholder="Enter image URL"
-                />
-                <small>Use relative paths like: /image/social/production/0.jpg</small>
-              </div>
-              <div className="upload-option">
-                <label>Upload from Device:</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => handleImageUpload(e, false)}
-                  disabled={uploadingImage}
-                />
-                {uploadingImage && <span>Uploading...</span>}
-                <small>Max 2MB</small>
-              </div>
-            </div>
-            {newActivity.image && (
-              <div className="image-preview">
-                <img src={fixImageUrl(newActivity.image)} alt="Preview" className="preview-image" />
-              </div>
-            )}
+          <div className="form-group">
+            <label>Təsvir</label>
+            <textarea rows="4" value={newActivity.extendedDescription}
+              onChange={(e) => setNewActivity((p) => ({ ...p, extendedDescription: e.target.value }))}
+              placeholder="Tam təsvir" />
           </div>
-        </div>
 
-        <div className="form-group">
-          <label>Additional Images:</label>
-          {newActivity.additionalImages.map((image, index) => (
-            <div key={index} className="image-input-group">
-              <div className="image-upload-options">
-                <div className="url-option">
-                  <input
-                    type="text"
-                    value={image}
-                    onChange={(e) => updateImageField(index, e.target.value)}
-                    placeholder="Enter image URL"
-                  />
-                </div>
-                <div className="upload-option">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => handleImageUpload(e, true, index)}
-                    disabled={uploadingImage}
-                  />
-                </div>
-              </div>
-              {image && (
-                <div className="image-preview small">
-                  <img src={fixImageUrl(image)} alt={`Preview ${index}`} className="preview-image" />
+          <div className="form-group">
+            <label>Tarix</label>
+            <div className="date-input-container">
+              <input type="text" readOnly value={newActivity.date}
+                onClick={openPicker} placeholder="Tarix seçin" className="date-input" />
+              <button type="button" className="calendar-toggle-btn" onClick={openPicker}>📅</button>
+              {showDatePicker && (
+                <div className="date-picker-popup" onClick={(e) => e.stopPropagation()}>
+                  <div className="date-picker-header">
+                    <button type="button" className="nav-btn" onClick={() => navigateMonth(-1)}>‹</button>
+                    <h4>{azerbaijaniMonths[currentMonth.getMonth()]} {currentMonth.getFullYear()}</h4>
+                    <button type="button" className="nav-btn" onClick={() => navigateMonth(1)}>›</button>
+                    <button type="button" className="close-picker-btn" onClick={() => setShowDatePicker(false)}>✕</button>
+                  </div>
+                  <div className="calendar-weekdays">
+                    {azerbaijaniWeekdays.map((d) => <div key={d} className="weekday">{d}</div>)}
+                  </div>
+                  <div className="calendar-grid">
+                    {calendarDays.map((date, i) => {
+                      const isCurrentMonth = date.getMonth() === currentMonth.getMonth()
+                      const isToday = date.toDateString() === today.toDateString()
+                      const isSelected = selected &&
+                        date.getDate() === selected.day &&
+                        date.getMonth() === selected.monthIndex &&
+                        date.getFullYear() === selected.year
+                      return (
+                        <button key={i} type="button" disabled={!isCurrentMonth}
+                          className={`calendar-day ${!isCurrentMonth ? 'other-month' : ''} ${isToday ? 'today' : ''} ${isSelected ? 'selected' : ''}`}
+                          onClick={() => isCurrentMonth && handleDateSelect(date)}>
+                          {date.getDate()}
+                        </button>
+                      )
+                    })}
+                  </div>
                 </div>
               )}
-              {newActivity.additionalImages.length > 1 && (
-                <button type="button" className="remove-btn" onClick={() => removeImageField(index)}>
-                  Remove
-                </button>
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label>Əsas şəkil</label>
+            <div className="upload-box">
+              <input type="text" value={newActivity.image}
+                onChange={(e) => setNewActivity((p) => ({ ...p, image: e.target.value }))}
+                placeholder="Şəkil URL və ya /image/social/.../0.jpg" />
+              <div className="upload-row">
+                <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, false)} disabled={uploadingImage} />
+                {uploadingImage && <span className="uploading">Yüklənir…</span>}
+              </div>
+              {newActivity.image && (
+                <div className="image-preview">
+                  <img src={fixImageUrl(newActivity.image)} alt="Preview" />
+                </div>
               )}
             </div>
-          ))}
-          <button type="button" className="add-btn" onClick={addImageField}>
-            + Add Another Image
-          </button>
-        </div>
+          </div>
 
-        <div className="form-group">
-          <label className="checkbox-label">
-            <input
-              type="checkbox"
-              checked={newActivity.isVisible}
-              onChange={(e) => setNewActivity(prev => ({ ...prev, isVisible: e.target.checked }))}
-            />
-            Show this activity on website
+          <div className="form-group">
+            <label>Əlavə şəkillər</label>
+            {newActivity.additionalImages.map((image, index) => (
+              <div key={index} className="upload-box compact">
+                <input type="text" value={image}
+                  onChange={(e) => updateImageField(index, e.target.value)} placeholder="Şəkil URL" />
+                <div className="upload-row">
+                  <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, true, index)} disabled={uploadingImage} />
+                  {newActivity.additionalImages.length > 1 && (
+                    <button type="button" className="btn btn-danger" onClick={() => removeImageField(index)}>Sil</button>
+                  )}
+                </div>
+                {image && <div className="image-preview small"><img src={fixImageUrl(image)} alt={`Preview ${index}`} /></div>}
+              </div>
+            ))}
+            <button type="button" className="btn btn-secondary add-more" onClick={addImageField}>+ Şəkil əlavə et</button>
+          </div>
+
+          <label className="switch-row">
+            <input type="checkbox" checked={newActivity.isVisible}
+              onChange={(e) => setNewActivity((p) => ({ ...p, isVisible: e.target.checked }))} />
+            <span>Saytda göstər</span>
           </label>
-        </div>
 
-        <div className="form-actions">
-          {editingId !== null ? (
-            <>
-              <button className="save-btn" onClick={handleSave}>Save Changes</button>
-              <button className="cancel-btn" onClick={resetForm}>Cancel</button>
-            </>
-          ) : (
-            <button className="add-btn" onClick={handleAdd}>Add Activity</button>
-          )}
-        </div>
-      </div>
+          <div className="form-actions">
+            {editingId !== null ? (
+              <>
+                <button className="btn btn-primary" onClick={handleSave}>Yadda saxla</button>
+                <button className="btn btn-secondary" onClick={resetForm}>Ləğv et</button>
+              </>
+            ) : (
+              <button className="btn btn-primary" onClick={handleAdd}>Fəaliyyət əlavə et</button>
+            )}
+          </div>
+        </section>
 
-      <div className="activities-list">
-        <h2>Existing Activities ({activities.length})</h2>
-        {activities.length === 0 ? (
-          <p>No activities found. Add your first activity!</p>
-        ) : (
-          activities.map(activity => (
-            <div key={activity.id} className={`activity-item ${!activity.isVisible ? 'hidden' : ''}`}>
-              <div className="activity-preview">
-                <div className="activity-image-container">
-                  <img src={fixImageUrl(activity.image)} alt={activity.title} className="activity-image" />
-                  {!activity.isVisible && <div className="hidden-overlay">HIDDEN</div>}
-                </div>
-                <div className="activity-info">
-                  <h3>{activity.title}</h3>
-                  <p><strong>Date:</strong> {activity.date}</p>
-                  <p><strong>Description:</strong> {activity.description}</p>
-                  <p><strong>Additional Images:</strong> {activity.additionalImages ? activity.additionalImages.length : 0}</p>
-                  <p><strong>Status:</strong>
-                    <span className={`status ${activity.isVisible ? 'visible' : 'hidden'}`}>
-                      {activity.isVisible ? 'Visible' : 'Hidden'}
-                    </span>
-                  </p>
-                </div>
-              </div>
-              <div className="activity-actions">
-                <button className="edit-btn" onClick={() => handleEdit(activity)}>Edit</button>
-                <button className={`visibility-btn ${activity.isVisible ? 'hide-btn' : 'show-btn'}`}
-                  onClick={() => toggleActivityVisibility(activity.id)}>
-                  {activity.isVisible ? 'Hide' : 'Show'}
-                </button>
-                <button className="delete-btn" onClick={() => handleDelete(activity.id)}>Delete</button>
-              </div>
+        <section className="list-col" onClick={(e) => e.stopPropagation()}>
+          <div className="list-block">
+            <div className="list-header">
+              <h2>Aktiv fəaliyyətlər</h2>
+              <span className="count">{visibleActivities.length}</span>
             </div>
-          ))
-        )}
+            {visibleActivities.length === 0 ? (
+              <p className="empty">Aktiv fəaliyyət yoxdur. Birincini əlavə edin.</p>
+            ) : (
+              visibleActivities.map((a) => <ActivityCard key={a.id} activity={a} />)
+            )}
+          </div>
+
+          <div className="list-block">
+            <div className="list-header">
+              <h2>Arxiv</h2>
+              <span className="count muted">{hiddenActivities.length}</span>
+            </div>
+            {hiddenActivities.length === 0 ? (
+              <p className="empty">Arxiv boşdur. Gizlədilən fəaliyyətlər burada görünür.</p>
+            ) : (
+              hiddenActivities.map((a) => <ActivityCard key={a.id} activity={a} />)
+            )}
+          </div>
+        </section>
       </div>
 
       <style jsx>{`
-        .activity-panel {
-          display: flex;
-          gap: 2rem;
-          padding: 1rem;
-          padding-bottom: 80px;
-        }
-        
+        .activity-panel { position: relative; }
+
         .publish-bar {
-          position: fixed;
-          bottom: 0;
-          left: 0;
-          right: 0;
-          background: #ffc107;
-          padding: 1rem;
-          z-index: 1000;
-          border-top: 2px solid #e0a800;
+          position: fixed; bottom: 0; left: 0; right: 0; z-index: 50;
+          background: var(--surface); border-top: 1px solid var(--line);
+          box-shadow: 0 -4px 24px rgba(0,0,0,.06); padding: 14px 28px;
         }
-        
         .publish-content {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          max-width: 1200px;
-          margin: 0 auto;
+          display: flex; justify-content: space-between; align-items: center;
+          max-width: 1200px; margin: 0 auto; gap: 16px;
         }
-        
-        .publish-actions {
-          display: flex;
-          gap: 1rem;
-          align-items: center;
+        .unsaved-changes { font-size: 13.5px; font-weight: 500; color: var(--ink-2); }
+        .unsaved-changes::before {
+          content: ''; display: inline-block; width: 8px; height: 8px;
+          background: var(--blue); border-radius: 50%; margin-right: 9px; vertical-align: middle;
         }
-        
-        .unsaved-changes {
-          font-weight: bold;
-          color: #856404;
+        .publish-actions { display: flex; gap: 10px; }
+
+        .grid {
+          display: grid; grid-template-columns: minmax(0, 440px) minmax(0, 1fr);
+          gap: 24px; align-items: start;
         }
-        
-        .publish-btn {
-          background: #28a745;
-          color: white;
-          border: none;
-          padding: 0.75rem 1.5rem;
-          border-radius: 4px;
-          cursor: pointer;
-          font-weight: bold;
+        .card {
+          background: var(--surface); border: 1px solid var(--line);
+          border-radius: var(--r-md); box-shadow: var(--shadow-1);
         }
-        
-        .publish-btn:hover {
-          background: #218838;
+        .form-section { padding: 22px; position: sticky; top: 84px; }
+        .form-section h2 { margin: 0 0 18px; font-size: 17px; letter-spacing: -.01em; }
+
+        .form-group { margin-bottom: 16px; position: relative; }
+        .form-group label { display: block; margin-bottom: 6px; font-size: 12.5px; font-weight: 500; color: var(--ink-2); }
+        .form-group input[type="text"],
+        .form-group input[type="number"],
+        .form-group textarea {
+          width: 100%; padding: 10px 12px; border: 1px solid var(--line-strong);
+          border-radius: var(--r-sm); background: var(--surface-2); color: var(--ink);
+          font: inherit; font-size: 14px; resize: vertical;
+          transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
         }
-        
-        .discard-btn {
-          background: #6c757d;
-          color: white;
-          border: none;
-          padding: 0.75rem 1.5rem;
-          border-radius: 4px;
-          cursor: pointer;
-          font-weight: bold;
+        .form-group input:focus, .form-group textarea:focus {
+          outline: none; border-color: var(--blue); background: var(--surface);
+          box-shadow: 0 0 0 3px var(--blue-soft);
         }
-        
-        .discard-btn:hover {
-          background: #5a6268;
-        }
-        
-        .form-section {
-          flex: 1;
-          background: #f5f5f5;
-          padding: 1.5rem;
-          border-radius: 8px;
-        }
-        
-        .activities-list {
-          flex: 1;
-        }
-        
-        /* Rest of the styles remain the same */
-        .form-group {
-          margin-bottom: 1.5rem;
-          position: relative;
-        }
-        
-        .date-input-container {
-          position: relative;
-        }
-        
-        .date-input {
-          width: 100%;
-          padding: 0.5rem;
-          padding-right: 2.5rem;
-          cursor: pointer;
-          background: white;
-          border: 1px solid #ddd;
-          border-radius: 4px;
-        }
-        
+
+        .date-input-container { position: relative; }
+        .date-input { cursor: pointer; padding-right: 40px !important; }
         .calendar-toggle-btn {
-          position: absolute;
-          right: 0.5rem;
-          top: 50%;
-          transform: translateY(-50%);
-          background: none;
-          border: none;
-          font-size: 1.2rem;
-          cursor: pointer;
+          position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+          background: none; border: none; font-size: 16px; cursor: pointer; padding: 4px;
         }
-        
+
+        .upload-box {
+          border: 1px solid var(--line); border-radius: var(--r-sm);
+          padding: 12px; background: var(--surface-2); display: flex; flex-direction: column; gap: 10px;
+        }
+        .upload-box.compact { margin-bottom: 10px; }
+        .upload-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .upload-row input[type="file"] { font-size: 12.5px; color: var(--ink-2); }
+        .uploading { font-size: 12px; color: var(--blue); }
+        .add-more { margin-top: 2px; }
+
+        .image-preview { margin-top: 4px; }
+        .image-preview img {
+          width: 100%; max-height: 180px; object-fit: cover;
+          border-radius: var(--r-sm); border: 1px solid var(--line);
+        }
+        .image-preview.small img { max-height: 110px; }
+
+        .switch-row {
+          display: flex; align-items: center; gap: 10px; font-size: 14px;
+          color: var(--ink); margin: 4px 0 20px; cursor: pointer;
+        }
+        .switch-row input { width: 17px; height: 17px; accent-color: var(--blue); }
+        .form-actions { display: flex; gap: 10px; }
+
         .date-picker-popup {
-          position: absolute;
-          top: 100%;
-          left: 0;
-          right: 0;
-          background: white;
-          border: 1px solid #ddd;
-          border-radius: 8px;
-          box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-          z-index: 1000;
-          margin-top: 0.5rem;
-          padding: 1rem;
+          position: absolute; top: calc(100% + 8px); left: 0; right: 0; z-index: 40;
+          background: var(--surface); border: 1px solid var(--line);
+          border-radius: var(--r-md); box-shadow: var(--shadow-pop); padding: 14px;
         }
-        
-        .date-picker-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 1rem;
+        .date-picker-header { display: flex; align-items: center; gap: 6px; margin-bottom: 12px; }
+        .date-picker-header h4 { flex: 1; margin: 0; font-size: 14px; text-align: center; }
+        .nav-btn, .close-picker-btn {
+          background: var(--surface-2); border: 1px solid var(--line);
+          width: 30px; height: 30px; border-radius: 8px; cursor: pointer;
+          font-size: 16px; color: var(--ink-2); display: grid; place-items: center;
         }
-        
-        .nav-btn {
-          background: none;
-          border: none;
-          font-size: 1.5rem;
-          cursor: pointer;
-          padding: 0.25rem 0.5rem;
-        }
-        
-        .nav-btn:hover {
-          background: #f0f0f0;
-          border-radius: 4px;
-        }
-        
-        .close-picker-btn {
-          background: none;
-          border: none;
-          font-size: 1.2rem;
-          cursor: pointer;
-          padding: 0.25rem;
-        }
-        
-        .calendar-weekdays {
-          display: grid;
-          grid-template-columns: repeat(7, 1fr);
-          gap: 2px;
-          margin-bottom: 0.5rem;
-        }
-        
-        .weekday {
-          text-align: center;
-          font-weight: bold;
-          font-size: 0.8rem;
-          color: #666;
-          padding: 0.5rem;
-        }
-        
-        .calendar-grid {
-          display: grid;
-          grid-template-columns: repeat(7, 1fr);
-          gap: 2px;
-        }
-        
+        .nav-btn:hover, .close-picker-btn:hover { background: var(--blue-soft); color: var(--blue); }
+        .calendar-weekdays, .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+        .weekday { text-align: center; font-size: 11px; font-weight: 600; color: var(--ink-3); padding: 6px 0; }
         .calendar-day {
-          border: none;
-          background: none;
-          padding: 0.75rem;
-          cursor: pointer;
-          border-radius: 4px;
-          font-size: 0.9rem;
+          border: none; background: none; aspect-ratio: 1; border-radius: 8px;
+          cursor: pointer; font-size: 13px; color: var(--ink); transition: background .12s ease, color .12s ease;
         }
-        
-        .calendar-day:hover:not(:disabled) {
-          background: #007bff;
-          color: white;
+        .calendar-day:hover:not(:disabled) { background: var(--blue-soft); }
+        .calendar-day.today { color: var(--blue); font-weight: 700; }
+        .calendar-day.selected { background: var(--blue); color: #fff; font-weight: 600; }
+        .calendar-day.other-month { color: var(--line-strong); cursor: default; }
+
+        .list-col { display: flex; flex-direction: column; gap: 22px; }
+        .list-header { display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px; }
+        .list-header h2 { margin: 0; font-size: 16px; letter-spacing: -.01em; }
+        .count { font-size: 12px; font-weight: 600; color: var(--blue); background: var(--blue-soft); padding: 2px 9px; border-radius: var(--r-pill); }
+        .count.muted { color: var(--ink-2); background: var(--surface-2); border: 1px solid var(--line); }
+        .empty {
+          color: var(--ink-3); font-size: 13.5px; padding: 22px;
+          background: var(--surface-2); border: 1px dashed var(--line-strong); border-radius: var(--r-md);
         }
-        
-        .calendar-day.today {
-          background: #e7f3ff;
-          font-weight: bold;
-        }
-        
-        .calendar-day.selected {
-          background: #28a745;
-          color: white;
-        }
-        
-        .calendar-day.other-month {
-          color: #ccc;
-          cursor: not-allowed;
-        }
-        
-        .calendar-day:disabled {
-          cursor: not-allowed;
-          opacity: 0.5;
-        }
-        
-        .image-upload-section {
-          border: 1px solid #ddd;
-          padding: 1rem;
-          border-radius: 4px;
-          background: white;
-        }
-        
-        .image-upload-options {
-          display: flex;
-          gap: 1rem;
-          margin-bottom: 1rem;
-        }
-        
-        .url-option, .upload-option {
-          flex: 1;
-        }
-        
-        .image-preview {
-          margin-top: 1rem;
-          text-align: center;
-        }
-        
-        .preview-image {
-          max-width: 100%;
-          max-height: 150px;
-          border-radius: 4px;
-        }
-        
-        .activity-image {
-          width: 200px;
-          height: 150px;
-          object-fit: cover;
-          border-radius: 4px;
-        }
-        
+
         .activity-item {
-          border: 1px solid #ddd;
-          padding: 1rem;
-          margin-bottom: 1rem;
-          border-radius: 4px;
-          background: white;
+          display: grid; grid-template-columns: 92px 1fr auto; gap: 16px; align-items: start;
+          background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md);
+          padding: 14px; margin-bottom: 12px; box-shadow: var(--shadow-1);
+          transition: box-shadow .15s ease, transform .15s ease;
         }
-        
-        .activity-preview {
-          display: flex;
-          gap: 1rem;
-          align-items: flex-start;
+        .activity-item:hover { box-shadow: var(--shadow-2); transform: translateY(-1px); }
+        .activity-item.is-hidden { background: var(--surface-2); }
+        .activity-item.is-hidden .activity-info { opacity: .68; }
+
+        .activity-thumb { position: relative; width: 92px; height: 92px; border-radius: var(--r-sm); overflow: hidden; background: var(--surface-2); border: 1px solid var(--line); }
+        .activity-thumb img { width: 100%; height: 100%; object-fit: cover; }
+        .thumb-tag {
+          position: absolute; top: 5px; left: 5px; font-size: 10px; font-weight: 600;
+          background: rgba(0,0,0,.6); color: #fff; padding: 2px 7px; border-radius: var(--r-pill);
         }
-        
-        .activity-actions {
-          display: flex;
-          gap: 0.5rem;
-          margin-top: 1rem;
+
+        .activity-info { min-width: 0; }
+        .activity-head { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
+        .activity-head h3 { margin: 0; font-size: 15px; letter-spacing: -.01em; }
+        .preview { margin: 0 0 9px; font-size: 13px; color: var(--ink-2); line-height: 1.45; }
+        .meta { display: flex; flex-wrap: wrap; gap: 8px 14px; font-size: 12px; color: var(--ink-3); }
+
+        .status { font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: var(--r-pill); }
+        .status.visible { color: var(--green-ink); background: var(--green-soft); }
+        .status.hidden { color: var(--ink-2); background: var(--surface-2); border: 1px solid var(--line); }
+
+        .activity-actions { display: flex; flex-direction: column; gap: 7px; }
+        .activity-actions .btn { width: 100%; }
+
+        @media (max-width: 1040px) {
+          .grid { grid-template-columns: 1fr; }
+          .form-section { position: static; }
         }
-        
-        .edit-btn { background: #007bff; color: white; }
-        .delete-btn { background: #dc3545; color: white; }
-        .visibility-btn { background: #28a745; color: white; }
-        .hide-btn { background: #ffc107; color: black; }
-        .show-btn { background: #28a745; color: white; }
-        
-        .form-actions {
-          display: flex;
-          gap: 1rem;
-          margin-top: 1.5rem;
-        }
-        
-        .save-btn { background: #28a745; color: white; }
-        .add-btn { background: #007bff; color: white; }
-        .cancel-btn { background: #6c757d; color: white; }
-        
-        .remove-btn {
-          background: #dc3545;
-          color: white;
-          border: none;
-          padding: 0.25rem 0.5rem;
-          border-radius: 4px;
-          cursor: pointer;
-        }
-        
-        .status {
-          padding: 0.25rem 0.5rem;
-          border-radius: 4px;
-          margin-left: 0.5rem;
-        }
-        
-        .status.visible { background: #d4edda; color: #155724; }
-        .status.hidden { background: #f8d7da; color: #721c24; }
-        
-        .checkbox-label {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
+        @media (max-width: 560px) {
+          .activity-item { grid-template-columns: 72px 1fr; }
+          .activity-actions { grid-column: 1 / -1; flex-direction: row; }
+          .publish-bar { padding: 12px 16px; }
         }
       `}</style>
     </div>
