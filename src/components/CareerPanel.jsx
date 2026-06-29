@@ -180,20 +180,39 @@ const CareerPanel = () => {
     setHasUnsavedChanges(true)
   }
 
+  // Newest date first; entries without a date (the "CV bazası" entry) stay pinned
+  // on top. The website sorts by id ascending, so we renumber to match the date
+  // order — that's what makes a freshly added job show up first instead of last.
+  const dateRank = (c) => {
+    const p = parseAzDate(c.date)
+    return p ? p.year * 10000 + (p.monthIndex + 1) * 100 + p.day : Infinity // pinned
+  }
+  const orderByDate = (list) => {
+    const pinned = list.filter((c) => dateRank(c) === Infinity)
+    const dated = list
+      .filter((c) => dateRank(c) !== Infinity)
+      .sort((a, b) => dateRank(b) - dateRank(a)) // newest first
+    return [...pinned, ...dated]
+  }
+
   const publishChanges = async () => {
     setLoading(true)
     try {
-      const visible = careers.filter((c) => c.isVisible)
-      const hidden = careers.filter((c) => !c.isVisible)
+      // Order everything newest-first, then renumber so id order == date order.
+      const ordered = orderByDate(careers).map((c, i) => ({ ...c, id: i }))
+      setCareers(ordered)
 
-      // 1) career.json = visible jobs only
+      const visible = ordered.filter((c) => c.isVisible)
+      const hidden = ordered.filter((c) => !c.isVisible)
+
+      // 1) career.json = visible jobs only (newest first by id)
       await saveDataFile('save-career-json', visible.map(toJSON))
       // 2) backup.json = hidden jobs (the archive)
       await saveDataFile('save-backup-json', hidden.map(toJSON))
 
       // 3) keep every description file in sync (visible + hidden)
       const failed = []
-      for (const career of careers) {
+      for (const career of ordered) {
         if (career.descriptionFile && career.descriptionContent) {
           const fileName = career.descriptionFile.replace('../docs/', '')
           const ok = await saveDescriptionToFile(career.descriptionContent, fileName)
@@ -403,8 +422,10 @@ const CareerPanel = () => {
     )
   }
 
-  const visibleCareers = careers.filter((c) => c.isVisible)
-  const hiddenCareers = careers.filter((c) => !c.isVisible)
+  // Display newest-first too, so the admin list matches the order the site will
+  // show after publish (pinned CV entry first, then by date descending).
+  const visibleCareers = orderByDate(careers.filter((c) => c.isVisible))
+  const hiddenCareers = orderByDate(careers.filter((c) => !c.isVisible))
 
   // NOTE: card markup is inlined into the .map() calls below on purpose.
   // styled-jsx only scopes CSS to elements in this component's own return tree,
