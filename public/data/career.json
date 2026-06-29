@@ -38,8 +38,8 @@
   {
     "id": 9,
     "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
-    "date": "17 Mart, 2026",
-    "expireDate": "18 Aprel, 2026",
+    "date": "29 İyun, 2026",
+    "expireDate": "29 İyul, 2026",
     "location": "Bakı, Azərbaycan",
     "type": "Tam iş günü",
     "typeImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/suitcase.svg",
@@ -64,20 +64,6 @@
     "link": ""
   },
   {
-    "id": 13,
-    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
-    "date": "30 Yanvar, 2026",
-    "expireDate": "2 Mart, 2026",
-    "location": "Bakı, Azərbaycan",
-    "type": "Tam iş günü",
-    "typeImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/suitcase.svg",
-    "view": 0,
-    "title": "Satış mütəxəssisi",
-    "description": "../docs/satismutexessisi.txt",
-    "isVisible": true,
-    "link": ""
-  },
-  {
     "id": 14,
     "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
     "date": "29 İyun, 2026",
@@ -88,20 +74,6 @@
     "view": 0,
     "title": "Kiçik daxili auditor",
     "description": "../docs/kicikdaxiliauditor.txt",
-    "isVisible": true,
-    "link": ""
-  },
-  {
-    "id": 15,
-    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
-    "date": "20 Fevral, 2026",
-    "expireDate": "20 Mart, 2026",
-    "location": "Bakı, Azərbaycan",
-    "type": "Tam iş günü",
-    "typeImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/suitcase.svg",
-    "view": 0,
-    "title": "Bəyannaməçi",
-    "description": "../docs/beyannameci.txt",
     "isVisible": true,
     "link": ""
   },
