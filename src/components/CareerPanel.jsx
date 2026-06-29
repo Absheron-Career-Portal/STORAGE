@@ -406,8 +406,11 @@ const CareerPanel = () => {
   const visibleCareers = careers.filter((c) => c.isVisible)
   const hiddenCareers = careers.filter((c) => !c.isVisible)
 
-  const CareerCard = ({ career }) => (
-    <div className={`career-item ${!career.isVisible ? 'is-hidden' : ''}`}>
+  // NOTE: card markup is inlined into the .map() calls below on purpose.
+  // styled-jsx only scopes CSS to elements in this component's own return tree,
+  // so rendering cards via a separate sub-component would leave them unstyled.
+  const renderCareerCard = (career) => (
+    <div key={career.id} className={`career-item ${!career.isVisible ? 'is-hidden' : ''}`}>
       <div className="career-info">
         <div className="career-head">
           <h3>{career.title}</h3>
@@ -547,7 +550,7 @@ const CareerPanel = () => {
             ) : visibleCareers.length === 0 ? (
               <p className="empty">Aktiv vəzifə yoxdur. Birincini əlavə edin.</p>
             ) : (
-              visibleCareers.map((c) => <CareerCard key={c.id} career={c} />)
+              visibleCareers.map(renderCareerCard)
             )}
           </div>
 
@@ -559,13 +562,13 @@ const CareerPanel = () => {
             {hiddenCareers.length === 0 ? (
               <p className="empty">Arxiv boşdur. Gizlədilən vəzifələr burada saxlanılır.</p>
             ) : (
-              hiddenCareers.map((c) => <CareerCard key={c.id} career={c} />)
+              hiddenCareers.map(renderCareerCard)
             )}
           </div>
         </section>
       </div>
 
-      <style jsx>{`
+      <style jsx global>{`
         .career-panel { position: relative; }
 
         .publish-bar {

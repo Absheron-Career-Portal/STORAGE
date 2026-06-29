@@ -297,8 +297,8 @@ const ActivityPanel = () => {
   const visibleActivities = activities.filter((a) => a.isVisible)
   const hiddenActivities = activities.filter((a) => !a.isVisible)
 
-  const ActivityCard = ({ activity }) => (
-    <div className={`activity-item ${!activity.isVisible ? 'is-hidden' : ''}`}>
+  const renderActivityCard = (activity) => (
+    <div key={activity.id} className={`activity-item ${!activity.isVisible ? 'is-hidden' : ''}`}>
       <div className="activity-thumb">
         <img src={fixImageUrl(activity.image)} alt={activity.title} loading="lazy" />
         {!activity.isVisible && <span className="thumb-tag">Arxiv</span>}
@@ -460,7 +460,7 @@ const ActivityPanel = () => {
             {visibleActivities.length === 0 ? (
               <p className="empty">Aktiv fəaliyyət yoxdur. Birincini əlavə edin.</p>
             ) : (
-              visibleActivities.map((a) => <ActivityCard key={a.id} activity={a} />)
+              visibleActivities.map(renderActivityCard)
             )}
           </div>
 
@@ -472,13 +472,13 @@ const ActivityPanel = () => {
             {hiddenActivities.length === 0 ? (
               <p className="empty">Arxiv boşdur. Gizlədilən fəaliyyətlər burada görünür.</p>
             ) : (
-              hiddenActivities.map((a) => <ActivityCard key={a.id} activity={a} />)
+              hiddenActivities.map(renderActivityCard)
             )}
           </div>
         </section>
       </div>
 
-      <style jsx>{`
+      <style jsx global>{`
         .activity-panel { position: relative; }
 
         .publish-bar {
