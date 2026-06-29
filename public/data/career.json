@@ -10,34 +10,6 @@
   {
     "id": 1,
     "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
-    "date": "23 İyun, 2026",
-    "expireDate": "23 İyul, 2026",
-    "location": "Bakı, Azərbaycan",
-    "type": "Tam iş günü",
-    "typeImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/suitcase.svg",
-    "view": 0,
-    "title": "Operativ nəzarət üzrə baş mütəxəssis / Menecer",
-    "description": "../docs/operativnezaretuzrebasmutexessismenecer.txt",
-    "isVisible": true,
-    "link": ""
-  },
-  {
-    "id": 3,
-    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
-    "date": "23 İyun, 2026",
-    "expireDate": "23 İyul, 2026",
-    "location": "Bakı, Azərbaycan",
-    "type": "Tam iş günü",
-    "typeImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/suitcase.svg",
-    "view": 0,
-    "title": "Aparıcı hüquqşünas",
-    "description": "../docs/aparicihuquqsunas.txt",
-    "isVisible": true,
-    "link": ""
-  },
-  {
-    "id": 9,
-    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
     "date": "29 İyun, 2026",
     "expireDate": "29 İyul, 2026",
     "location": "Bakı, Azərbaycan",
@@ -50,21 +22,7 @@
     "link": "https://jobs.glorri.az/vacancies/absheronport/absheronport-is-tklif-uzre-mutexessis-26775?isLocal=true"
   },
   {
-    "id": 11,
-    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
-    "date": "4 May, 2026",
-    "expireDate": "4 İyun, 2026",
-    "location": "Bakı, Azərbaycan",
-    "type": "Tam iş günü",
-    "typeImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/suitcase.svg",
-    "view": 1374,
-    "title": "İnzibatiləşdirmə üzrə kiçik mütəxəssis",
-    "description": "../docs/JRAdministrativeSpecialist.txt",
-    "isVisible": true,
-    "link": ""
-  },
-  {
-    "id": 14,
+    "id": 2,
     "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
     "date": "29 İyun, 2026",
     "expireDate": "29 İyul, 2026",
@@ -78,7 +36,7 @@
     "link": ""
   },
   {
-    "id": 16,
+    "id": 3,
     "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
     "date": "29 İyun, 2026",
     "expireDate": "29 İyul, 2026",
@@ -92,21 +50,7 @@
     "link": ""
   },
   {
-    "id": 17,
-    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
-    "date": "15 May, 2026",
-    "expireDate": "15 İyun, 2026",
-    "location": "Bakı, Azərbaycan",
-    "type": "Tam iş günü",
-    "typeImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/suitcase.svg",
-    "view": 0,
-    "title": "Növbə riəisi",
-    "description": "../docs/basmuhafizeci.txt",
-    "isVisible": true,
-    "link": ""
-  },
-  {
-    "id": 18,
+    "id": 4,
     "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
     "date": "29 İyun, 2026",
     "expireDate": "29 İyul, 2026",
@@ -120,7 +64,7 @@
     "link": ""
   },
   {
-    "id": 20,
+    "id": 5,
     "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
     "date": "29 İyun, 2026",
     "expireDate": "29 İyul, 2026",
@@ -134,21 +78,21 @@
     "link": ""
   },
   {
-    "id": 21,
+    "id": 6,
     "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
-    "date": "18 May, 2026",
-    "expireDate": "18 İyun, 2026",
+    "date": "29 İyun, 2026",
+    "expireDate": "29 İyul, 2026",
     "location": "Bakı, Azərbaycan",
     "type": "Tam iş günü",
     "typeImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/suitcase.svg",
     "view": 0,
-    "title": "Yanğın təhlükəsizliyi üzrə rəhbər",
+    "title": "Yanğın təhlükəsizliyi üzrə menicer",
     "description": "../docs/yangintehlukesizliyiuzrerehber.txt",
     "isVisible": true,
     "link": ""
   },
   {
-    "id": 22,
+    "id": 7,
     "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
     "date": "29 İyun, 2026",
     "expireDate": "29 İyul, 2026",
@@ -158,6 +102,62 @@
     "view": 0,
     "title": "Sürücü (su maşını üçün)",
     "description": "../docs/surucusumasiniucun.txt",
+    "isVisible": true,
+    "link": ""
+  },
+  {
+    "id": 8,
+    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
+    "date": "23 İyun, 2026",
+    "expireDate": "23 İyul, 2026",
+    "location": "Bakı, Azərbaycan",
+    "type": "Tam iş günü",
+    "typeImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/suitcase.svg",
+    "view": 0,
+    "title": "Operativ nəzarət üzrə baş mütəxəssis",
+    "description": "../docs/operativnezaretuzrebasmutexessismenecer.txt",
+    "isVisible": true,
+    "link": ""
+  },
+  {
+    "id": 9,
+    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
+    "date": "23 İyun, 2026",
+    "expireDate": "23 İyul, 2026",
+    "location": "Bakı, Azərbaycan",
+    "type": "Tam iş günü",
+    "typeImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/suitcase.svg",
+    "view": 0,
+    "title": "Aparıcı hüquqşünas",
+    "description": "../docs/aparicihuquqsunas.txt",
+    "isVisible": true,
+    "link": ""
+  },
+  {
+    "id": 13,
+    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
+    "date": "15 İyun, 2026",
+    "expireDate": "15 İyul, 2026",
+    "location": "Bakı, Azərbaycan",
+    "type": "Tam iş günü",
+    "typeImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/suitcase.svg",
+    "view": 0,
+    "title": "Növbə riəisi",
+    "description": "../docs/basmuhafizeci.txt",
+    "isVisible": true,
+    "link": ""
+  },
+  {
+    "id": 16,
+    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
+    "date": "4 May, 2026",
+    "expireDate": "4 İyun, 2026",
+    "location": "Bakı, Azərbaycan",
+    "type": "Tam iş günü",
+    "typeImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/suitcase.svg",
+    "view": 1374,
+    "title": "İnzibatiləşdirmə üzrə kiçik mütəxəssis",
+    "description": "../docs/JRAdministrativeSpecialist.txt",
     "isVisible": true,
     "link": ""
   }
