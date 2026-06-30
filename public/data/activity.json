@@ -240,5 +240,21 @@
     ],
     "isVisible": true,
     "extendedDescription": "Abşeron Logistika Mərkəzində əməkdaşların asudə vaxtının səmərəli təşkili məqsədilə maraqlı və dinamik kartinq yarışması keçirilib. Yarışmada Mərkəzin müxtəlif şöbələrindən olan əməkdaşlar iştirak edərək həm rəqabət, həm də komanda ruhunu nümayiş etdiriblər. Tədbir zamanı iştirakçılar əyləncəli və enerjili anlar yaşayıb, qeyri-rəsmi mühitdə ünsiyyət qurmaq imkanı əldə ediblər. Bu kimi təşəbbüslər əməkdaşlar arasında komanda həmrəyliyinin güclənməsinə və pozitiv iş atmosferinin formalaşmasına töhfə verir.\n"
+  },
+  {
+    "id": 15,
+    "image": "/image/social/activity_15/0.jpg",
+    "linkImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/landscape.crop.rectangle.svg",
+    "imageTotal": "2",
+    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
+    "date": "30 İyun, 2026",
+    "title": "Daxili Excel Təlimi",
+    "description": "Avqust-sentyabr aylarında Mərkəzin bir qrup əməkdaşı üçün daxili Excel təlimi təşkil edilmişdir. Təl...",
+    "additionalImages": [
+      "/image/social/activity_15/1.jpg",
+      "/image/social/activity_15/2.jpg"
+    ],
+    "extendedDescription": "Avqust-sentyabr aylarında Mərkəzin bir qrup əməkdaşı üçün daxili Excel təlimi təşkil edilmişdir. Təlimin əsas məqsədi əməkdaşların gündəlik iş proseslərində Excel proqramından daha effektiv istifadə bacarıqlarını inkişaf etdirmək olmuşdur. Təlimdə iştirak edən əməkdaşlara peşəkar inkişaf yolunda uğurlar arzulayır, əldə etdikləri bilikləri iş fəaliyyətlərində səmərəli tətbiq etmələrini diləyirik.",
+    "isVisible": true
   }
 ]
