@@ -1,20 +1,6 @@
 [
   {
-    "id": 22,
-    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
-    "date": "23 İyun, 2026",
-    "expireDate": "23 İyul, 2026",
-    "location": "Bakı, Azərbaycan",
-    "type": "Tam iş günü",
-    "typeImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/suitcase.svg",
-    "view": 0,
-    "title": "Bəyannaməçi",
-    "description": "../docs/beyannameci.txt",
-    "isVisible": false,
-    "link": ""
-  },
-  {
-    "id": 23,
+    "id": 25,
     "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
     "date": "23 İyun, 2026",
     "expireDate": "23 İyul, 2026",
@@ -28,7 +14,7 @@
     "link": ""
   },
   {
-    "id": 24,
+    "id": 26,
     "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
     "date": "23 İyun, 2026",
     "expireDate": "23 İyul, 2026",
@@ -42,7 +28,7 @@
     "link": ""
   },
   {
-    "id": 26,
+    "id": 27,
     "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
     "date": "31 May, 2026",
     "expireDate": "31 May, 2026",
@@ -56,7 +42,7 @@
     "link": ""
   },
   {
-    "id": 27,
+    "id": 28,
     "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
     "date": "25 May, 2026",
     "expireDate": "25 May, 2026",
