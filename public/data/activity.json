@@ -290,5 +290,87 @@
     ],
     "extendedDescription": "13 oktyabr 2025-ci il tarixində Marsol Group-un təşəbbüsü ilə Marsol Academy-nin bir qrup üzvü üçün Abşeron Logistika Mərkəzinə tanışlıq səfəri təşkil edilmişdir. Səfər zamanı iştirakçılara Mərkəzin fəaliyyəti, logistika prosesləri və 3PL xidmətləri barədə məlumat verilmiş, onları maraqlandıran suallar cavablandırılmışdır. Proqram çərçivəsində uşaqlar Mərkəzin 3PL xidmətləri göstərən anbar sahəsinə ekskursiya edərək logistika əməliyyatları ilə yaxından tanış olmuşlar.",
     "isVisible": true
+  },
+  {
+    "id": 18,
+    "image": "/image/social/xarici_t_l_b_l_rin_m_rk_z__tan__l_q_s_f_ri/0.jpg",
+    "linkImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/landscape.crop.rectangle.svg",
+    "imageTotal": "3",
+    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
+    "date": "30 İyun, 2026",
+    "title": "Xarici Tələbələrin Mərkəzə Tanışlıq Səfəri",
+    "description": "UNEC və HES-SO Ali İdarəetmə Məktəbinin əməkdaşlığı çərçivəsində bir qrup xarici tələbə Abşeron Logi...",
+    "additionalImages": [
+      "/image/social/xarici_t_l_b_l_rin_m_rk_z__tan__l_q_s_f_ri/1.jpg",
+      "/image/social/xarici_t_l_b_l_rin_m_rk_z__tan__l_q_s_f_ri/2.jpg",
+      "/image/social/xarici_t_l_b_l_rin_m_rk_z__tan__l_q_s_f_ri/3.jpg"
+    ],
+    "extendedDescription": "UNEC və HES-SO Ali İdarəetmə Məktəbinin əməkdaşlığı çərçivəsində bir qrup xarici tələbə Abşeron Logistika Mərkəzində səfərdə olmuşdur. Səfər zamanı tələbələrə Mərkəzin fəaliyyəti, logistika prosesləri və 3PL xidmətləri barədə məlumat verilmiş, onları maraqlandıran suallar cavablandırılmışdır. Proqram çərçivəsində iştirakçılar Mərkəzin 3PL xidmətləri göstərən anbar sahəsinə ekskursiya edərək logistika əməliyyatları ilə yaxından tanış olmuşlar.",
+    "isVisible": true
+  },
+  {
+    "id": 19,
+    "image": "/image/social/yan__n_t_hl_k_sizliyi__zr__n_z_ri_v__praktiki_t_lim/0.jpg",
+    "linkImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/landscape.crop.rectangle.svg",
+    "imageTotal": "2",
+    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
+    "date": "30 İyun, 2026",
+    "title": "Yanğın Təhlükəsizliyi üzrə Nəzəri və Praktiki Təlim",
+    "description": "FHN Qaradağ rayonu Yanğından Mühafizə İdarəsi əməkdaşlarının dəstəyi ilə Mərkəzdə Gömrük Komitəsi və...",
+    "additionalImages": [
+      "/image/social/yan__n_t_hl_k_sizliyi__zr__n_z_ri_v__praktiki_t_lim/1.jpg",
+      "/image/social/yan__n_t_hl_k_sizliyi__zr__n_z_ri_v__praktiki_t_lim/2.jpg"
+    ],
+    "extendedDescription": "FHN Qaradağ rayonu Yanğından Mühafizə İdarəsi əməkdaşlarının dəstəyi ilə Mərkəzdə Gömrük Komitəsi və Təhlükəsizlik şöbəsi əməkdaşları üçün “Yanğın təhlükəsizliyi” mövzusunda nəzəri və praktiki təlimlər keçirilmişdir. Təlim zamanı iştirakçılara yanğın təhlükəsizliyi qaydaları, fövqəladə hallarda davranış prinsipləri və ilkin müdaxilə tədbirləri barədə məlumat verilmişdir. Bu təşəbbüs Mərkəzdə yanğın təhlükəsizliyi risklərinin azaldılmasına, əməkdaşların hazırlıq səviyyəsinin artırılmasına və təhlükəsiz iş mühitinin gücləndirilməsinə yönəlmişdir.",
+    "isVisible": true
+  },
+  {
+    "id": 20,
+    "image": "/image/social/karyera_s_rgisind__i__tirak/0.jpg",
+    "linkImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/landscape.crop.rectangle.svg",
+    "imageTotal": "2",
+    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
+    "date": "30 İyun, 2026",
+    "title": "Karyera Sərgisində İştirak",
+    "description": "05 fevral 2026-cı il tarixində Dövlət Məşğulluq Agentliyinin təşəbbüsü ilə Qaradağ rayon Heydər Əliy...",
+    "additionalImages": [
+      "/image/social/karyera_s_rgisind__i__tirak/1.jpg",
+      "/image/social/karyera_s_rgisind__i__tirak/2.jpg"
+    ],
+    "extendedDescription": "05 fevral 2026-cı il tarixində Dövlət Məşğulluq Agentliyinin təşəbbüsü ilə Qaradağ rayon Heydər Əliyev Mərkəzində növbəti Karyera sərgisi təşkil edilmişdir. Abşeron Logistika Mərkəzi də sərgidə iştirak edərək ziyarətçilərə Mərkəzin fəaliyyəti, mövcud karyera imkanları və iş mühiti barədə məlumat təqdim etmişdir. Sərgi çərçivəsində iştirakçıların sualları cavablandırılmış, potensial namizədlərlə ilkin tanışlıq və məlumat mübadiləsi aparılmışdır.",
+    "isVisible": true
+  },
+  {
+    "id": 21,
+    "image": "/image/social/bak__texniki_kolleci_t_l_b_l_rinin_m_rk_z__s_f_ri/0.jpg",
+    "linkImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/landscape.crop.rectangle.svg",
+    "imageTotal": "3",
+    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
+    "date": "30 İyun, 2026",
+    "title": "Bakı Texniki Kolleci Tələbələrinin Mərkəzə Səfəri",
+    "description": "16 aprel 2026-cı il tarixində AZTU nəzdində Bakı Texniki Kollecinin Logistika ixtisası üzrə bir qrup...",
+    "additionalImages": [
+      "/image/social/bak__texniki_kolleci_t_l_b_l_rinin_m_rk_z__s_f_ri/1.jpg",
+      "/image/social/bak__texniki_kolleci_t_l_b_l_rinin_m_rk_z__s_f_ri/2.jpg",
+      "/image/social/bak__texniki_kolleci_t_l_b_l_rinin_m_rk_z__s_f_ri/3.jpg"
+    ],
+    "extendedDescription": "16 aprel 2026-cı il tarixində AZTU nəzdində Bakı Texniki Kollecinin Logistika ixtisası üzrə bir qrup sonuncu kurs tələbəsi üçün Abşeron Logistika Mərkəzinə tanışlıq səfəri təşkil edilmişdir. Səfər zamanı tələbələrə Mərkəzin fəaliyyəti, logistika prosesləri və anbar xidmətləri barədə məlumat verilmiş, onları maraqlandıran suallar cavablandırılmışdır. Proqram çərçivəsində iştirakçılar Mərkəzin anbar xidməti göstərilən sahələrinə ekskursiya edərək real logistika əməliyyatları ilə yaxından tanış olmuşlar.",
+    "isVisible": true
+  },
+  {
+    "id": 22,
+    "image": "/image/social/ada_universiteti_karyera_s_rgisind__i__tirak/0.jpg",
+    "linkImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/landscape.crop.rectangle.svg",
+    "imageTotal": "2",
+    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
+    "date": "30 İyun, 2026",
+    "title": "ADA Universiteti Karyera Sərgisində İştirak",
+    "description": "24 aprel 2026-cı il tarixində ADA Universiteti Karyera Mərkəzinin təşəbbüsü ilə universitetdə məzunl...",
+    "additionalImages": [
+      "/image/social/ada_universiteti_karyera_s_rgisind__i__tirak/1.jpg",
+      "/image/social/ada_universiteti_karyera_s_rgisind__i__tirak/2.jpg"
+    ],
+    "extendedDescription": "24 aprel 2026-cı il tarixində ADA Universiteti Karyera Mərkəzinin təşəbbüsü ilə universitetdə məzunlar üçün ənənəvi Karyera sərgisi təşkil edilmişdir. Abşeron Logistika Mərkəzi də sərgidə iştirak edərək məzunlara Mərkəzin fəaliyyəti, iş mühiti və karyera imkanları barədə məlumat təqdim etmişdir. Sərgi çərçivəsində iştirakçıların sualları cavablandırılmış, potensial namizədlərlə ilkin tanışlıq və gələcək əməkdaşlıq imkanları üzrə məlumat mübadiləsi aparılmışdır.",
+    "isVisible": true
   }
 ]
