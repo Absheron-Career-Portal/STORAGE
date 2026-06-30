@@ -267,11 +267,28 @@
     "title": "Qarabağa Səfər",
     "description": "II Qarabağ müharibəsinin ildönümü ilə əlaqədar Mərkəzin bir qrup əməkdaşı Qarabağa səfər etmişdir. S...",
     "additionalImages": [
-      "/image/social/qaraba_a_s_f_r/1.jpg",
+      "/image/social/activity_16/1.jpg",
       "/image/social/qaraba_a_s_f_r/2.jpg",
       "/image/social/qaraba_a_s_f_r/3.jpg"
     ],
     "extendedDescription": "II Qarabağ müharibəsinin ildönümü ilə əlaqədar Mərkəzin bir qrup əməkdaşı Qarabağa səfər etmişdir. Səfər çərçivəsində əməkdaşlarımız Ağdam, Şuşa, Laçın, Xankəndi və Zəngilan istiqamətlərində bölgənin tarixi, mədəni və sosial mühiti ilə yaxından tanış olmuşlar. Eyni zamanda torpaqlarımızın azadlığı uğrunda canından keçmiş şəhidlərimizin əziz xatirəsi dərin ehtiramla yad edilmişdir.",
+    "isVisible": true
+  },
+  {
+    "id": 17,
+    "image": "/image/social/marsol_academy__zvl_rinin_m_rk_z__s_f_ri/0.jpg",
+    "linkImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/landscape.crop.rectangle.svg",
+    "imageTotal": "3",
+    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
+    "date": "30 İyun, 2026",
+    "title": "Marsol Academy Üzvlərinin Mərkəzə Səfəri",
+    "description": "13 oktyabr 2025-ci il tarixində Marsol Group-un təşəbbüsü ilə Marsol Academy-nin bir qrup üzvü üçün ...",
+    "additionalImages": [
+      "/image/social/marsol_academy__zvl_rinin_m_rk_z__s_f_ri/1.jpg",
+      "/image/social/marsol_academy__zvl_rinin_m_rk_z__s_f_ri/2.jpg",
+      "/image/social/marsol_academy__zvl_rinin_m_rk_z__s_f_ri/3.jpg"
+    ],
+    "extendedDescription": "13 oktyabr 2025-ci il tarixində Marsol Group-un təşəbbüsü ilə Marsol Academy-nin bir qrup üzvü üçün Abşeron Logistika Mərkəzinə tanışlıq səfəri təşkil edilmişdir. Səfər zamanı iştirakçılara Mərkəzin fəaliyyəti, logistika prosesləri və 3PL xidmətləri barədə məlumat verilmiş, onları maraqlandıran suallar cavablandırılmışdır. Proqram çərçivəsində uşaqlar Mərkəzin 3PL xidmətləri göstərən anbar sahəsinə ekskursiya edərək logistika əməliyyatları ilə yaxından tanış olmuşlar.",
     "isVisible": true
   }
 ]
