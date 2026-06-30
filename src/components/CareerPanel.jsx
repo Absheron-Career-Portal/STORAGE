@@ -35,6 +35,13 @@ const CareerPanel = () => {
   const [currentMonth, setCurrentMonth] = useState(new Date())
   const [expireMonth, setExpireMonth] = useState(new Date())
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+  // Files whose text content changed this session — only these get re-uploaded.
+  const [dirtyDescriptions, setDirtyDescriptions] = useState(() => new Set())
+  const markDescriptionDirty = (file) =>
+    setDirtyDescriptions((prev) => (file ? new Set(prev).add(file) : prev))
+  // Drag-to-reorder
+  const [dragId, setDragId] = useState(null)
+  const [dragOverId, setDragOverId] = useState(null)
 
   useEffect(() => {
     loadCareers()
@@ -92,8 +99,9 @@ const CareerPanel = () => {
       hiddenRaw.forEach((c) => { if (!byId.has(c.id)) byId.set(c.id, { ...c, isVisible: false }) })
 
       const merged = await Promise.all([...byId.values()].map(hydrateDescription))
-      setCareers(merged)
+      setCareers(sortById(merged))
       setHasUnsavedChanges(false)
+      setDirtyDescriptions(new Set())
     } catch (error) {
       console.error('Error loading careers:', error)
       const local = localStorage.getItem('careers')
@@ -180,52 +188,51 @@ const CareerPanel = () => {
     setHasUnsavedChanges(true)
   }
 
-  // Newest date first; entries without a date (the "CV bazası" entry) stay pinned
-  // on top. The website sorts by id ascending, so we renumber to match the date
-  // order — that's what makes a freshly added job show up first instead of last.
-  const dateRank = (c) => {
-    const p = parseAzDate(c.date)
-    return p ? p.year * 10000 + (p.monthIndex + 1) * 100 + p.day : Infinity // pinned
-  }
-  const orderByDate = (list) => {
-    const pinned = list.filter((c) => dateRank(c) === Infinity)
-    const dated = list
-      .filter((c) => dateRank(c) !== Infinity)
-      .sort((a, b) => dateRank(b) - dateRank(a)) // newest first
-    return [...pinned, ...dated]
-  }
+  // Manual order. The list is shown in the exact array order you set by dragging.
+  // Date is NOT used for ordering. The website sorts by id ascending, so on
+  // publish we renumber ids to match the manual array order (id order == your
+  // drag order). "Default" order (load / reset button) is simply id ascending.
+  const sortById = (list) => [...list].sort((a, b) => (a.id ?? 0) - (b.id ?? 0))
 
   const publishChanges = async () => {
     setLoading(true)
     try {
-      // Order everything newest-first, then renumber so id order == date order.
-      const ordered = orderByDate(careers).map((c, i) => ({ ...c, id: i }))
+      // Renumber ids across the FULL array (so ids stay globally unique between
+      // career.json and backup.json) in your current manual order.
+      const ordered = careers.map((c, i) => ({ ...c, id: i }))
       setCareers(ordered)
 
       const visible = ordered.filter((c) => c.isVisible)
       const hidden = ordered.filter((c) => !c.isVisible)
 
-      // 1) career.json = visible jobs only (newest first by id)
-      await saveDataFile('save-career-json', visible.map(toJSON))
-      // 2) backup.json = hidden jobs (the archive)
-      await saveDataFile('save-backup-json', hidden.map(toJSON))
+      // 1) + 2) Write both JSON files in parallel — fast, always runs.
+      await Promise.all([
+        saveDataFile('save-career-json', visible.map(toJSON)),
+        saveDataFile('save-backup-json', hidden.map(toJSON)),
+      ])
 
-      // 3) keep every description file in sync (visible + hidden)
-      const failed = []
-      for (const career of ordered) {
-        if (career.descriptionFile && career.descriptionContent) {
+      // 3) Only re-upload description files that actually CHANGED this session.
+      // (Previously every job's .txt was re-uploaded one-by-one with a 1.2s
+      // delay between each — that's what made publishing take ~30s.)
+      const toUpload = ordered.filter(
+        (c) => c.descriptionFile && c.descriptionContent && dirtyDescriptions.has(c.descriptionFile)
+      )
+
+      const results = await Promise.all(
+        toUpload.map(async (career) => {
           const fileName = career.descriptionFile.replace('../docs/', '')
           const ok = await saveDescriptionToFile(career.descriptionContent, fileName)
-          if (!ok) failed.push(career.title)
-          await new Promise((r) => setTimeout(r, 1200))
-        }
-      }
+          return { title: career.title, ok }
+        })
+      )
+      const failed = results.filter((r) => !r.ok).map((r) => r.title)
 
       if (failed.length) {
         alert(`Saved, but some description files failed: ${failed.join(', ')}`)
       } else {
         alert('Published. career.json and backup.json are up to date.')
         setHasUnsavedChanges(false)
+        setDirtyDescriptions(new Set())
       }
     } catch (error) {
       console.error('Error publishing changes:', error)
@@ -258,6 +265,10 @@ const CareerPanel = () => {
   }
 
   const handleSave = () => {
+    const original = careers.find((c) => c.id === editingId)
+    if (original && (original.descriptionContent || '') !== newCareer.description) {
+      markDescriptionDirty(original.descriptionFile)
+    }
     const updated = careers.map((career) =>
       career.id === editingId
         ? {
@@ -284,6 +295,7 @@ const CareerPanel = () => {
 
     const newId = careers.length ? Math.max(...careers.map((c) => c.id)) + 1 : 1
     const filePath = `../docs/${generateFileName(newCareer.title)}`
+    markDescriptionDirty(filePath)
 
     const item = {
       id: newId,
@@ -422,16 +434,55 @@ const CareerPanel = () => {
     )
   }
 
-  // Display newest-first too, so the admin list matches the order the site will
-  // show after publish (pinned CV entry first, then by date descending).
-  const visibleCareers = orderByDate(careers.filter((c) => c.isVisible))
-  const hiddenCareers = orderByDate(careers.filter((c) => !c.isVisible))
+  // Shown in manual array order (date is ignored). Drag a card to reorder.
+  const visibleCareers = careers.filter((c) => c.isVisible)
+  const hiddenCareers = careers.filter((c) => !c.isVisible)
+
+  // Reset to default order = id ascending (ignores date).
+  const resetToDefaultOrder = () => saveCareersLocally(sortById(careers))
+
+  const handleDragStart = (e, id) => {
+    setDragId(id)
+    e.dataTransfer.effectAllowed = 'move'
+  }
+  const handleDragOver = (e, id) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+    if (id !== dragOverId) setDragOverId(id)
+  }
+  const handleDrop = (e, targetId) => {
+    e.preventDefault()
+    const sourceId = dragId
+    setDragId(null)
+    setDragOverId(null)
+    if (sourceId === null || sourceId === targetId) return
+    const arr = [...careers]
+    const from = arr.findIndex((c) => c.id === sourceId)
+    const to = arr.findIndex((c) => c.id === targetId)
+    if (from === -1 || to === -1) return
+    const [moved] = arr.splice(from, 1)
+    arr.splice(to, 0, moved)
+    saveCareersLocally(arr)
+  }
+  const handleDragEnd = () => {
+    setDragId(null)
+    setDragOverId(null)
+  }
 
   // NOTE: card markup is inlined into the .map() calls below on purpose.
   // styled-jsx only scopes CSS to elements in this component's own return tree,
   // so rendering cards via a separate sub-component would leave them unstyled.
   const renderCareerCard = (career) => (
-    <div key={career.id} className={`career-item ${!career.isVisible ? 'is-hidden' : ''}`}>
+    <div
+      key={career.id}
+      className={`career-item ${!career.isVisible ? 'is-hidden' : ''} ${dragId === career.id ? 'dragging' : ''} ${dragOverId === career.id ? 'drag-over' : ''}`}
+      draggable
+      onDragStart={(e) => handleDragStart(e, career.id)}
+      onDragOver={(e) => handleDragOver(e, career.id)}
+      onDrop={(e) => handleDrop(e, career.id)}
+      onDragEnd={handleDragEnd}
+    >
+      <div className="drag-handle" title="Sürüşdürərək sırala" aria-label="Sürüşdür">⋮⋮</div>
       <div className="career-info">
         <div className="career-head">
           <h3>{career.title}</h3>
@@ -565,7 +616,11 @@ const CareerPanel = () => {
             <div className="list-header">
               <h2>Aktiv vəzifələr</h2>
               <span className="count">{visibleCareers.length}</span>
+              <button type="button" className="order-reset" onClick={resetToDefaultOrder} title="ID üzrə (default) sırala">
+                ↕ ID üzrə sırala
+              </button>
             </div>
+            <p className="drag-hint">Kartı sürüşdürərək sıranı dəyişin (1-ci, 2-ci, 3-cü…). Tarix sıraya təsir etmir.</p>
             {loading && !careers.length ? (
               <p className="empty">Yüklənir…</p>
             ) : visibleCareers.length === 0 ? (
@@ -720,11 +775,29 @@ const CareerPanel = () => {
           background: var(--surface); border: 1px solid var(--line);
           border-radius: var(--r-md); padding: 16px 18px; margin-bottom: 12px;
           box-shadow: var(--shadow-1);
-          transition: box-shadow .15s ease, transform .15s ease;
+          transition: box-shadow .15s ease, transform .15s ease, opacity .15s ease;
         }
         .career-item:hover { box-shadow: var(--shadow-2); transform: translateY(-1px); }
         .career-item.is-hidden { background: var(--surface-2); }
         .career-item.is-hidden .career-info { opacity: .68; }
+        .career-item.dragging { opacity: .45; }
+        .career-item.drag-over { border-color: var(--blue); box-shadow: 0 0 0 2px var(--blue-soft); }
+
+        .drag-handle {
+          flex: none; align-self: center; cursor: grab; user-select: none;
+          color: var(--ink-3); font-size: 16px; line-height: 1; letter-spacing: -3px;
+          padding: 4px 2px; border-radius: 6px;
+        }
+        .drag-handle:hover { color: var(--blue); background: var(--blue-soft); }
+        .career-item.dragging .drag-handle { cursor: grabbing; }
+
+        .order-reset {
+          margin-left: auto; background: var(--surface-2); border: 1px solid var(--line);
+          color: var(--ink-2); font-size: 12px; font-weight: 500;
+          padding: 5px 11px; border-radius: var(--r-pill); cursor: pointer;
+        }
+        .order-reset:hover { background: var(--blue-soft); color: var(--blue); border-color: var(--blue-soft); }
+        .drag-hint { margin: -4px 0 12px; font-size: 12px; color: var(--ink-3); }
 
         .career-info { min-width: 0; flex: 1; }
         .career-head { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
