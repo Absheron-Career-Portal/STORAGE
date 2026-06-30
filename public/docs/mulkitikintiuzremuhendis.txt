@@ -1,13 +1,14 @@
 ÜMUMİ VƏZİFƏ ÖHDƏLİKLƏRİ:
 • Mərkəz daxilində mövcud infrastrukturun qorunması və istismar vəziyyətinin izlənilməsində iştirak etmək
-• Xidmət yönümlü struktur bölmələrdən daxil olan texniki ehtiyacları dəyərləndirmək və icra imkanlarını araşdırmaq
-• Müxtəlif növ konstruksiyaların yığılması, təmiri və quraşdırılması işlərinin təşkilində iştirak etmək
-• Təmir briqadasının gündəlik iş bölgüsünü koordinasiya etmək və işlərin gedişatını izləmək
-• Mülki tikinti işləri üzrə tələb olunan material, avadanlıq və xidmət ehtiyaclarının müəyyən edilməsində aidiyyəti şöbələrlə birgə işləmək
-• Mövcud sifariş və ehtiyaclara uyğun praktik mühəndislik həlləri təklif etmək
-• Cizgi, layihə və texniki tapşırıqlara uyğun olaraq işlərin düzgün icrasına nəzarət etmək
-• Mərkəzin infrastrukturunun funksionallığının qorunması məqsədilə profilaktik tədbirlərin görülməsinə dəstək göstərmək
-• Rəhbərlik tərəfindən mülki tikinti və infrastrukturla bağlı verilən tapşırıqları vaxtında və keyfiyyətlə icra etmək
+• Təmir və tikinti işləri ilə bağlı daxil olan sifarişlərin mahiyyətinə uyğun optimal və praktik mühəndislik həlləri təklif etmək
+• Görüləcək işlər üzrə tələb olunan material həcmini hesablamaq və ilkin ehtiyac siyahısını hazırlamaq
+• Təmir və tikinti işləri üçün tələb olunan materialların təmin edilməsi üzrə aidiyyəti struktur bölmələrlə koordinasiyalı işləmək
+• Alınmış materialların sifarişə və texniki ehtiyaca uyğunluğunun yoxlanılmasında və qəbul edilməsində iştirak etmək
+• İşçilər arasında gündəlik iş bölgüsünü aparmaq və icra prosesinin gedişatını izləmək
+• Cizgi, texniki tapşırıq və sifariş tələblərinə uyğun olaraq işlərin icrasına nəzarət etmək
+• Tamamlanmış işlərin təhvil verilməsi prosesində iştirak etmək və nəticələrin uyğunluğunu yoxlamaq
+• Təmir-tikinti işləri üzrə inventarizasiya prosesinə dəstək göstərmək
+• İcra zamanı yaranan texniki uyğunsuzluqların aradan qaldırılması üçün təkliflər hazırlamaq
 
 NAMİZƏDƏ QARŞI TƏLƏBLƏR:
 • Mülki tikinti, inşaat mühəndisliyi və ya müvafiq sahə üzrə ali təhsil
@@ -15,14 +16,14 @@ NAMİZƏDƏ QARŞI TƏLƏBLƏR:
 • Mülki tikinti və təmir proseslərinin təşkili üzrə praktiki biliklər
 • AutoCAD proqramı ilə işləmək bacarığı
 • Texniki cizgiləri oxumaq və iş prosesində tətbiq etmək bacarığı
-• Tikinti materialları, konstruksiya elementləri və sahə işləri üzrə ilkin texniki biliklər
-• Görülən işlərin gedişatını izləmək və nəticələri qiymətləndirmək bacarığı
+• Material həcmlərinin hesablanması və texniki ehtiyacların müəyyən edilməsi bacarığı
+• Təmir-tikinti işlərinin planlaşdırılması və icra gedişatının izlənilməsi üzrə təcrübə
+• Tikinti materialları, konstruksiya elementləri və sahə işləri üzrə texniki biliklər
 • MS Office proqramları ilə işləmək bacarığı
 
 PEŞƏKARLIQ BACARIQLARI:
 • Texniki düşünmə və mühəndislik yanaşması
 • Problem həlletmə və praktik qərarvermə bacarığı
-• İş bölgüsü və koordinasiya bacarığı
-• Komanda ilə işləmək və texniki heyəti yönləndirmək bacarığı
-• Operativlik və çevik reaksiya vermək bacarığı
-• Mövcud resurslardan səmərəli istifadə etmək bacarığı
+• Dəqiqlik və məsuliyyətlilik
+• Prosesləri izləmə və nəticəyə nəzarət etmə bacarığı
+• Təhlükəsizlik və keyfiyyət tələblərinə diqqətli yanaşma
