@@ -256,5 +256,22 @@
     ],
     "extendedDescription": "Avqust-sentyabr aylarında Mərkəzin bir qrup əməkdaşı üçün daxili Excel təlimi təşkil edilmişdir. Təlimin əsas məqsədi əməkdaşların gündəlik iş proseslərində Excel proqramından daha effektiv istifadə bacarıqlarını inkişaf etdirmək olmuşdur. Təlimdə iştirak edən əməkdaşlara peşəkar inkişaf yolunda uğurlar arzulayır, əldə etdikləri bilikləri iş fəaliyyətlərində səmərəli tətbiq etmələrini diləyirik.",
     "isVisible": true
+  },
+  {
+    "id": 16,
+    "image": "/image/social/qaraba_a_s_f_r/0.jpg",
+    "linkImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/landscape.crop.rectangle.svg",
+    "imageTotal": "3",
+    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
+    "date": "30 İyun, 2026",
+    "title": "Qarabağa Səfər",
+    "description": "II Qarabağ müharibəsinin ildönümü ilə əlaqədar Mərkəzin bir qrup əməkdaşı Qarabağa səfər etmişdir. S...",
+    "additionalImages": [
+      "/image/social/qaraba_a_s_f_r/1.jpg",
+      "/image/social/qaraba_a_s_f_r/2.jpg",
+      "/image/social/qaraba_a_s_f_r/3.jpg"
+    ],
+    "extendedDescription": "II Qarabağ müharibəsinin ildönümü ilə əlaqədar Mərkəzin bir qrup əməkdaşı Qarabağa səfər etmişdir. Səfər çərçivəsində əməkdaşlarımız Ağdam, Şuşa, Laçın, Xankəndi və Zəngilan istiqamətlərində bölgənin tarixi, mədəni və sosial mühiti ilə yaxından tanış olmuşlar. Eyni zamanda torpaqlarımızın azadlığı uğrunda canından keçmiş şəhidlərimizin əziz xatirəsi dərin ehtiramla yad edilmişdir.",
+    "isVisible": true
   }
 ]
