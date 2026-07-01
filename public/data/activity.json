@@ -435,5 +435,35 @@
     ],
     "extendedDescription": "13 may 2026-cı il tarixində əməkdaşlıq etdiyimiz UNEC (Azərbaycan Dövlət İqtisad Universitetinin) Karyera Mərkəzinin təşəbbüsü ilə universitetdə məzunlar üçün ənənəvi Karyera sərgisi təşkil edilmişdir. Abşeron Logistika Mərkəzi də sərgidə iştirak edərək məzunlara Mərkəzin fəaliyyəti, iş mühiti və karyera imkanları barədə məlumat təqdim etmişdir. Sərgi çərçivəsində iştirakçıların sualları cavablandırılmış, potensial namizədlərlə ilkin tanışlıq və gələcək əməkdaşlıq imkanları üzrə məlumat mübadiləsi aparılmışdır.",
     "isVisible": true
+  },
+  {
+    "id": 27,
+    "image": "/image/social/adnsu_karyera_s_rgisind__i__tirak/0.jpg",
+    "linkImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/landscape.crop.rectangle.svg",
+    "imageTotal": "1",
+    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
+    "date": "1 İyul, 2026",
+    "title": "ADNSU Karyera Sərgisində İştirak",
+    "description": "14 aprel 2026-cı il tarixində ADNSU Karyera Mərkəzinin təşəbbüsü ilə universitetdə məzunlar üçün ənə...",
+    "additionalImages": [
+      "/image/social/adnsu_karyera_s_rgisind__i__tirak/1.jpg"
+    ],
+    "extendedDescription": "14 aprel 2026-cı il tarixində ADNSU Karyera Mərkəzinin təşəbbüsü ilə universitetdə məzunlar üçün ənənəvi Karyera sərgisi təşkil edilmişdir. Abşeron Logistika Mərkəzi də sərgidə iştirak edərək məzunlara Mərkəzin fəaliyyəti, iş mühiti və karyera imkanları barədə məlumat təqdim etmişdir. Sərgi çərçivəsində iştirakçıların sualları cavablandırılmış, potensial namizədlərlə ilkin tanışlıq və gələcək əməkdaşlıq imkanları üzrə məlumat mübadiləsi aparılmışdır.",
+    "isVisible": true
+  },
+  {
+    "id": 28,
+    "image": "/image/social/bak__biznes_universiteti_karyera_s_rgisind__i__tirak/0.jpg",
+    "linkImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/landscape.crop.rectangle.svg",
+    "imageTotal": "1",
+    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
+    "date": "1 İyul, 2026",
+    "title": "Bakı Biznes Universiteti Karyera Sərgisində İştirak",
+    "description": "26 may 2026-cı il tarixində əməkdaşlıq etdiyimiz Bakı Biznes Universitetinin Karyera Mərkəzinin təşə...",
+    "additionalImages": [
+      "/image/social/bak__biznes_universiteti_karyera_s_rgisind__i__tirak/1.jpg"
+    ],
+    "extendedDescription": "26 may 2026-cı il tarixində əməkdaşlıq etdiyimiz Bakı Biznes Universitetinin Karyera Mərkəzinin təşəbbüsü ilə universitetdə məzunlar üçün ənənəvi Karyera sərgisi təşkil edilmişdir. Abşeron Logistika Mərkəzi də sərgidə iştirak edərək məzunlara Mərkəzin fəaliyyəti, iş mühiti və karyera imkanları barədə məlumat təqdim etmişdir. Sərgi çərçivəsində iştirakçıların sualları cavablandırılmış, potensial namizədlərlə ilkin tanışlıq və gələcək əməkdaşlıq imkanları üzrə məlumat mübadiləsi aparılmışdır.",
+    "isVisible": true
   }
 ]
