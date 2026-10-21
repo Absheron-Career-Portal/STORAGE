@@ -3,6 +3,7 @@
     "id": 0,
     "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
     "typeImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/suitcase.svg",
+    "view": 0,
     "title": "Abşeron Logistika Mərkəzi Ümumi CV bazasına müraciət",
     "description": "../docs/ResumeDatabase.txt",
     "isVisible": true
@@ -354,20 +355,6 @@
     "view": 0,
     "title": "Xadimə",
     "description": "../docs/xadime.txt",
-    "isVisible": true,
-    "link": ""
-  },
-  {
-    "id": 26,
-    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
-    "date": "29 İyun, 2026",
-    "expireDate": "29 İyul, 2026",
-    "location": "Bakı, Azərbaycan",
-    "type": "Tam iş günü",
-    "typeImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/suitcase.svg",
-    "view": 0,
-    "title": "Fəhlə",
-    "description": "../docs/fehle.txt",
     "isVisible": true,
     "link": ""
   }
