@@ -465,5 +465,22 @@
     ],
     "isVisible": true,
     "extendedDescription": "Abşeron Logistika Mərkəzində Azərbaycan Texniki Universitetinin Təlim-Tədris Mərkəzinin yaradılması iki qurum arasında elmi və tədris əməkdaşlığının yeni mərhələsini açır. Fevralın 8-də baş tutan görüşdə tərəflər kadr hazırlığı, elmi-texniki tədqiqatların təşkili və praktiki tədrisin inteqrasiyası məsələlərini müzakirə ediblər. Görüşün nəticəsi olaraq, əməkdaşlığın koordinasiyası məqsədilə birgə işçi qrupu formalaşdırılıb. Hər iki tərəf tələbələrin nəzəri biliklərini real istehsalat mühiti ilə birləşdirən seminar və təcrübə proqramlarının həyata keçirilməsində maraqlı olduqlarını ifadə ediblər.\n"
+  },
+  {
+    "id": 28,
+    "linkImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/landscape.crop.rectangle.svg",
+    "dateImage": "https://raw.githubusercontent.com/Absheron-Career-Portal/WEBSITE/b2d2fafaefad0db14296c97b360e559713dbc984/frontend/src/assets/svg/calendar.svg",
+    "title": "Brain Storm 2026",
+    "date": "18 Noyabr, 2026",
+    "image": "/image/social/activity_28/0.jpg",
+    "additionalImages": [
+      "/image/social/activity_28/1.jpg",
+      "/image/social/activity_28/4.jpg",
+      "/image/social/activity_28/5.jpg"
+    ],
+    "imageTotal": "3",
+    "extendedDescription": "17 avqust tarixində Abşeron Logistika Mərkəzinin 8 illiyi münasibətilə ənənəvi “Brain Storm 2026” intellektual yarışması keçirlmişdir. Həyəcanlı və maraqlı keçən yarışda Maliyyə, Xüsusi Təyinatlılar və MB Broker komandaları ilk üç yeri qazanmışdır. Qaliblər kubok, sertifikat və dəyərli hədiyyələrlə mükafatlandırılıb. Bütün iştirakçıları təbrik edir, gələcək fəaliyyətlərində bol-bol uğurlar arzulayırıq!",
+    "description": "17 avqust tarixində Abşeron Logistika Mərkəzinin 8 illiyi münasibətilə ənənəvi “Brain Storm 2026” in...",
+    "isVisible": true
   }
 ]
